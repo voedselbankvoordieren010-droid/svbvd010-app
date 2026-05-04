@@ -23,9 +23,29 @@ export async function loadProfile(supabase, state) {
     }
 
     if (!data) {
-      console.error("Geen profiel gevonden");
-      return false;
-    }
+  console.log("Nieuw profiel aanmaken...");
+
+  const { data: newUser, error: insertError } = await supabase
+    .from("users")
+    .insert({
+      auth_id: state.session.user.id,
+      email: state.session.user.email,
+      naam: state.session.user.email,
+      rol: "user",
+      approved: true
+    })
+    .select()
+    .single();
+
+  if (insertError) {
+    console.error("Insert error:", insertError);
+    return false;
+  }
+
+  state.profile = newUser;
+} else {
+  state.profile = data;
+}
 
     if (!data.approved) {
       alert("Nog niet goedgekeurd");
