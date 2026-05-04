@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SVBVD010 PRO</title>
+
+<style>
+body {
+  margin:0;
+  font-family:Arial;
+  background:#f4f4f4;
+  padding-bottom:70px;
+}
+
+.topbar {
+  background:#222;
+  color:#fff;
+  padding:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+.topbar {
+  position:relative;
+  z-index:1000;
+}
+.nav {
+  position:fixed;
+  bottom:0;
+  width:100%;
+  height:60px;              /* 👈 BELANGRIJK */
+  display:flex;
+  justify-content:space-around;
+  align-items:center;       /* 👈 netjes centreren */
+  background:#fff;
+  border-top:1px solid #ddd;
+  z-index:10;               /* 👈 lager dan topbar */
+}
+
+.tab-button {
+  flex:1;
+  background:none;
+  color:#333;
+}
+
+.tab-button.is-active {
+  color:#ff6600;
+  font-weight:bold;
+}
+.avatar {
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:#ddd;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+}
+.card {
+  background:#fff;
+  margin:10px;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+.card b {
+  font-size:26px;
+  display:block;
+  margin-bottom:5px;
+}
+.hidden { display:none; }
+
+.chat-bubble {
+  max-width:70%;
+  padding:8px;
+  margin:5px;
+  border-radius:10px;
+}
+
+.chat-me {
+  background:#ff6600;
+  color:#fff;
+  margin-left:auto;
+}
+#chatList {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.chat-bubble {
+  max-width: 70%;
+  padding: 10px;
+  margin: 6px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.chat-me {
+  background: #ff6600;
+  color: #fff;
+  margin-left: auto;
+}
+
+.chat-other {
+  background: #eee;
+}
+.chat-other {
+  background:#eee;
+}
+/* ===== WHATSAPP LAYOUT ===== */
+
+.chat-layout {
+  display:flex;
+  height:500px;
+}
+
+.chat-sidebar {
+  width:30%;
+  background:#fff;
+  border-right:1px solid #ddd;
+  overflow-y:auto;
+}
+
+.chat-main {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+.chat-header {
+  padding:10px;
+  background:#f0f0f0;
+  font-weight:bold;
+}
+
+.chat-messages {
+  flex:1;
+  overflow-y:auto;
+  background:#e5ddd5;
+  padding:10px;
+}
+
+.chat-item {
+  display:flex;
+  gap:10px;
+  padding:10px;
+  cursor:pointer;
+}
+
+.chat-item:hover {
+  background:#f5f5f5;
+}
+
+.avatar {
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  background:#ccc;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+}
+
+.chat-input {
+  display:flex;
+  border-top:1px solid #ddd;
+}
+
+.chat-input input {
+  flex:1;
+  padding:10px;
+  border:none;
+}
+
+.chat-input button {
+  width:60px;
+  background:#25d366;
+  color:#fff;
+  border:none;
+}	
+#notifications {
+  position: fixed;          /* 🔥 FIX */
+  top: 60px;
+  right: 10px;
+  width: 300px;
+
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+
+  display: none;
+  z-index: 2000;            /* boven topbar */
+
+  pointer-events: auto;
+}
+#notifBell {
+  cursor:pointer;
+}
+/* ===== UI UPGRADE ===== */
+
+.chat-item {
+  display:flex;
+  gap:10px;
+  padding:12px;
+  cursor:pointer;
+  border-bottom:1px solid #eee;
+  align-items:center;
+}
+
+.chat-item:hover {
+  background:#f5f5f5;
+}
+
+.avatar img {
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+.chat-header {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-weight:bold;
+}
+
+.chat-messages {
+  background:#e5ddd5;
+}
+
+.chat-input input {
+  font-size:14px;
+}
+
+.chat-input button {
+  font-size:16px;
+  cursor:pointer;
+}	
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <div>
+    <b>SVBVD010 PRO</b><br>
+    <span id="userMeta">laden...</span>
+  </div>
+
+  <div style="display:flex; align-items:center; gap:12px;">
+    <div id="notifBell" style="position:relative;">
+      🔔
+      <span id="notifCount" style="
+        position:absolute;
+        top:-6px;
+        right:-10px;
+        background:red;
+        color:#fff;
+        border-radius:50%;
+        font-size:12px;
+        padding:2px 6px;
+        display:none;
+      ">0</span>
+    </div>
+
+    <button id="logoutBtn">Uitloggen</button>
+  </div>
+</div>
+
+<div id="notifications" class="card"></div>
+
+<div class="nav">
+  <button class="tab-button is-active" data-tab="dashboard">Dashboard</button>
+  <button class="tab-button" data-tab="chat">Chat</button>
+  <button class="tab-button" data-tab="admin">Admin</button>
+</div>
+
+<section id="dashboard" class="card tab-panel">
+  <h3>Dashboard</h3>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;">
+    <div class="card"><b id="statUsers">0</b><br>Gebruikers</div>
+    <div class="card"><b id="statPending">0</b><br>Wacht</div>
+    <div class="card"><b id="statNotifs">0</b><br>Notificaties</div>
+  </div>
+</section>
+
+<section id="chat" class="card tab-panel hidden">
+
+  <div class="chat-layout">
+
+    <!-- LINKS -->
+    <div class="chat-sidebar">
+      <div class="chat-header">Chats</div>
+      <div id="chatConversations"></div>
+    </div>
+
+    <!-- RECHTS -->
+    <div class="chat-main">
+
+      <div id="chatHeader" class="chat-header">
+        Selecteer gesprek
+      </div>
+
+      <div id="chatList" class="chat-messages"></div>
+
+      <div class="chat-input">
+        <input id="chatInput" placeholder="Typ een bericht..." />
+        <button id="sendChatBtn">➤</button>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<section id="admin" class="card tab-panel hidden">
+  <h3>Gebruikers</h3>
+  <div id="userList"></div>
+</section>
+
+<script type="module" src="./js/main.js"></script>
+
+</body>
+</html>
