@@ -5,7 +5,37 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5Ym9icW9sa252b3ZpZ2lja3B5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjQ5NDEsImV4cCI6MjA5MDU0MDk0MX0.UvZjGttYTUAZnr49m3AUeBoM1nfUHWykEhSnsh8iVa8"
 );
 
-async function loadUsers() {
+async function checkAdmin() {
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    window.location.href = "/";
+    return;
+  }
+
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (error || profile.role !== "admin") {
+    window.location.href = "/";
+    return;
+  }
+
+  checkAdmin();
+}
+import { createClient } from "https://esm.sh/@supabase/supabase-js";
+
+const supabase = createClient(
+  "https://qybobqolknvovigickpy.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5Ym9icW9sa252b3ZpZ2lja3B5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjQ5NDEsImV4cCI6MjA5MDU0MDk0MX0.UvZjGttYTUAZnr49m3AUeBoM1nfUHWykEhSnsh8iVa8"
+);
+
+async function loadUsers(); {
   const { data, error } = await supabase
     .from("profiles")
     .select("*");
