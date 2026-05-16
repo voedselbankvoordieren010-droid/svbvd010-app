@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
 const supabase = createClient(
   "https://qybobqolknvovigickpy.supabase.co/rest/v1/",
-  "sb_publishable_JGO1NZI5S32Nq_2X48AGiw_XxAJyjkg"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF5Ym9icW9sa252b3ZpZ2lja3B5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjQ5NDEsImV4cCI6MjA5MDU0MDk0MX0.UvZjGttYTUAZnr49m3AUeBoM1nfUHWykEhSnsh8iVa8"
 );
 
 async function loadUsers() {
