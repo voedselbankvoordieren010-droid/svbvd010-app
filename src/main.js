@@ -377,6 +377,48 @@ async function renderClients(
       profile.organization_id
     );
 
+  const searchHtml = `
+
+    <div class="card">
+
+      <input
+        type="text"
+        id="clientSearch"
+        placeholder="Zoek cliënt..."
+      >
+
+      <select id="statusFilter">
+
+        <option value="all">
+          Alle statussen
+        </option>
+
+        <option value="nieuw">
+          Nieuw
+        </option>
+
+        <option value="intake">
+          Intake
+        </option>
+
+        <option value="behandeling">
+          In behandeling
+        </option>
+
+        <option value="spoed">
+          Spoed
+        </option>
+
+        <option value="afgerond">
+          Afgerond
+        </option>
+
+      </select>
+
+    </div>
+
+  `;
+
   const html =
     clients.map(client => `
 
@@ -386,7 +428,7 @@ async function renderClients(
       >
 
         <h3>
-          ${client.full_name}
+          ${client.full_name || ""}
         </h3>
 
         <p>
@@ -397,7 +439,7 @@ async function renderClients(
           ${client.phone || ""}
         </p>
 
-        <p>
+        <p class="client-status">
           ${client.status || "nieuw"}
         </p>
 
@@ -406,7 +448,8 @@ async function renderClients(
     `).join("");
 
   document.querySelector(".cards")
-    .innerHTML = html;
+    .innerHTML =
+      searchHtml + html;
 
   document
     .querySelectorAll(".client-card")
@@ -423,6 +466,69 @@ async function renderClients(
         }
       );
     });
+
+  const searchInput =
+    document.querySelector(
+      "#clientSearch"
+    );
+
+  const statusFilter =
+    document.querySelector(
+      "#statusFilter"
+    );
+
+  function filterClients() {
+
+    const search =
+      searchInput.value
+        .toLowerCase();
+
+    const status =
+      statusFilter.value;
+
+    document
+      .querySelectorAll(
+        ".client-card"
+      )
+      .forEach(card => {
+
+        const text =
+          card.innerText
+            .toLowerCase();
+
+        const statusText =
+          card.querySelector(
+            ".client-status"
+          )
+          ?.innerText
+          .toLowerCase() || "";
+
+        const matchesSearch =
+          text.includes(search);
+
+        const matchesStatus =
+          status === "all"
+          || statusText.includes(status);
+
+        card.style.display =
+          matchesSearch
+          && matchesStatus
+            ? "block"
+            : "none";
+      });
+  }
+
+  searchInput
+    .addEventListener(
+      "input",
+      filterClients
+    );
+
+  statusFilter
+    .addEventListener(
+      "change",
+      filterClients
+    );
 }
 
 async function renderClientDetail(
