@@ -30,6 +30,9 @@ import {
   getAnimals
 } from "./js/animals";
 
+import { supabase }
+from "./js/supabase";
+
 async function startApp() {
 
   const session =
@@ -414,7 +417,9 @@ async function renderClients(
         </option>
 
       </select>
-
+      <button id="newClientBtn">
+      Nieuwe cliënt
+      </button>
     </div>
 
   `;
@@ -466,7 +471,12 @@ async function renderClients(
         }
       );
     });
-
+ document
+    .querySelector("#newClientBtn")
+    ?.addEventListener(
+      "click",
+      () => renderNewClientForm(session)
+    );
   const searchInput =
     document.querySelector(
       "#clientSearch"
@@ -707,5 +717,22 @@ async function loadClientDashboard(
 
   `;
 }
+      card.addEventListener(
+        "click",
+        () => {
 
+          renderClientDetail(
+            session,
+            card.dataset.client
+          );
+        }
+      );
+    });
+
+  document
+    .querySelector("#newClientBtn")
+    ?.addEventListener(
+      "click",
+      () => renderNewClientForm(session)
+    );
 startApp();
