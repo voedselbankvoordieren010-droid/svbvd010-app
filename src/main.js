@@ -30,8 +30,7 @@ import {
   getAnimals
 } from "./js/animals";
 
-import { supabase }
-from "./js/supabase";
+import { supabase } from "./js/supabase";
 
 async function startApp() {
 
