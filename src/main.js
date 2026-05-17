@@ -417,9 +417,11 @@ async function renderClients(
         </option>
 
       </select>
+
       <button id="newClientBtn">
-      Nieuwe cliënt
+        Nieuwe cliënt
       </button>
+
     </div>
 
   `;
@@ -471,12 +473,14 @@ async function renderClients(
         }
       );
     });
- document
+
+  document
     .querySelector("#newClientBtn")
     ?.addEventListener(
       "click",
       () => renderNewClientForm(session)
     );
+
   const searchInput =
     document.querySelector(
       "#clientSearch"
@@ -538,6 +542,128 @@ async function renderClients(
     .addEventListener(
       "change",
       filterClients
+    );
+}
+
+async function renderNewClientForm(
+  session
+) {
+
+  document.querySelector(".cards")
+    .innerHTML = `
+
+      <div class="card">
+
+        <h2>
+          Nieuwe cliënt
+        </h2>
+
+        <input
+          type="text"
+          id="newFullName"
+          placeholder="Naam"
+        >
+
+        <input
+          type="text"
+          id="newPhone"
+          placeholder="Telefoon"
+        >
+
+        <input
+          type="email"
+          id="newEmail"
+          placeholder="E-mail"
+        >
+
+        <select id="newStatus">
+
+          <option value="nieuw">
+            Nieuw
+          </option>
+
+          <option value="intake">
+            Intake
+          </option>
+
+          <option value="behandeling">
+            In behandeling
+          </option>
+
+        </select>
+
+        <button id="saveNewClientBtn">
+          Opslaan
+        </button>
+
+      </div>
+
+    `;
+
+  document
+    .querySelector("#saveNewClientBtn")
+    .addEventListener(
+      "click",
+      async () => {
+
+        const profile =
+          await getProfile(
+            session.user.id
+          );
+
+        const full_name =
+          document.querySelector(
+            "#newFullName"
+          ).value;
+
+        const phone =
+          document.querySelector(
+            "#newPhone"
+          ).value;
+
+        const email =
+          document.querySelector(
+            "#newEmail"
+          ).value;
+
+        const status =
+          document.querySelector(
+            "#newStatus"
+          ).value;
+
+        const { error } =
+          await supabase
+            .from("clients")
+            .insert([
+              {
+                full_name,
+                phone,
+                email,
+                status,
+                organization_id:
+                  profile.organization_id,
+                created_by:
+                  session.user.id
+              }
+            ]);
+
+        if (error) {
+
+          console.error(error);
+
+          alert(
+            "Fout bij opslaan"
+          );
+
+          return;
+        }
+
+        alert(
+          "Cliënt toegevoegd"
+        );
+
+        renderClients(session);
+      }
     );
 }
 
@@ -717,22 +843,5 @@ async function loadClientDashboard(
 
   `;
 }
-      card.addEventListener(
-        "click",
-        () => {
 
-          renderClientDetail(
-            session,
-            card.dataset.client
-          );
-        }
-      );
-    });
-
-  document
-    .querySelector("#newClientBtn")
-    ?.addEventListener(
-      "click",
-      () => renderNewClientForm(session)
-    );
 startApp();
