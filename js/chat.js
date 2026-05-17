@@ -321,3 +321,8 @@ function removeTyping() {
   // 🔥 gesprekken laden
   loadConversations();
 }
+  return {
+    init,
+    loadMessages
+  };
+}
