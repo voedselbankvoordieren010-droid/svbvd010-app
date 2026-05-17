@@ -26,20 +26,16 @@ console.log("📦 chat.js geladen");
 
   const { data, error } = await supabase
     .from("conversation_participants")
-    .select(`
-      conversation_id,
-      unread,
-      conversations (
-        id,
-        last_message,
-        last_message_at
-      ),
-      profiles!conversation_participants_user_auth_id_fkey (
-      id,
-      full_name,
-      email
-    )
-    `)
+.select(`
+  conversation_id,
+  unread,
+  user_auth_id,
+  conversations (
+    id,
+    last_message,
+    last_message_at
+  )
+`)
     .eq("user_auth_id", state.session.user.id)
     .order("conversation_id", { ascending: false });
 
@@ -67,10 +63,25 @@ box.innerHTML = "";
     return;
   }
 
-  data.forEach(c => {
-    const user = c.profiles;
-    const convo = c.conversations;
+ for (const c of data) {
 
+  const {
+    data: user
+  } = await supabase
+    .from("profiles")
+    .select(`
+      id,
+      full_name,
+      email
+    `)
+    .eq(
+      "id",
+      c.user_auth_id
+    )
+    .maybeSingle();
+
+  const convo =
+    c.conversations;
     const div = document.createElement("div");
     div.className = "chat-item";
 
@@ -128,7 +139,7 @@ if (header) {
     };
 
     box.appendChild(div);
-  });
+  }
 
   // 🔥 auto open eerste chat
   if (!activeConversation && data.length > 0) {
