@@ -34,12 +34,11 @@ console.log("📦 chat.js geladen");
         last_message,
         last_message_at
       ),
-      users!conversation_participants_user_auth_id_fkey (
-        id,
-        naam,
-        email,
-        avatar_url
-      )
+      profiles!conversation_participants_user_auth_id_fkey (
+      id,
+      full_name,
+      email
+    )
     `)
     .eq("user_auth_id", state.session.user.id)
     .order("conversation_id", { ascending: false });
@@ -79,12 +78,12 @@ box.innerHTML = "";
       <div class="avatar">
         ${user?.avatar_url
           ? `<img src="${user.avatar_url}" />`
-          : (user?.naam || "?")[0]}
+          : (user?.full_name || "?")[0]}
       </div>
 
       <div style="flex:1;">
         <div style="display:flex;justify-content:space-between;">
-          <b>${user?.naam || "Onbekend"}</b>
+          <b>${user?.full_name || "Onbekend"}</b>
           <small>${formatTime(convo?.last_message_at)}</small>
         </div>
 
