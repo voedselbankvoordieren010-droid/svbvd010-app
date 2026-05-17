@@ -51,3 +51,7 @@ async function checkAdmin() {
 }
 
 checkAdmin();
+if (!user) {
+  document.body.innerHTML = "<h1>Geen toegang</h1>";
+  return;
+}
