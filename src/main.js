@@ -169,7 +169,10 @@ async function renderDashboard(
     .querySelector("#dashboardBtn")
     .addEventListener(
       "click",
-      () => renderDashboard(session)
+      async () => {
+
+  await renderDashboard(session);
+}
     );
 
   document
@@ -180,11 +183,18 @@ async function renderDashboard(
     );
 
   document
-    .querySelector("#clientsBtn")
-    .addEventListener(
-      "click",
-      () => renderClients(session)
-    );
+  .querySelector("#clientsBtn")
+  .addEventListener(
+    "click",
+    async () => {
+
+      document.querySelector(
+        ".topbar h1"
+      ).innerText = "Cliënten";
+
+      await renderClients(session);
+    }
+  );
 
   document
     .querySelector("#usersBtn")
