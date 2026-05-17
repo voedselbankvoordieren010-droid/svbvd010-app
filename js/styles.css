@@ -345,3 +345,69 @@ body {
 #sendChatBtn:hover {
   opacity: 0.9;
 }
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 20px 30px;
+}
+
+.tabs {
+  display: flex;
+  gap: 12px;
+  padding: 0 30px 20px;
+}
+
+.tab-button {
+  background: #374151;
+  border: none;
+  color: white;
+
+  padding: 12px 18px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.tab-button:hover {
+  background: #ff6600;
+}
+
+.tab-button.is-active {
+  background: #ff6600;
+}
+
+#logoutBtn {
+  background: #ff6600;
+  border: none;
+
+  color: white;
+
+  padding: 12px 18px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+}
+
+.chat-input-row {
+  display: flex;
+  gap: 16px;
+
+  align-items: center;
+
+  margin-top: 20px;
+}
+
+#chatInput {
+  height: 60px;
+}
+
+#sendChatBtn {
+  width: 140px;
+  height: 60px;
+}
