@@ -7,7 +7,89 @@
     <title>svbvd010-app-new</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+
+  <div class="topbar">
+
+    <div id="userMeta">
+      Laden...
+    </div>
+
+    <button id="logoutBtn">
+      Logout
+    </button>
+
+  </div>
+
+  <div class="tabs">
+
+    <button
+      class="tab-button is-active"
+      data-tab="chat"
+    >
+      Chat
+    </button>
+
+    <button
+      class="tab-button"
+      data-tab="admin"
+    >
+      Admin
+    </button>
+
+  </div>
+
+  <!-- CHAT -->
+  <div
+    id="chat"
+    class="tab-panel"
+  >
+
+    <div id="chatHeader">
+      Chat
+    </div>
+
+    <div id="chatConversations">
+    </div>
+
+    <div id="chatList">
+    </div>
+
+    <div class="chat-input-row">
+
+      <input
+        id="chatInput"
+        type="text"
+        placeholder="Typ een bericht..."
+      >
+
+      <button id="sendChatBtn">
+        Verzenden
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- ADMIN -->
+  <div
+    id="admin"
+    class="tab-panel hidden"
+  >
+
+    <div id="users">
+    </div>
+
+  </div>
+
+  <!-- NOTIFICATIES -->
+  <div id="notifications">
+  </div>
+
+  <span id="notifCount">
+  </span>
+
+</div>
     <script type="module" src="/js/main.js"></script>
   </body>
 </html>
