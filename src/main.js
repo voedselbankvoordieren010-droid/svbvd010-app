@@ -196,17 +196,13 @@ document
       () => renderChat()
     );
 
-  document
+ document
   .querySelector("#clientsBtn")
   .addEventListener(
     "click",
     async () => {
 
       alert("clients clicked");
-
-      await renderClients(session);
-    }
-  );
 
       document.querySelector(
         ".topbar h1"
