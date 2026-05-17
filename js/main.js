@@ -89,9 +89,14 @@ async function init() {
       if (btn.dataset.tab === "admin") {
         loadUsers(supabase, state);
       }
-if (btn.dataset.tab === "clients") {
-  loadClients(supabase, state);
-}
+      if (btn.dataset.tab === "clients") {
+
+        loadClients(
+         supabase,
+         state
+    );
+
+    }
       // 💬 CHAT → alleen berichten reloaden (GEEN dubbele init!)
       if (btn.dataset.tab === "chat") {
         if (chat && chat.loadMessages) {
