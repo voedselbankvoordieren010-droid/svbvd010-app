@@ -188,6 +188,12 @@ async function renderDashboard(
     "click",
     async () => {
 
+      alert("clients clicked");
+
+      await renderClients(session);
+    }
+  );
+
       document.querySelector(
         ".topbar h1"
       ).innerText = "Cliënten";
