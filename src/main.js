@@ -115,11 +115,25 @@ async function renderDashboard(
             <button id="chatBtn">
               Chat
             </button>
+            <button
+  id="clientsBtn"
+  type="button"
+>
+  Cliënten
+</button>
+           console.log("clients button found");
 
-            <button id="clientsBtn">
-              Cliënten
-            </button>
+document
+  .querySelector("#clientsBtn")
+  .addEventListener(
+    "click",
+    async () => {
 
+      alert("clients clicked");
+
+      await renderClients(session);
+    }
+  );
           </nav>
 
         </aside>
