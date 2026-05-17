@@ -68,7 +68,7 @@ box.innerHTML = "";
   }
 
   data.forEach(c => {
-    const user = c.users;
+    const user = c.profiles;
     const convo = c.conversations;
 
     const div = document.createElement("div");
@@ -108,7 +108,13 @@ box.innerHTML = "";
       div.classList.add("active");
 
       activeConversation = c.conversation_id;
-      el.header().textContent = user?.naam || "Chat";
+     const header = el.header();
+
+if (header) {
+
+  header.textContent =
+    user?.full_name || "Chat";
+}
 
       // 🔥 reset unread
       await supabase
@@ -134,7 +140,7 @@ box.innerHTML = "";
 if (header) {
 
   header.textContent =
-    first.users?.naam || "Chat";
+    first.profiles?.full_name || "Chat";
 }
 
     subscribeRealtime();
