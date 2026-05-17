@@ -53,7 +53,15 @@ console.log("📦 chat.js geladen");
   }
 
   const box = el.conv();
-  box.innerHTML = "";
+
+if (!box) {
+  console.warn(
+    "chatConversations ontbreekt"
+  );
+  return;
+}
+
+box.innerHTML = "";
 
   if (!data || data.length === 0) {
     box.innerHTML = "<div style='padding:20px;'>Geen gesprekken</div>";
@@ -122,7 +130,13 @@ console.log("📦 chat.js geladen");
     const first = data[0];
 
     activeConversation = first.conversation_id;
-    el.header().textContent = first.users?.naam || "Chat";
+   const header = el.header();
+
+if (header) {
+
+  header.textContent =
+    first.users?.naam || "Chat";
+}
 
     subscribeRealtime();
     loadMessages();
@@ -144,8 +158,15 @@ console.log("📦 chat.js geladen");
     if (error) return console.error(error);
 
     const box = el.list();
-    box.innerHTML = "";
 
+if (!box) {
+  console.warn(
+    "chatList ontbreekt"
+  );
+  return;
+}
+
+box.innerHTML = "";
     data.forEach(m => {
 
       const isMe = m.user_auth_id === state.session.user.id;
