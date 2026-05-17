@@ -5,6 +5,7 @@ import { checkSession, loadProfile } from "./auth.js";
 import { initChat } from "./chat.js";
 import { loadNotifications } from "./notifications.js";
 import { loadUsers } from "./admin.js";
+import { loadClients } from "./clients.js";
 
 const state = {
   session: null,
@@ -88,7 +89,9 @@ async function init() {
       if (btn.dataset.tab === "admin") {
         loadUsers(supabase, state);
       }
-
+if (btn.dataset.tab === "clients") {
+  loadClients(supabase, state);
+}
       // 💬 CHAT → alleen berichten reloaden (GEEN dubbele init!)
       if (btn.dataset.tab === "chat") {
         if (chat && chat.loadMessages) {
