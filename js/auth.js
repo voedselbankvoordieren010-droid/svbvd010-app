@@ -1,69 +1,152 @@
-export async function checkSession(supabase, state) {
-  const { data } = await supabase.auth.getSession();
+export async function checkSession(
+  supabase,
+  state
+) {
 
-  if (!data.session) {
-    window.location.href = "./index.html";
+  const {
+    data,
+    error
+  } = await supabase.auth.getSession();
+
+  if (error) {
+
+    console.error(
+      "Session error:",
+      error
+    );
+
     return false;
   }
 
-  state.session = data.session;
+  if (!data.session) {
+
+    window.location.href =
+      "./index.html";
+
+    return false;
+  }
+
+  state.session =
+    data.session;
+
   return true;
 }
-export async function loadProfile(supabase, state) {
+
+export async function loadProfile(
+  supabase,
+  state
+) {
+
   try {
-    const { data, error } = await supabase
-      .from("users")
+
+    const {
+      data,
+      error
+    } = await supabase
+      .from("profiles")
       .select("*")
-      .eq("auth_id", state.session.user.id)
+      .eq(
+        "id",
+        state.session.user.id
+      )
       .maybeSingle();
 
     if (error) {
-      console.error("Profile error:", error);
+
+      console.error(
+        "Profile error:",
+        error
+      );
+
       return false;
     }
 
+    // 🔥 nieuw profiel aanmaken
     if (!data) {
-  console.log("Nieuw profiel aanmaken...");
 
-  const { data: newUser, error: insertError } = await supabase
-    .from("users")
-    .insert({
-      auth_id: state.session.user.id,
-      email: state.session.user.email,
-      naam: state.session.user.email,
-      rol: "user",
-      approved: true
-    })
-    .select()
-    .single();
+      console.log(
+        "Nieuw profiel aanmaken..."
+      );
 
-  if (insertError) {
-    console.error("Insert error:", insertError);
-    return false;
-  }
+      const {
+        data: newUser,
+        error: insertError
+      } = await supabase
+        .from("profiles")
+        .insert({
+          id:
+            state.session.user.id,
 
-  state.profile = newUser;
-} else {
-  state.profile = data;
-}
+          email:
+            state.session.user.email,
 
-    if (!data.approved) {
-      alert("Nog niet goedgekeurd");
-      window.location.href = "./index.html";
+          full_name:
+            state.session.user.email,
+
+          role: "client",
+
+          approved: true
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+
+        console.error(
+          "Insert error:",
+          insertError
+        );
+
+        return false;
+      }
+
+      state.profile =
+        newUser;
+
+    } else {
+
+      state.profile =
+        data;
+    }
+
+    // 🔐 approved check
+    if (
+      !state.profile?.approved
+    ) {
+
+      alert(
+        "Nog niet goedgekeurd"
+      );
+
+      window.location.href =
+        "./index.html";
+
       return false;
     }
 
-    state.profile = data;
+    // 👤 user info tonen
+    const el =
+      document.getElementById(
+        "userMeta"
+      );
 
-    const el = document.getElementById("userMeta");
     if (el) {
-      el.textContent = `${data.email} (${data.rol})`;
+
+      el.textContent = `
+        ${state.profile.email}
+        (${state.profile.role})
+      `;
     }
 
     return true;
 
   } catch (err) {
-    console.error("loadProfile crash:", err);
+
+    console.error(
+      "loadProfile crash:",
+      err
+    );
+
     return false;
   }
 }
