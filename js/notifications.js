@@ -13,7 +13,7 @@ export async function loadNotifications(
       "notifCount"
     );
 
-  // 🔥 voorkom crash
+  // voorkom crash
   if (!container || !badge) {
 
     console.warn(
@@ -23,18 +23,20 @@ export async function loadNotifications(
     return;
   }
 
-  const { data, error } =
-    await supabase
-      .from("notifications")
-      .select("*")
-      .eq(
-        "user_auth_id",
-        state.session.user.id
-      )
-      .order(
-        "created_at",
-        { ascending: false }
-      );
+  const {
+    data,
+    error
+  } = await supabase
+    .from("notifications")
+    .select("*")
+    .eq(
+      "user_auth_id",
+      state.session.user.id
+    )
+    .order(
+      "created_at",
+      { ascending: false }
+    );
 
   if (error) {
 
@@ -47,8 +49,11 @@ export async function loadNotifications(
 
   if (!data || !data.length) {
 
-    container.innerHTML =
-      "Geen notificaties";
+    container.innerHTML = `
+      <div class="card">
+        Geen notificaties
+      </div>
+    `;
 
     badge.style.display =
       "none";
@@ -62,7 +67,7 @@ export async function loadNotifications(
     ).length;
 
   badge.textContent =
-    unread;
+    String(unread);
 
   badge.style.display =
     unread
@@ -85,12 +90,21 @@ export async function loadNotifications(
     div.onclick =
       async () => {
 
-        await supabase
+        const {
+          error
+        } = await supabase
           .from("notifications")
           .update({
             gelezen: true
           })
           .eq("id", n.id);
+
+        if (error) {
+
+          console.error(error);
+
+          return;
+        }
 
         loadNotifications(
           supabase,
@@ -99,5 +113,7 @@ export async function loadNotifications(
       };
 
     container.appendChild(div);
+
   });
+
 }
