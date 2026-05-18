@@ -18,7 +18,10 @@ export async function checkSession(
     error
   );
 
-  if (!data?.session) {
+  if (
+    error ||
+    !data?.session
+  ) {
 
     console.log(
       "GEEN SESSION"
@@ -42,5 +45,105 @@ export async function loadProfile(
     "LOAD PROFILE START"
   );
 
-  return true;
+  try {
+
+    const {
+      data,
+      error
+    } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq(
+        "id",
+        state.session.user.id
+      )
+      .maybeSingle();
+
+    console.log(
+      "PROFILE DATA:",
+      data
+    );
+
+    console.log(
+      "PROFILE ERROR:",
+      error
+    );
+
+    if (error) {
+
+      return false;
+    }
+
+    // profiel bestaat niet
+    if (!data) {
+
+      console.log(
+        "NIEUW PROFIEL"
+      );
+
+      const {
+        data: newProfile,
+        error: insertError
+      } = await supabase
+        .from("profiles")
+        .insert({
+          id:
+            state.session.user.id,
+
+          email:
+            state.session.user.email,
+
+          full_name:
+            state.session.user.email,
+
+          role: "admin",
+
+          approved: true
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+
+        console.error(
+          insertError
+        );
+
+        return false;
+      }
+
+      state.profile =
+        newProfile;
+
+    } else {
+
+      state.profile =
+        data;
+    }
+
+    // user info tonen
+    const userMeta =
+      document.getElementById(
+        "userMeta"
+      );
+
+    if (userMeta) {
+
+      userMeta.textContent = `
+        ${state.profile.email}
+        (${state.profile.role})
+      `;
+    }
+
+    return true;
+
+  } catch (err) {
+
+    console.error(
+      "LOAD PROFILE CRASH:",
+      err
+    );
+
+    return false;
+  }
 }
