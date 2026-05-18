@@ -1,116 +1,220 @@
-export async function loadUsers(supabase, state) {
-  const list = document.getElementById("userList");
-  if (!list) return; // 🔥 voorkomt crash als element niet bestaat
+export async function loadUsers(
+  supabase,
+  state
+) {
 
-  const { data: users, error } = await supabase
-    .from("users")
-    .select("*");
+  const list =
+    document.getElementById(
+      "userList"
+    );
+
+  if (!list) return;
+
+  const {
+    data: users,
+    error
+  } = await supabase
+    .from("profiles")
+    .select("*")
+    .order(
+      "created_at",
+      { ascending: false }
+    );
 
   if (error) {
-    console.error("Users error:", error);
-    list.innerHTML = "Fout bij laden gebruikers";
+
+    console.error(
+      "Users error:",
+      error
+    );
+
+    list.innerHTML =
+      "Fout bij laden";
+
+    return;
+  }
+
+  // stats
+  const total =
+    document.getElementById(
+      "adminTotal"
+    );
+
+  if (total) {
+    total.textContent =
+      users.length;
+  }
+
+  const pending =
+    document.getElementById(
+      "adminPending"
+    );
+
+  if (pending) {
+
+    pending.textContent =
+      users.filter(
+        u => !u.approved
+      ).length;
+  }
+
+  const approved =
+    document.getElementById(
+      "adminApproved"
+    );
+
+  if (approved) {
+
+    approved.textContent =
+      users.filter(
+        u => u.approved
+      ).length;
+  }
+
+  // leeg
+  if (!users.length) {
+
+    list.innerHTML = `
+      <div class="card">
+        Geen gebruikers gevonden
+      </div>
+    `;
+
     return;
   }
 
   list.innerHTML = "";
 
-  // ✅ STATS (veilig)
-  const total = document.getElementById("adminTotal");
-  if (total) total.textContent = users.length;
+  // render
+  users.forEach(user => {
 
-  const pending = document.getElementById("adminPending");
-  if (pending) pending.textContent = users.filter(u => !u.approved).length;
+    const card =
+      document.createElement(
+        "div"
+      );
 
-  const approved = document.getElementById("adminApproved");
-  if (approved) approved.textContent = users.filter(u => u.approved).length;
+    card.className =
+      "user-card";
 
-  // ❗ geen data
-  if (!users.length) {
-    list.innerHTML = "<div class='card'>Geen gebruikers gevonden</div>";
-    return;
-  }
-
-  // ✅ USERS RENDER
-  users.forEach(u => {
-    const card = document.createElement("div");
-    card.className = "user-card";
-
-    const avatar = u.naam
-      ? u.naam.charAt(0).toUpperCase()
-      : "?";
+    const avatar =
+      user.full_name
+        ? user.full_name
+            .charAt(0)
+            .toUpperCase()
+        : "?";
 
     card.innerHTML = `
+
       <div class="user-top">
-        <div class="avatar">${avatar}</div>
-        <div>
-          <b>${u.naam || "Onbekend"}</b><br>
-          <small>${u.email || "-"}</small>
+
+        <div class="avatar">
+          ${avatar}
         </div>
+
+        <div>
+
+          <b>
+            ${user.full_name || "Onbekend"}
+          </b>
+
+          <br>
+
+          <small>
+            ${user.email || "-"}
+          </small>
+
+        </div>
+
       </div>
 
       <div>
-        <span class="badge ${u.rol === "admin" ? "admin" : "user"}">
-          ${u.rol || "user"}
+
+        <span class="
+          badge
+          ${user.role === "admin"
+            ? "admin"
+            : "user"}
+        ">
+          ${user.role || "user"}
         </span>
+
         ${
-          !u.approved
-            ? '<span class="badge pending">Wacht</span>'
+          !user.approved
+            ? `
+              <span class="
+                badge
+                pending
+              ">
+                Wacht
+              </span>
+            `
             : ""
         }
+
       </div>
 
       <div class="actions">
+
         ${
-          !u.approved
-            ? `<button class="btn approve" data-id="${u.id}">Goedkeuren</button>`
+          !user.approved
+            ? `
+              <button
+                class="btn approve"
+                data-id="${user.id}"
+              >
+                Goedkeuren
+              </button>
+            `
             : ""
         }
-        <button class="btn delete" data-id="${u.id}">Verwijder</button>
+
       </div>
+
     `;
 
     list.appendChild(card);
   });
 
-  // ✅ APPROVE (met error handling)
-  document.querySelectorAll(".approve").forEach(btn => {
-    btn.onclick = async () => {
-      const id = btn.dataset.id;
+  // approve
+  document
+    .querySelectorAll(
+      ".approve"
+    )
+    .forEach(btn => {
 
-      const { error } = await supabase
-        .from("users")
-        .update({ approved: true, rol: "hulpverlener" })
-        .eq("id", id);
+      btn.onclick =
+        async () => {
 
-      if (error) {
-        alert("Fout bij goedkeuren");
-        console.error(error);
-        return;
-      }
+          const id =
+            btn.dataset.id;
 
-      await loadUsers(supabase, state);
-    };
-  });
+          const {
+            error
+          } = await supabase
+            .from("profiles")
+            .update({
+              approved: true,
+              role: "hulpverlener"
+            })
+            .eq("id", id);
 
-  // ✅ DELETE (veiliger)
-  document.querySelectorAll(".delete").forEach(btn => {
-    btn.onclick = async () => {
-      const id = btn.dataset.id;
+          if (error) {
 
-      if (!confirm("Weet je het zeker?")) return;
+            console.error(
+              error
+            );
 
-      const { error } = await supabase
-        .from("users")
-        .delete()
-        .eq("id", id);
+            alert(
+              "Goedkeuren mislukt"
+            );
 
-      if (error) {
-        alert("Fout bij verwijderen");
-        console.error(error);
-        return;
-      }
+            return;
+          }
 
-      await loadUsers(supabase, state);
-    };
-  });
+          await loadUsers(
+            supabase,
+            state
+          );
+        };
+    });
 }
