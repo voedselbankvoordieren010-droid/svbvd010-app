@@ -1,66 +1,111 @@
-import { supabase } from "./supabase-config.js";
+import { supabase }
+  from "./supabase.js";
 
 /**
- * Require a logged-in and approved user.
- * @param {Object} options
- * @param {boolean} options.requireAdmin
+ * Require logged-in user
  */
-export async function requireAuth({ requireAdmin = false } = {}) {
-  // ⏳ wacht even voor OAuth redirect (heel belangrijk)
-  await new Promise(r => setTimeout(r, 400));
 
-  // 🔑 session ophalen
-  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+export async function requireAuth({
 
-  if (sessionError) {
-    console.error("Session error:", sessionError);
-    window.location.replace("./index.html");
-    throw new Error("Session fout");
+  requireAdmin = false
+
+} = {}) {
+
+  // kleine delay voor OAuth
+  await new Promise(
+    r => setTimeout(r, 300)
+  );
+
+  // session ophalen
+  const {
+    data,
+    error
+  } = await supabase.auth.getSession();
+
+  console.log(
+    "AUTH SESSION:",
+    data
+  );
+
+  if (
+    error ||
+    !data?.session
+  ) {
+
+    console.error(
+      "GEEN SESSION"
+    );
+
+    return null;
   }
 
-  if (!sessionData?.session) {
-    console.warn("Geen sessie gevonden");
-    window.location.replace("./index.html");
-    throw new Error("Niet ingelogd");
-  }
+  const user =
+    data.session.user;
 
-  const user = sessionData.session.user;
-  const userId = user.id;
-
-  console.log("AUTH USER:", userId);
-
-  // 👤 profiel ophalen (met juiste filter!)
-  const { data: profile, error } = await supabase
-    .from("users")
-    .select("id, email, rol, approved")
-    .eq("auth_id", userId)
+  // profiel ophalen
+  const {
+    data: profile,
+    error: profileError
+  } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq(
+      "id",
+      user.id
+    )
     .maybeSingle();
 
-  console.log("PROFILE:", profile);
+  console.log(
+    "PROFILE:",
+    profile
+  );
 
-  // ❗ geen profiel → NIET direct crashen, maar netjes afhandelen
-  if (error) {
-    console.error("Profile error:", error);
+  console.log(
+    "PROFILE ERROR:",
+    profileError
+  );
+
+  if (profileError) {
+
+    console.error(
+      profileError
+    );
+
+    return null;
   }
 
+  // profiel bestaat niet
   if (!profile) {
-    // 👉 hier NIET redirect loop veroorzaken
-    window.location.replace("./geen-toegang.html");
-    throw new Error("Geen profiel gevonden voor deze gebruiker");
+
+    console.warn(
+      "GEEN PROFIEL"
+    );
+
+    return null;
   }
 
-  // 🚫 niet goedgekeurd
+  // niet goedgekeurd
   if (!profile.approved) {
-    window.location.replace("./geen-toegang.html");
-    throw new Error("Gebruiker niet goedgekeurd");
+
+    console.warn(
+      "NIET GOEDGEKEURD"
+    );
+
+    return null;
   }
 
-  // 🔐 admin check
-  if (requireAdmin && profile.rol !== "admin") {
-    window.location.replace("./geen-toegang.html");
-    throw new Error("Geen adminrechten");
+  // admin check
+  if (
+    requireAdmin &&
+    profile.role !== "admin"
+  ) {
+
+    console.warn(
+      "GEEN ADMIN"
+    );
+
+    return null;
   }
 
-  // ✅ alles goed
   return profile;
 }
