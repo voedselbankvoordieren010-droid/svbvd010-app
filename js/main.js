@@ -1,3 +1,4 @@
+throw new Error("STOP DEBUG");
 console.log("MAIN STARTED");
 
 import { supabase } from "./supabase.js";
@@ -41,12 +42,27 @@ async function init() {
   console.log("PROFILE OK", state.profile);
 
   // 🔔 NOTIFICATIES
-  await loadNotifications(supabase, state);
+  console.log("VOOR notifications");
+
+await loadNotifications(
+  supabase,
+  state
+);
+
+console.log("NA notifications");
 
   // 💬 CHAT INIT (1x!)
-  const chat = initChat(supabase, state);
-  chat.init();
+  console.log("VOOR chat");
 
+const chat =
+  initChat(
+    supabase,
+    state
+  );
+
+chat.init();
+
+console.log("NA chat");
   // 🔔 notificatie dropdown
   const notifBell = document.getElementById("notifBell");
   const notifBox = document.getElementById("notifications");
