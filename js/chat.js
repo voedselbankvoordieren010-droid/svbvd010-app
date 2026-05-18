@@ -65,20 +65,9 @@ box.innerHTML = "";
 
  for (const c of data) {
 
-  const {
-    data: user
-  } = await supabase
-    .from("profiles")
-    .select(`
-      id,
-      full_name,
-      email
-    `)
-    .eq(
-      "id",
-      c.user_auth_id
-    )
-    .maybeSingle();
+ const user = {
+  full_name: "Gebruiker"
+};
 
   const convo =
     c.conversations;
@@ -305,16 +294,31 @@ function showTyping() {
   removeTyping();
 
   const div = document.createElement("div");
-  div.id = "typingIndicator";
-  div.className = "chat-bubble chat-other";
-  div.style.opacity = "0.7";
-  div.textContent = "… is aan het typen";
 
-  el.list().appendChild(div);
+  div.id = "typingIndicator";
+
+  div.className =
+    "chat-bubble chat-other";
+
+  div.style.opacity = "0.7";
+
+  div.textContent =
+    "… is aan het typen";
+
+  const list = el.list();
+
+  if (!list) return;
+
+  list.appendChild(div);
 }
 
 function removeTyping() {
-  const t = document.getElementById("typingIndicator");
+
+  const t =
+    document.getElementById(
+      "typingIndicator"
+    );
+
   if (t) t.remove();
 }
   // ======================
