@@ -4,25 +4,35 @@ export async function loadClients(
 ) {
 
   const panel =
-    document.getElementById("clients");
+    document.getElementById(
+      "clients"
+    );
 
   if (!panel) return;
 
-  const { data, error } =
-    await supabase
-      .from("clients")
-      .select("*")
-      .order(
-        "created_at",
-        { ascending: false }
-      );
+  const {
+    data,
+    error
+  } = await supabase
+    .from("clients")
+    .select("*")
+    .order(
+      "created_at",
+      { ascending: false }
+    );
 
   if (error) {
 
-    console.error(error);
+    console.error(
+      "Clients error:",
+      error
+    );
 
-    panel.innerHTML =
-      "Fout bij laden";
+    panel.innerHTML = `
+      <div class="card">
+        Fout bij laden
+      </div>
+    `;
 
     return;
   }
@@ -43,7 +53,7 @@ export async function loadClients(
 
     <div class="cards">
 
-      ${data.map(client => `
+      ${(data || []).map(client => `
 
         <div
           class="card client-card"
@@ -64,9 +74,9 @@ export async function loadClients(
 
           <div class="
             status-badge
-            status-${client.status}
+            status-${client.status || "nieuw"}
           ">
-            ${client.status}
+            ${client.status || "nieuw"}
           </div>
 
         </div>
@@ -77,17 +87,23 @@ export async function loadClients(
 
   `;
 
-  document
-    .getElementById(
+  const newBtn =
+    document.getElementById(
       "newClientBtn"
-    )
-    .addEventListener(
-      "click",
-      () => renderNewClientForm(
+    );
+
+  if (!newBtn) return;
+
+  newBtn.addEventListener(
+    "click",
+    () => {
+
+      renderNewClientForm(
         supabase,
         state
-      )
-    );
+      );
+    }
+  );
 }
 
 async function renderNewClientForm(
@@ -99,6 +115,8 @@ async function renderNewClientForm(
     document.getElementById(
       "clients"
     );
+
+  if (!panel) return;
 
   panel.innerHTML = `
 
@@ -131,56 +149,66 @@ async function renderNewClientForm(
 
   `;
 
-  document
-    .getElementById(
+  const saveBtn =
+    document.getElementById(
       "saveClientBtn"
-    )
-    .addEventListener(
-      "click",
-      async () => {
-
-        const full_name =
-          document.getElementById(
-            "clientName"
-          ).value;
-
-        const email =
-          document.getElementById(
-            "clientEmail"
-          ).value;
-
-        const phone =
-          document.getElementById(
-            "clientPhone"
-          ).value;
-
-        const { error } =
-          await supabase
-            .from("clients")
-            .insert({
-              full_name,
-              email,
-              phone,
-
-              created_by:
-                state.session.user.id
-            });
-
-        if (error) {
-
-          console.error(error);
-
-          alert(
-            "Opslaan mislukt"
-          );
-
-          return;
-        }
-
-        loadClients(
-          supabase,
-          state
-        );
-      }
     );
+
+  if (!saveBtn) return;
+
+  saveBtn.addEventListener(
+    "click",
+    async () => {
+
+      const full_name =
+        document.getElementById(
+          "clientName"
+        )?.value || "";
+
+      const email =
+        document.getElementById(
+          "clientEmail"
+        )?.value || "";
+
+      const phone =
+        document.getElementById(
+          "clientPhone"
+        )?.value || "";
+
+      const {
+        error
+      } = await supabase
+        .from("clients")
+        .insert({
+
+          full_name,
+          email,
+          phone,
+
+          status: "nieuw",
+
+          created_by:
+            state.session.user.id
+        });
+
+      if (error) {
+
+        console.error(
+          "Insert error:",
+          error
+        );
+
+        alert(
+          "Opslaan mislukt"
+        );
+
+        return;
+      }
+
+      loadClients(
+        supabase,
+        state
+      );
+    }
+  );
 }
