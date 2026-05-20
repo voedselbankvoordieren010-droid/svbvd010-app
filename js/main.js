@@ -96,6 +96,8 @@ loginBtn.onclick =
     }
   };
 
+}
+
 async function init() {
 
   console.log("INIT START");
