@@ -18,17 +18,44 @@ export async function checkSession(
     error
   );
 
-  if (!data?.session) {
+  export async function checkSession(
+  supabase,
+  state
+) {
+
+  const {
+    data,
+    error
+  } = await supabase.auth.getSession();
 
   console.log(
-    "GEEN SESSION"
+    "SESSION:",
+    data
   );
 
-  state.session = {
-    user: {
-      id: "debug-user"
-    }
-  };
+  console.log(
+    "SESSION ERROR:",
+    error
+  );
+
+  if (error) {
+
+    console.error(error);
+
+    return false;
+  }
+
+  if (!data?.session) {
+
+    console.log(
+      "GEEN SESSION"
+    );
+
+    return false;
+  }
+
+  state.session =
+    data.session;
 
   return true;
 }
