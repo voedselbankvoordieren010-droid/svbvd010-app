@@ -22,6 +22,15 @@ import {
 } from "./clients.js";
 
 console.log("MAIN STARTED");
+window.addEventListener(
+  "error",
+  e => {
+    console.error(
+      "GLOBAL ERROR:",
+      e.error
+    );
+  }
+);
 
 const state = {
   session: null,
@@ -131,6 +140,12 @@ async function init() {
 
         return;
       }
+
+      window.location.reload();
+    };
+
+  return;
+}
 
       window.location.reload();
     };
