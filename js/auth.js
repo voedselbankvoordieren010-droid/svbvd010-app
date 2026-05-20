@@ -18,26 +18,6 @@ export async function checkSession(
     error
   );
 
-  export async function checkSession(
-  supabase,
-  state
-) {
-
-  const {
-    data,
-    error
-  } = await supabase.auth.getSession();
-
-  console.log(
-    "SESSION:",
-    data
-  );
-
-  console.log(
-    "SESSION ERROR:",
-    error
-  );
-
   if (error) {
 
     console.error(error);
@@ -53,12 +33,6 @@ export async function checkSession(
 
     return false;
   }
-
-  state.session =
-    data.session;
-
-  return true;
-}
 
   state.session =
     data.session;
