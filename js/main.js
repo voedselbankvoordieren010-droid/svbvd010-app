@@ -99,6 +99,10 @@ loginBtn.onclick =
 }
 
 async function init() {
+await new Promise(
+  resolve =>
+    setTimeout(resolve, 1500)
+);
 
   console.log("INIT START");
 
