@@ -58,11 +58,85 @@ async function init() {
       state
     );
 
-  if (!ok) {
+ if (!ok) {
 
-    console.error(
-      "GEEN SESSION"
-    );
+  console.error(
+    "GEEN SESSION"
+  );
+
+  document.getElementById(
+    "app"
+  ).innerHTML = `
+
+    <div class="login-screen">
+
+      <div class="login-card">
+
+        <h1>
+          SVBVD010
+        </h1>
+
+        <input
+          id="email"
+          type="email"
+          placeholder="E-mailadres"
+        >
+
+        <input
+          id="password"
+          type="password"
+          placeholder="Wachtwoord"
+        >
+
+        <button id="loginBtn">
+          Inloggen
+        </button>
+
+        <p id="loginMessage"></p>
+
+      </div>
+
+    </div>
+  `;
+
+  document
+    .getElementById(
+      "loginBtn"
+    )
+    .onclick = async () => {
+
+      const email =
+        document.getElementById(
+          "email"
+        ).value;
+
+      const password =
+        document.getElementById(
+          "password"
+        ).value;
+
+      const { error } =
+        await supabase.auth
+          .signInWithPassword({
+            email,
+            password
+          });
+
+      if (error) {
+
+        document.getElementById(
+          "loginMessage"
+        ).textContent =
+          error.message;
+
+        return;
+      }
+
+      window.location.reload();
+    };
+
+  return;
+}
 
     return;
   }
