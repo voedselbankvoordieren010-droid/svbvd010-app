@@ -22,6 +22,15 @@ import {
 } from "./clients.js";
 
 console.log("MAIN STARTED");
+
+const state = {
+  session: null,
+  profile: null
+};
+
+window.supabase = supabase;
+window.state = state;
+
 window.addEventListener(
   "error",
   e => {
@@ -32,50 +41,18 @@ window.addEventListener(
   }
 );
 
-const state = {
-  session: null,
-  profile: null
-};
+async function showLogin() {
 
-window.supabase = supabase;
-window.state = state;
-
-async function init() {
-
-  console.log("INIT START");
-
-  // access token uit URL verwijderen
-  const hash = window.location.hash;
-
-  if (
-    hash &&
-    hash.includes("access_token")
-  ) {
-
-    window.history.replaceState(
-      null,
-      null,
-      window.location.pathname +
-      window.location.search
+  const app =
+    document.getElementById(
+      "app"
     );
+
+  if (!app) {
+    return;
   }
 
-  // SESSION
-  const ok =
-    await checkSession(
-      supabase,
-      state
-    );
-
- if (!ok) {
-
-  console.error(
-    "GEEN SESSION"
-  );
-
-  document.getElementById(
-    "app"
-  ).innerHTML = `
+  app.innerHTML = `
 
     <div class="login-screen">
 
@@ -108,11 +85,17 @@ async function init() {
     </div>
   `;
 
-  document
-    .getElementById(
+  const loginBtn =
+    document.getElementById(
       "loginBtn"
-    )
-    .onclick = async () => {
+    );
+
+  if (!loginBtn) {
+    return;
+  }
+
+  loginBtn.onclick =
+    async () => {
 
       const email =
         document.getElementById(
@@ -138,20 +121,52 @@ async function init() {
         ).textContent =
           error.message;
 
+        console.error(error);
+
         return;
       }
 
       window.location.reload();
     };
-
-  return;
 }
 
-      window.location.reload();
-    };
+async function init() {
 
-  return;
-}
+  console.log("INIT START");
+
+  // access token uit URL verwijderen
+  const hash =
+    window.location.hash;
+
+  if (
+    hash &&
+    hash.includes(
+      "access_token"
+    )
+  ) {
+
+    window.history.replaceState(
+      null,
+      null,
+      window.location.pathname +
+      window.location.search
+    );
+  }
+
+  // SESSION
+  const ok =
+    await checkSession(
+      supabase,
+      state
+    );
+
+  if (!ok) {
+
+    console.error(
+      "GEEN SESSION"
+    );
+
+    await showLogin();
 
     return;
   }
@@ -203,7 +218,7 @@ async function init() {
     chat.init();
   }
 
-  // notificaties dropdown
+  // notificaties
   const notifBell =
     document.getElementById(
       "notifBell"
@@ -251,7 +266,7 @@ async function init() {
     );
   }
 
-  // TABS
+  // tabs
   document
     .querySelectorAll(
       ".tab-button"
