@@ -54,81 +54,47 @@ async function showLogin() {
 
   app.innerHTML = `
 
-    <div class="login-screen">
+  <div class="login-screen">
 
-      <div class="login-card">
+    <div class="login-card">
 
-        <h1>
-          SVBVD010
-        </h1>
+      <h1>
+        SVBVD010
+      </h1>
 
-        <input
-          id="email"
-          type="email"
-          placeholder="E-mailadres"
-        >
-
-        <input
-          id="password"
-          type="password"
-          placeholder="Wachtwoord"
-        >
-
-        <button id="loginBtn">
-          Inloggen
-        </button>
-
-        <p id="loginMessage"></p>
-
-      </div>
+      <button id="loginBtn">
+        Inloggen met Microsoft
+      </button>
 
     </div>
-  `;
 
-  const loginBtn =
-    document.getElementById(
-      "loginBtn"
-    );
+  </div>
+`;
 
-  if (!loginBtn) {
-    return;
-  }
+const loginBtn =
+  document.getElementById(
+    "loginBtn"
+  );
 
-  loginBtn.onclick =
-    async () => {
-
-      const email =
-        document.getElementById(
-          "email"
-        ).value;
-
-      const password =
-        document.getElementById(
-          "password"
-        ).value;
-
-      const { error } =
-        await supabase.auth
-          .signInWithPassword({
-            email,
-            password
-          });
-
-      if (error) {
-
-        document.getElementById(
-          "loginMessage"
-        ).textContent =
-          error.message;
-
-        console.error(error);
-
-        return;
-      }
-
-      window.location.reload();
-    };
+if (!loginBtn) {
+  return;
 }
+
+loginBtn.onclick =
+  async () => {
+
+    const { error } =
+      await supabase.auth
+        .signInWithOAuth({
+          provider: "azure"
+        });
+
+    if (error) {
+
+      console.error(error);
+
+    }
+  };
 
 async function init() {
 
