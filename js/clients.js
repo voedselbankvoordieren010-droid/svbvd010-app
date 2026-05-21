@@ -1,6 +1,3 @@
-import {
-  initClientModal
-} from "./clients.js";
 export function initClientModal(
   supabase,
   state
