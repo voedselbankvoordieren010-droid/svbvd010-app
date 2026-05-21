@@ -1,391 +1,627 @@
-export function initChat(supabase, state) {
-console.log("📦 chat.js geladen");
+export function initChat(
+  supabase,
+  state
+) {
+
+  console.log(
+    "📦 chat.js geladen"
+  );
+
   let activeConversation = null;
+
   let channel = null;
+
   let typingChannel = null;
+
   let typingTimeout;
 
   const el = {
-    list: () => document.getElementById("chatList"),
-    conv: () => document.getElementById("chatConversations"),
-    input: () => document.getElementById("chatInput"),
-    header: () => document.getElementById("chatHeader")
+
+    list: () =>
+      document.getElementById(
+        "chatList"
+      ),
+
+    conv: () =>
+      document.getElementById(
+        "chatConversations"
+      ),
+
+    input: () =>
+      document.getElementById(
+        "chatInput"
+      ),
+
+    header: () =>
+      document.getElementById(
+        "chatHeader"
+      )
+
   };
 
   function formatTime(date) {
+
     if (!date) return "";
-    const d = new Date(date);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    return new Date(date)
+      .toLocaleTimeString(
+        [],
+        {
+          hour: "2-digit",
+          minute: "2-digit"
+        }
+      );
   }
 
   // ======================
   // LOAD CONVERSATIONS
   // ======================
+
   async function loadConversations() {
-  console.log("🔥 LOAD CONVERSATIONS START");
 
-  const { data, error } = await supabase
-    .from("conversation_participants")
-.select(`
-  conversation_id,
-  unread,
-  user_auth_id,
-  conversations (
-    id,
-    last_message,
-    last_message_at
-  )
-`)
-    .eq("user_auth_id", state.session.user.id)
-    .order("conversation_id", { ascending: false });
+    console.log(
+      "🔥 LOAD CONVERSATIONS START"
+    );
 
-  console.log("DATA:", data);
-  console.log("ERROR:", error);
+    const {
+      data,
+      error
+    } = await supabase
 
-  if (error) {
-    console.error("❌ Load conversations error:", error);
-    return;
-  }
+      .from(
+        "conversation_participants"
+      )
 
-  const box = el.conv();
+      .select(`
+        conversation_id,
+        unread,
+        conversations (
+          id,
+          last_message,
+          last_message_at
+        )
+      `)
 
-if (!box) {
-  console.warn(
-    "chatConversations ontbreekt"
-  );
-  return;
-}
+      .eq(
+        "user_auth_id",
+        state.session.user.id
+      )
 
-box.innerHTML = "";
+      .order(
+        "conversation_id",
+        {
+          ascending: false
+        }
+      );
 
-  if (!data || data.length === 0) {
-    box.innerHTML = "<div style='padding:20px;'>Geen gesprekken</div>";
-    return;
-  }
+    console.log(
+      "DATA:",
+      data
+    );
 
- for (const c of data) {
+    console.log(
+      "ERROR:",
+      error
+    );
 
- const user = {
-  full_name: "Gebruiker"
-};
+    if (error) {
 
-  const convo =
-    c.conversations;
-    const div = document.createElement("div");
-    div.className = "chat-item";
+      console.error(error);
 
-    div.innerHTML = `
-      <div class="avatar">
-        ${user?.avatar_url
-          ? `<img src="${user.avatar_url}" />`
-          : (user?.full_name || "?")[0]}
-      </div>
+      return;
+    }
 
-      <div style="flex:1;">
-        <div style="display:flex;justify-content:space-between;">
-          <b>${user?.full_name || "Onbekend"}</b>
-          <small>${formatTime(convo?.last_message_at)}</small>
+    const box = el.conv();
+
+    if (!box) return;
+
+    box.innerHTML = "";
+
+    if (!data?.length) {
+
+      box.innerHTML = `
+        <div style="
+          padding:20px;
+        ">
+          Geen gesprekken
         </div>
+      `;
 
-        <div style="display:flex;justify-content:space-between;">
-          <small style="opacity:0.7;">
-            ${convo?.last_message || "Geen berichten"}
-          </small>
+      return;
+    }
 
-          ${
-            c.unread > 0
-              ? `<span class="badge">${c.unread}</span>`
-              : ""
+    for (const c of data) {
+
+      const convo =
+        c.conversations;
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+      div.className =
+        "chat-item";
+
+      div.innerHTML = `
+        <div style="
+          flex:1;
+        ">
+
+          <div style="
+            display:flex;
+            justify-content:
+            space-between;
+          ">
+
+            <b>
+              Gesprek
+            </b>
+
+            <small>
+              ${
+                formatTime(
+                  convo?.last_message_at
+                )
+              }
+            </small>
+
+          </div>
+
+          <div style="
+            display:flex;
+            justify-content:
+            space-between;
+          ">
+
+            <small style="
+              opacity:0.7;
+            ">
+              ${
+                convo?.last_message ||
+                "Geen berichten"
+              }
+            </small>
+
+            ${
+              c.unread > 0
+                ? `
+                  <span class="badge">
+                    ${c.unread}
+                  </span>
+                `
+                : ""
+            }
+
+          </div>
+
+        </div>
+      `;
+
+      div.onclick =
+        async () => {
+
+          document
+            .querySelectorAll(
+              ".chat-item"
+            )
+
+            .forEach(i =>
+              i.classList.remove(
+                "active"
+              )
+            );
+
+          div.classList.add(
+            "active"
+          );
+
+          activeConversation =
+            c.conversation_id;
+
+          const header =
+            el.header();
+
+          if (header) {
+
+            header.textContent =
+              "Chat";
           }
-        </div>
-      </div>
-    `;
 
-    div.onclick = async () => {
-      document.querySelectorAll(".chat-item")
-        .forEach(i => i.classList.remove("active"));
+          await supabase
 
-      div.classList.add("active");
+            .from(
+              "conversation_participants"
+            )
 
-      activeConversation = c.conversation_id;
-     const header = el.header();
+            .update({
+              unread: 0
+            })
 
-if (header) {
+            .eq(
+              "user_auth_id",
+              state.session.user.id
+            )
 
-  header.textContent =
-    user?.full_name || "Chat";
-}
+            .eq(
+              "conversation_id",
+              activeConversation
+            );
 
-      // 🔥 reset unread
-      await supabase
-        .from("conversation_participants")
-        .update({ unread: 0 })
-        .eq("user_auth_id", state.session.user.id)
-        .eq("conversation_id", activeConversation);
+          subscribeRealtime();
+
+          loadMessages();
+        };
+
+      box.appendChild(div);
+    }
+
+    if (
+      !activeConversation &&
+      data.length > 0
+    ) {
+
+      activeConversation =
+        data[0].conversation_id;
 
       subscribeRealtime();
+
       loadMessages();
-    };
-
-    box.appendChild(div);
+    }
   }
 
-  // 🔥 auto open eerste chat
-  if (!activeConversation && data.length > 0) {
-    const first = data[0];
-
-    activeConversation = first.conversation_id;
-   const header = el.header();
-
-if (header) {
-
-  header.textContent =
-    first.profiles?.full_name || "Chat";
-}
-
-    subscribeRealtime();
-    loadMessages();
-  }
-}
   // ======================
   // LOAD MESSAGES
   // ======================
+
   async function loadMessages() {
 
-    if (!activeConversation) return;
+    if (!activeConversation)
+      return;
 
-    const { data, error } = await supabase
+    const {
+      data,
+      error
+    } = await supabase
+
       .from("chat")
-      .select("*")
-      .eq("conversation_id", activeConversation)
-      .order("created_at", { ascending: true });
 
-    if (error) return console.error(error);
+      .select("*")
+
+      .eq(
+        "conversation_id",
+        activeConversation
+      )
+
+      .order(
+        "created_at",
+        {
+          ascending: true
+        }
+      );
+
+    if (error) {
+
+      console.error(error);
+
+      return;
+    }
 
     const box = el.list();
 
-if (!box) {
-  console.warn(
-    "chatList ontbreekt"
-  );
-  return;
-}
+    if (!box) return;
 
-box.innerHTML = "";
+    box.innerHTML = "";
+
     data.forEach(m => {
 
-      const isMe = m.user_auth_id === state.session.user.id;
+      const isMe =
+        m.user_auth_id ===
+        state.session.user.id;
 
-      const div = document.createElement("div");
-      div.className = "chat-bubble " + (isMe ? "chat-me" : "chat-other");
+      const div =
+        document.createElement(
+          "div"
+        );
+
+      div.className =
+        "chat-bubble " +
+
+        (
+          isMe
+            ? "chat-me"
+            : "chat-other"
+        );
 
       div.innerHTML = `
         ${m.bericht}
+
         <br>
-        <small>${new Date(m.created_at).toLocaleTimeString()}</small>
+
+        <small>
+          ${formatTime(m.created_at)}
+        </small>
       `;
 
       box.appendChild(div);
     });
 
-    box.scrollTop = box.scrollHeight;
+    box.scrollTop =
+      box.scrollHeight;
   }
 
   // ======================
   // SEND
   // ======================
+
   async function send() {
 
-    const input = el.input();
-    const text = input.value.trim();
+    const input =
+      el.input();
 
-    if (!text || !activeConversation) return;
+    if (!input) return;
 
-    const { error } = await supabase.from("chat").insert({
-      bericht: text,
-      user_auth_id: state.session.user.id,
-      conversation_id: activeConversation
-    });
+    const text =
+      input.value.trim();
 
-    if (error) return console.error(error);
+    if (
+      !text ||
+      !activeConversation
+    ) return;
 
-    // update laatste bericht
+    const {
+      error
+    } = await supabase
+
+      .from("chat")
+
+      .insert({
+
+        bericht: text,
+
+        user_auth_id:
+          state.session.user.id,
+
+        conversation_id:
+          activeConversation
+
+      });
+
+    if (error) {
+
+      console.error(error);
+
+      return;
+    }
+
     await supabase
+
       .from("conversations")
-      .update({
-        last_message: text,
-        last_message_at: new Date()
-      })
-      .eq("id", activeConversation);
 
-    // 🔴 unread verhogen bij andere users
-    await supabase
-      .from("conversation_participants")
-      .update({ unread: 1 })
-      .neq("user_auth_id", state.session.user.id)
-      .eq("conversation_id", activeConversation);
+      .update({
+
+        last_message:
+          text,
+
+        last_message_at:
+          new Date()
+
+      })
+
+      .eq(
+        "id",
+        activeConversation
+      );
 
     input.value = "";
-
-    loadConversations();
   }
 
   // ======================
   // REALTIME
   // ======================
- function subscribeRealtime() {
 
-  if (channel) supabase.removeChannel(channel);
+  function subscribeRealtime() {
 
-  channel = supabase
-    .channel("chat-live")
+    if (channel) {
 
-    // 📩 nieuwe berichten
-    .on(
-      "postgres_changes",
-      {
-        event: "INSERT",
-        schema: "public",
-        table: "chat",
-        filter: `conversation_id=eq.${activeConversation}`
-      },
-      () => {
-        loadMessages();
-        loadConversations();
-      }
-    )
+      supabase.removeChannel(
+        channel
+      );
+    }
 
-    // ✍️ typing ontvangen
-    .on("broadcast", { event: "typing" }, payload => {
+    channel = supabase
 
-      if (payload.payload.conversation !== activeConversation) return;
+      .channel(
+        "chat-live"
+      )
 
-      showTyping();
-      setTimeout(removeTyping, 1200);
-    })
+      .on(
+        "postgres_changes",
+        {
 
-    .subscribe();
-}
+          event: "INSERT",
+
+          schema: "public",
+
+          table: "chat",
+
+          filter:
+            `conversation_id=eq.${activeConversation}`
+
+        },
+
+        () => {
+
+          loadMessages();
+
+          loadConversations();
+        }
+      )
+
+      .on(
+        "broadcast",
+        {
+          event: "typing"
+        },
+        payload => {
+
+          if (
+            payload.payload
+              .conversation !==
+            activeConversation
+          ) return;
+
+          showTyping();
+
+          setTimeout(
+            removeTyping,
+            1200
+          );
+        }
+      )
+
+      .subscribe();
+  }
 
   // ======================
   // TYPING
   // ======================
+
   function typing() {
 
-    clearTimeout(typingTimeout);
-
-    if (!typingChannel) {
-      typingChannel = supabase.channel("typing");
-      typingChannel.subscribe();
-    }
-
-    if (!activeConversation) return;
-
-    typingChannel.send({
-      type: "broadcast",
-      event: "typing",
-      payload: { conversation: activeConversation }
-    });
-
-    typingTimeout = setTimeout(() => {}, 800);
-  }
-function showTyping() {
-
-  removeTyping();
-
-  const div = document.createElement("div");
-
-  div.id = "typingIndicator";
-
-  div.className =
-    "chat-bubble chat-other";
-
-  div.style.opacity = "0.7";
-
-  div.textContent =
-    "… is aan het typen";
-
-  const list = el.list();
-
-  if (!list) return;
-
-  list.appendChild(div);
-}
-
-function removeTyping() {
-
-  const t =
-    document.getElementById(
-      "typingIndicator"
+    clearTimeout(
+      typingTimeout
     );
 
-  if (t) t.remove();
-}
+    if (!typingChannel) {
+
+      typingChannel =
+        supabase.channel(
+          "typing"
+        );
+
+      typingChannel
+        .subscribe();
+    }
+
+    if (!activeConversation)
+      return;
+
+    typingChannel.send({
+
+      type: "broadcast",
+
+      event: "typing",
+
+      payload: {
+        conversation:
+          activeConversation
+      }
+
+    });
+
+    typingTimeout =
+      setTimeout(
+        () => {},
+        800
+      );
+  }
+
+  function showTyping() {
+
+    removeTyping();
+
+    const div =
+      document.createElement(
+        "div"
+      );
+
+    div.id =
+      "typingIndicator";
+
+    div.className =
+      "chat-bubble chat-other";
+
+    div.style.opacity =
+      "0.7";
+
+    div.textContent =
+      "… is aan het typen";
+
+    const list =
+      el.list();
+
+    if (!list) return;
+
+    list.appendChild(div);
+  }
+
+  function removeTyping() {
+
+    const t =
+      document.getElementById(
+        "typingIndicator"
+      );
+
+    if (t) t.remove();
+  }
+
   // ======================
   // INIT
   // ======================
- function init() {
-  console.log("💬 CHAT INIT");
 
-  const input = el.input();
-  const sendBtn = document.getElementById("sendChatBtn");
+  function init() {
 
-  // ❌ voorkom dubbele listeners
-  if (input) {
-    input.replaceWith(input.cloneNode(true));
-  }
+    console.log(
+      "💬 CHAT INIT"
+    );
 
-  if (sendBtn) {
-    sendBtn.replaceWith(sendBtn.cloneNode(true));
-  }
+    const input =
+      el.input();
 
-  const newInput = el.input();
-  const newSendBtn = document.getElementById("sendChatBtn");
-
-  // 📩 SEND BUTTON
-  if (newSendBtn) {
-    newSendBtn.addEventListener("click", send);
-  }
-
-  // ⌨️ ENTER + TYPING
-  if (newInput) {
-    newInput.addEventListener("keydown", e => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        send();
-      } else {
-        typing();
-      }
-    });
-  }
-
-  // 🔥 gesprekken laden
-  loadConversations();
-}
-  return {
-    init,
-    loadMessages
-  };
-}
-supabase
-  .channel("chat-realtime")
-
-  .on(
-    "postgres_changes",
-    {
-      event: "INSERT",
-      schema: "public",
-      table: "messages"
-    },
-    payload => {
-
-      console.log(
-        "NIEUW BERICHT",
-        payload
+    const sendBtn =
+      document.getElementById(
+        "sendChatBtn"
       );
 
-      loadMessages();
-    }
-  )
+    if (sendBtn) {
 
-  .subscribe();
+      sendBtn.onclick =
+        send;
+    }
+
+    if (input) {
+
+      input.addEventListener(
+        "keydown",
+        e => {
+
+          if (
+            e.key === "Enter" &&
+            !e.shiftKey
+          ) {
+
+            e.preventDefault();
+
+            send();
+
+          } else {
+
+            typing();
+          }
+        }
+      );
+    }
+
+    loadConversations();
+  }
+
+  return {
+
+    init,
+
+    loadMessages
+
+  };
+
+}
