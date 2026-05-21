@@ -28,6 +28,10 @@ import {
   loadOwnClientProfile
 } from "./clientPortal.js";
 
+import {
+  loginWithGoogle
+} from "./auth.js";
+
 
 console.log("MAIN STARTED");
 
@@ -73,6 +77,10 @@ async function showLogin() {
       <button id="loginBtn">
         Inloggen met Microsoft
       </button>
+    <button id="googleLoginBtn">
+  Inloggen met Google
+</button>
+
 
     </div>
 
@@ -105,7 +113,19 @@ loginBtn.onclick =
   };
 
 }
+document
+  .getElementById(
+    "googleLoginBtn"
+  )
+  ?.addEventListener(
+    "click",
+    () => {
 
+      loginWithGoogle(
+        supabase
+      );
+    }
+  );
 async function init() {
 await new Promise(
   resolve =>
