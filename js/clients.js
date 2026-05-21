@@ -74,7 +74,10 @@ export async function loadClients(
 
       ${data.map(client => `
 
-        <div class="client-card">
+        <div
+  class="client-card"
+  data-id="${client.id}"
+>
 
           <h3>
             ${client.full_name || ""}
@@ -98,7 +101,28 @@ export async function loadClients(
 
     </div>
   `;
+document
+  .querySelectorAll(
+    ".client-card"
+  )
+  .forEach(card => {
 
+    card.onclick = () => {
+
+      const client =
+        data.find(
+          c =>
+            c.id ===
+            card.dataset.id
+        );
+
+      if (!client) return;
+
+      showClientDetails(
+        client
+      );
+    };
+  });
   initClientModal(
     supabase,
     state
@@ -152,7 +176,20 @@ export function initClientModal(
           id="clientCity"
           placeholder="Plaats"
         >
+<input
+  id="clientAddress"
+  placeholder="Adres"
+>
 
+<input
+  id="clientPostal"
+  placeholder="Postcode"
+>
+
+<textarea
+  id="clientAnimals"
+  placeholder="Dieren (1 per regel)"
+></textarea>
         <textarea
           id="clientNotes"
           placeholder="Notities"
@@ -211,7 +248,22 @@ export function initClientModal(
           document.getElementById(
             "clientCity"
           ).value;
+        const address =
+  document.getElementById(
+    "clientAddress"
+  ).value;
 
+const postal_code =
+  document.getElementById(
+    "clientPostal"
+  ).value;
+
+const animals =
+  document.getElementById(
+    "clientAnimals"
+  ).value
+  .split("\n")
+  .filter(Boolean);
         const notes =
           document.getElementById(
             "clientNotes"
@@ -227,6 +279,12 @@ export function initClientModal(
               phone,
               city,
               notes,
+
+address,
+
+postal_code,
+
+animals,
 
               status: "nieuw",
 
@@ -251,4 +309,85 @@ export function initClientModal(
         );
       };
   };
+}
+function showClientDetails(
+  client
+) {
+
+  const modal =
+    document.createElement("div");
+
+  modal.className =
+    "modal-overlay";
+
+  modal.innerHTML = `
+
+    <div class="modal">
+
+      <h2>
+        ${client.full_name}
+      </h2>
+
+      <p>
+        📧 ${client.email || "-"}
+      </p>
+
+      <p>
+        📞 ${client.phone || "-"}
+      </p>
+
+      <p>
+        📍 ${client.address || "-"}
+      </p>
+
+      <p>
+        ${client.postal_code || "-"}
+      </p>
+
+      <p>
+        Status:
+        ${client.status || "-"}
+      </p>
+
+      <h3>
+        Dieren
+      </h3>
+
+      <ul>
+
+        ${(client.animals || [])
+          .map(animal => `
+            <li>${animal}</li>
+          `)
+          .join("")}
+
+      </ul>
+
+      <h3>
+        Notities
+      </h3>
+
+      <p>
+        ${client.notes || ""}
+      </p>
+
+      <button id="closeDetailsBtn">
+        Sluiten
+      </button>
+
+    </div>
+  `;
+
+  document.body.appendChild(
+    modal
+  );
+
+  document
+    .getElementById(
+      "closeDetailsBtn"
+    )
+    .onclick = () => {
+
+      modal.remove();
+    };
 }
