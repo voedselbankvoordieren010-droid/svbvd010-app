@@ -1,3 +1,8 @@
+import {
+  openEditClientModal
+} from "./clientEdit";
+
+
 export function showClientDetails(
   client,
   supabase
@@ -54,13 +59,23 @@ export function showClientDetails(
 
       </ul>
 
-      <button
-        id="closeDetailsBtn"
-      >
-        Sluiten
-      </button>
+      
+      <div class="modal-actions">
 
-    </div>
+        <button
+          id="editClientBtn"
+        >
+          Bewerken
+        </button>
+
+        <button
+          id="closeDetailsBtn"
+        >
+          Sluiten
+        </button>
+
+      </div>
+
   `;
 
   document.body.appendChild(
@@ -76,4 +91,17 @@ export function showClientDetails(
       modal.remove();
     };
 }
+```javascript
+  document
+    .getElementById(
+      "editClientBtn"
+    )
+    .onclick = () => {
+
+      openEditClientModal(
+        client,
+        supabase
+      );
+    };
+```
 
