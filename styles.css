@@ -124,9 +124,14 @@ body {
   z-index: 999;
 }
 
+
 .modal {
 
-  width: 400px;
+  width: 500px;
+
+  max-height: 90vh;
+
+  overflow-y: auto;
 
   background: #1e293b;
 
@@ -335,4 +340,16 @@ body {
 .open-file-btn:hover {
 
   opacity: .9;
+}
+
+.modal::-webkit-scrollbar {
+
+  width: 8px;
+}
+
+.modal::-webkit-scrollbar-thumb {
+
+  background: #334155;
+
+  border-radius: 999px;
 }
