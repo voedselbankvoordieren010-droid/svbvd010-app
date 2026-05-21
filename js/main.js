@@ -24,6 +24,11 @@ import {
   initClientModal
 } from "./clients.js";
 
+import {
+  loadOwnClientProfile
+} from "./clientPortal.js";
+
+
 console.log("MAIN STARTED");
 
 const state = {
@@ -180,7 +185,7 @@ const canViewClients =
     "hulpverlener",
     "intake"
   ].includes(role);
-
+  if ( role === "client" ) { loadOwnClientProfile( supabase, state.profile ); }
 const canViewAdmin =
   role === "admin";
 

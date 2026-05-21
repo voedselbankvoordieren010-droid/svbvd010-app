@@ -3,41 +3,51 @@ export async function checkSession(
   state
 ) {
 
-  const {
-    data,
-    error
-  } = await supabase.auth.getSession();
+  try {
 
-  console.log(
-    "SESSION:",
-    data
-  );
-
-  console.log(
-    "SESSION ERROR:",
-    error
-  );
-
-  if (error) {
-
-    console.error(error);
-
-    return false;
-  }
-
-  if (!data?.session) {
+    const {
+      data,
+      error
+    } = await supabase
+      .auth
+      .getSession();
 
     console.log(
-      "GEEN SESSION"
+      "SESSION:",
+      data
+    );
+
+    console.log(
+      "SESSION ERROR:",
+      error
+    );
+
+    if (
+      error ||
+      !data?.session
+    ) {
+
+      console.log(
+        "GEEN SESSION"
+      );
+
+      return false;
+    }
+
+    state.session =
+      data.session;
+
+    return true;
+
+  } catch (err) {
+
+    console.error(
+      "SESSION CRASH:",
+      err
     );
 
     return false;
   }
-
-  state.session =
-    data.session;
-
-  return true;
 }
 
 export async function loadProfile(
@@ -51,35 +61,52 @@ export async function loadProfile(
 
   try {
 
-    const {
-      data,
-      error
+    const user =
+      state.session?.user;
+
+    if (!user) {
+
+      console.error(
+        "GEEN USER"
+      );
+
+      return false;
+    }
+
+    // bestaand profiel ophalen
+    let {
+      data: profile,
+      error: profileError
     } = await supabase
       .from("profiles")
       .select("*")
       .eq(
         "id",
-        state.session.user.id
+        user.id
       )
       .maybeSingle();
 
     console.log(
       "PROFILE DATA:",
-      data
+      profile
     );
 
     console.log(
       "PROFILE ERROR:",
-      error
+      profileError
     );
 
-    if (error) {
+    if (profileError) {
+
+      console.error(
+        profileError
+      );
 
       return false;
     }
 
-    // profiel bestaat niet
-    if (!data) {
+    // profiel bestaat nog niet
+    if (!profile) {
 
       console.log(
         "NIEUW PROFIEL"
@@ -91,18 +118,26 @@ export async function loadProfile(
       } = await supabase
         .from("profiles")
         .insert({
+
           id:
-            state.session.user.id,
+            user.id,
 
           email:
-            state.session.user.email,
+            user.email,
 
           full_name:
-            state.session.user.email,
 
-          role: "admin",
+            user.user_metadata
+              ?.full_name ||
 
-          approved: true
+            user.user_metadata
+              ?.name ||
+
+            user.email,
+
+          role: "client",
+
+          approved: false
         })
         .select()
         .single();
@@ -110,20 +145,88 @@ export async function loadProfile(
       if (insertError) {
 
         console.error(
+          "INSERT ERROR:",
           insertError
         );
 
         return false;
       }
 
-      state.profile =
+      profile =
         newProfile;
-
-    } else {
-
-      state.profile =
-        data;
     }
+
+    // automatische client koppeling
+    if (
+      profile.role === "client" &&
+      !profile.client_id
+    ) {
+
+      console.log(
+        "ZOEK CLIENT KOPPELING"
+      );
+
+      const {
+        data: linkedClient,
+        error: clientError
+      } = await supabase
+        .from("clients")
+        .select("id")
+        .eq(
+          "email",
+          profile.email
+        )
+        .maybeSingle();
+
+      if (clientError) {
+
+        console.error(
+          "CLIENT SEARCH ERROR:",
+          clientError
+        );
+      }
+
+      if (linkedClient) {
+
+        console.log(
+          "CLIENT GEVONDEN"
+        );
+
+        const {
+          error: updateError
+        } = await supabase
+          .from("profiles")
+          .update({
+
+            client_id:
+              linkedClient.id
+          })
+          .eq(
+            "id",
+            profile.id
+          );
+
+        if (updateError) {
+
+          console.error(
+            "CLIENT LINK ERROR:",
+            updateError
+          );
+
+        } else {
+
+          profile.client_id =
+            linkedClient.id;
+
+          console.log(
+            "CLIENT GEKOPPELD"
+          );
+        }
+      }
+    }
+
+    state.profile =
+      profile;
 
     // user info tonen
     const userMeta =
@@ -134,10 +237,18 @@ export async function loadProfile(
     if (userMeta) {
 
       userMeta.textContent = `
-        ${state.profile.email}
-        (${state.profile.role})
+
+        ${profile.email}
+
+        (${profile.role})
+
       `;
     }
+
+    console.log(
+      "PROFILE OK",
+      profile
+    );
 
     return true;
 
