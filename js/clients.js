@@ -1,3 +1,7 @@
+import {
+  showClientDetails
+} from "./clientDetails";
+
 export async function loadClients(
   supabase,
   state
@@ -12,7 +16,9 @@ export async function loadClients(
       "clients"
     );
 
-  if (!container) return;
+  if (!container) {
+    return;
+  }
 
   container.innerHTML =
     "<p>Laden...</p>";
@@ -25,7 +31,9 @@ export async function loadClients(
     .select("*")
     .order(
       "created_at",
-      { ascending: false }
+      {
+        ascending: false
+      }
     );
 
   console.log(
@@ -41,16 +49,20 @@ export async function loadClients(
   if (error) {
 
     container.innerHTML = `
-      <p>Fout bij laden cliënten</p>
+      <p>
+        Fout bij laden cliënten
+      </p>
     `;
 
     return;
   }
 
-  if (!data.length) {
+  if (!data?.length) {
 
     container.innerHTML = `
-      <p>Geen cliënten gevonden</p>
+      <p>
+        Geen cliënten gevonden
+      </p>
     `;
 
     return;
@@ -132,15 +144,18 @@ export async function loadClients(
               card.dataset.id
           );
 
-        if (!client) return;
+        if (!client) {
+          return;
+        }
 
         showClientDetails(
-          client
+          client,
+          supabase
         );
       };
     });
 
-  // zoekfunctie
+  // zoeken
   const search =
     document.getElementById(
       "clientSearch"
@@ -192,12 +207,16 @@ export function initClientModal(
       "newClientBtn"
     );
 
-  if (!btn) return;
+  if (!btn) {
+    return;
+  }
 
   btn.onclick = () => {
 
     const modal =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     modal.className =
       "modal-overlay";
@@ -365,541 +384,3 @@ export function initClientModal(
   };
 }
 
-function showClientDetails(
-  client
-) {
-
-  const modal =
-    document.createElement("div");
-
-  modal.className =
-    "modal-overlay";
-
-  modal.innerHTML = `
-
-    <div class="modal">
-
-      <h2>
-        ${client.full_name}
-      </h2>
-
-      <p>
-        📧 ${client.email || "-"}
-      </p>
-
-      <p>
-        📞 ${client.phone || "-"}
-      </p>
-
-      <p>
-        📍 ${client.address || "-"}
-      </p>
-
-      <p>
-        ${client.postal_code || "-"}
-      </p>
-
-      <p>
-        Status:
-        ${client.status || "-"}
-      </p>
-
-      <h3>
-        Dieren
-      </h3>
-
-      <ul>
-
-        ${(client.animals || [])
-          .map(animal => `
-            <li>${animal}</li>
-          `)
-          .join("")}
-
-      </ul>
-      <h3>
-  Bestanden
-</h3>
-
-<input
-  id="clientFileInput"
-  type="file"
->
-
-<button
-  id="uploadClientFileBtn"
->
-  Upload bestand
-</button>
-
-<div id="clientFilesList">
-</div>
-      <h3>
-        Notities
-      </h3>
-
-      <p>
-        ${client.notes || ""}
-      </p>
-
-      <div class="modal-actions">
-
-        <button
-          id="approveClientBtn"
-        >
-          Goedkeuren
-        </button>
-
-        <button
-          id="spoedClientBtn"
-        >
-          Spoed
-        </button>
-
-        <button
-  id="editClientBtn"
->
-  Bewerken
-</button>
-
-<button
-  id="closeDetailsBtn"
->
-  Sluiten
-</button>
-
-      </div>
-
-    </div>
-  `;
-
-  document.body.appendChild(
-    modal
-  );
-document
-  .getElementById(
-    "editClientBtn"
-  )
-  .onclick = () => {
-
-    modal.remove();
-
-    openEditClientModal(
-      client
-    );
-  };
-
-loadClientFiles(
-  client.id
-);
-
-document
-  .getElementById(
-    "uploadClientFileBtn"
-  )
-  .onclick = async () => {
-
-    const input =
-      document.getElementById(
-        "clientFileInput"
-      );
-
-    const file =
-      input.files[0];
-
-    if (!file) {
-
-      alert(
-        "Geen bestand gekozen"
-      );
-
-      return;
-    }
-
-    const filePath =
-      `${client.id}/${Date.now()}-${file.name}`;
-
-    const { error: uploadError } =
-      await window.supabase
-        .storage
-        .from("client-files")
-        .upload(
-          filePath,
-          file
-        );
-
-    if (uploadError) {
-
-      alert(
-        uploadError.message
-      );
-
-      return;
-    }
-
-    const { error: dbError } =
-      await window.supabase
-        .from("client_files")
-        .insert({
-
-          client_id:
-            client.id,
-
-          file_name:
-            file.name,
-
-          file_path:
-            filePath
-        });
-
-    if (dbError) {
-
-      alert(
-        dbError.message
-      );
-
-      return;
-    }
-
-    loadClientFiles(
-      client.id
-    );
-  };
-
-  document
-    .getElementById(
-      "closeDetailsBtn"
-    )
-    .onclick = () => {
-
-      modal.remove();
-    };
-
-  document
-    .getElementById(
-      "approveClientBtn"
-    )
-    .onclick = async () => {
-
-      await updateClientStatus(
-        client.id,
-        "actief"
-      );
-
-      modal.remove();
-    };
-
-  document
-    .getElementById(
-      "spoedClientBtn"
-    )
-    .onclick = async () => {
-
-      await updateClientStatus(
-        client.id,
-        "spoed"
-      );
-
-      modal.remove();
-    };
-}
-
-async function updateClientStatus(
-  clientId,
-  status
-) {
-
-  const { error } =
-    await window.supabase
-      .from("clients")
-      .update({
-        status
-      })
-      .eq(
-        "id",
-        clientId
-      );
-
-  if (error) {
-
-    alert(
-      error.message
-    );
-
-    return;
-  }
-
-  location.reload();
-}
-function openEditClientModal(
-  client
-) {
-
-  const modal =
-    document.createElement(
-      "div"
-    );
-
-  modal.className =
-    "modal-overlay";
-
-  modal.innerHTML = `
-
-    <div class="modal">
-
-      <h2>
-        Cliënt Bewerken
-      </h2>
-
-      <input
-        id="editName"
-        value="${client.full_name || ""}"
-        placeholder="Naam"
-      >
-
-      <input
-        id="editEmail"
-        value="${client.email || ""}"
-        placeholder="Email"
-      >
-
-      <input
-        id="editPhone"
-        value="${client.phone || ""}"
-        placeholder="Telefoon"
-      >
-
-      <input
-        id="editAddress"
-        value="${client.address || ""}"
-        placeholder="Adres"
-      >
-
-      <input
-        id="editPostal"
-        value="${client.postal_code || ""}"
-        placeholder="Postcode"
-      >
-
-      <textarea
-        id="editAnimals"
-      >${(client.animals || []).join("\n")}</textarea>
-
-      <textarea
-        id="editNotes"
-      >${client.notes || ""}</textarea>
-
-      <select id="editStatus">
-
-        <option
-          value="nieuw"
-          ${
-            client.status ===
-            "nieuw"
-              ? "selected"
-              : ""
-          }
-        >
-          nieuw
-        </option>
-
-        <option
-          value="actief"
-          ${
-            client.status ===
-            "actief"
-              ? "selected"
-              : ""
-          }
-        >
-          actief
-        </option>
-
-        <option
-          value="spoed"
-          ${
-            client.status ===
-            "spoed"
-              ? "selected"
-              : ""
-          }
-        >
-          spoed
-        </option>
-
-      </select>
-
-      <div class="modal-actions">
-
-        <button id="saveEditClientBtn">
-          Opslaan
-        </button>
-
-        <button id="closeEditClientBtn">
-          Sluiten
-        </button>
-
-      </div>
-
-    </div>
-  `;
-
-  document.body.appendChild(
-    modal
-  );
-
-  document
-    .getElementById(
-      "closeEditClientBtn"
-    )
-    .onclick = () => {
-
-      modal.remove();
-    };
-
-  document
-    .getElementById(
-      "saveEditClientBtn"
-    )
-    .onclick = async () => {
-
-      const full_name =
-        document.getElementById(
-          "editName"
-        ).value;
-
-      const email =
-        document.getElementById(
-          "editEmail"
-        ).value;
-
-      const phone =
-        document.getElementById(
-          "editPhone"
-        ).value;
-
-      const address =
-        document.getElementById(
-          "editAddress"
-        ).value;
-
-      const postal_code =
-        document.getElementById(
-          "editPostal"
-        ).value;
-
-      const animals =
-        document.getElementById(
-          "editAnimals"
-        ).value
-        .split("\n")
-        .filter(Boolean);
-
-      const notes =
-        document.getElementById(
-          "editNotes"
-        ).value;
-
-      const status =
-        document.getElementById(
-          "editStatus"
-        ).value;
-
-      const { error } =
-        await window.supabase
-          .from("clients")
-          .update({
-            full_name,
-            email,
-            phone,
-            address,
-            postal_code,
-            animals,
-            notes,
-            status
-          })
-          .eq(
-            "id",
-            client.id
-          );
-
-      if (error) {
-
-        alert(
-          error.message
-        );
-
-        return;
-      }
-
-      modal.remove();
-
-      location.reload();
-    };
-}
-async function loadClientFiles(
-  clientId
-) {
-
-  const list =
-    document.getElementById(
-      "clientFilesList"
-    );
-
-  if (!list) return;
-
-  const {
-    data,
-    error
-  } = await window.supabase
-    .from("client_files")
-    .select("*")
-    .eq(
-      "client_id",
-      clientId
-    )
-    .order(
-      "created_at",
-      {
-        ascending: false
-      }
-    );
-
-  if (error) {
-
-    console.error(error);
-
-    return;
-  }
-
-  if (!data.length) {
-
-    list.innerHTML =
-      "<p>Geen bestanden</p>";
-
-    return;
-  }
-
-  list.innerHTML =
-    data.map(file => `
-
-      <div class="file-item">
-
-        <p>
-          ${file.file_name}
-        </p>
-
-        <button
-          onclick="
-            window.open(
-              'https://qybobqolknvovigickpy.supabase.co/storage/v1/object/public/client-files/${file.file_path}'
-            )
-          "
-        >
-          Openen
-        </button>
-
-      </div>
-
-    `).join("");
-}
