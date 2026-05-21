@@ -417,7 +417,23 @@ function showClientDetails(
           .join("")}
 
       </ul>
+      <h3>
+  Bestanden
+</h3>
 
+<input
+  id="clientFileInput"
+  type="file"
+>
+
+<button
+  id="uploadClientFileBtn"
+>
+  Upload bestand
+</button>
+
+<div id="clientFilesList">
+</div>
       <h3>
         Notities
       </h3>
@@ -472,6 +488,84 @@ document
       client
     );
   };
+
+loadClientFiles(
+  client.id
+);
+
+document
+  .getElementById(
+    "uploadClientFileBtn"
+  )
+  .onclick = async () => {
+
+    const input =
+      document.getElementById(
+        "clientFileInput"
+      );
+
+    const file =
+      input.files[0];
+
+    if (!file) {
+
+      alert(
+        "Geen bestand gekozen"
+      );
+
+      return;
+    }
+
+    const filePath =
+      `${client.id}/${Date.now()}-${file.name}`;
+
+    const { error: uploadError } =
+      await window.supabase
+        .storage
+        .from("client-files")
+        .upload(
+          filePath,
+          file
+        );
+
+    if (uploadError) {
+
+      alert(
+        uploadError.message
+      );
+
+      return;
+    }
+
+    const { error: dbError } =
+      await window.supabase
+        .from("client_files")
+        .insert({
+
+          client_id:
+            client.id,
+
+          file_name:
+            file.name,
+
+          file_path:
+            filePath
+        });
+
+    if (dbError) {
+
+      alert(
+        dbError.message
+      );
+
+      return;
+    }
+
+    loadClientFiles(
+      client.id
+    );
+  };
+
   document
     .getElementById(
       "closeDetailsBtn"
@@ -742,4 +836,70 @@ function openEditClientModal(
 
       location.reload();
     };
+}
+async function loadClientFiles(
+  clientId
+) {
+
+  const list =
+    document.getElementById(
+      "clientFilesList"
+    );
+
+  if (!list) return;
+
+  const {
+    data,
+    error
+  } = await window.supabase
+    .from("client_files")
+    .select("*")
+    .eq(
+      "client_id",
+      clientId
+    )
+    .order(
+      "created_at",
+      {
+        ascending: false
+      }
+    );
+
+  if (error) {
+
+    console.error(error);
+
+    return;
+  }
+
+  if (!data.length) {
+
+    list.innerHTML =
+      "<p>Geen bestanden</p>";
+
+    return;
+  }
+
+  list.innerHTML =
+    data.map(file => `
+
+      <div class="file-item">
+
+        <p>
+          ${file.file_name}
+        </p>
+
+        <button
+          onclick="
+            window.open(
+              'https://qybobqolknvovigickpy.supabase.co/storage/v1/object/public/client-files/${file.file_path}'
+            )
+          "
+        >
+          Openen
+        </button>
+
+      </div>
+
+    `).join("");
 }
