@@ -148,189 +148,203 @@ export async function loadUsers(
 
   `).join("");
       }
-      document
-  .querySelectorAll(
-    ".admin-user-card"
-  )
-  .forEach(card => {
+      setTimeout(() => {
 
-    card.onclick = async () => {
+  const cards =
+    document.querySelectorAll(
+      ".admin-user-card"
+    );
 
-      const userId =
-        card.dataset.userId;
+  console.log(
+    "ADMIN CARDS:",
+    cards.length
+  );
 
-      const user =
-        data.find(
-          u => u.id === userId
-        );
+  cards.forEach(card => {
 
-      if (!user) return;
+    card.addEventListener(
+      "click",
+      async () => {
 
-      const modal =
-        document.createElement(
-          "div"
-        );
+        const userId =
+          card.dataset.userId;
 
-      modal.className =
-        "modal-overlay";
+        const user =
+          data.find(
+            u => u.id === userId
+          );
 
-      modal.innerHTML = `
+        if (!user) return;
 
-        <div class="modal">
+        const modal =
+          document.createElement(
+            "div"
+          );
 
-          <h2>
-            Gebruiker beheren
-          </h2>
+        modal.className =
+          "modal-overlay";
 
-          <p>
-            ${user.email}
-          </p>
+        modal.innerHTML = `
 
-          <select id="editRole">
+          <div class="modal">
 
-            <option
-              value="vrijwilliger"
-              ${
-                user.role ===
-                "vrijwilliger"
-                  ? "selected"
-                  : ""
-              }
+            <h2>
+              Gebruiker beheren
+            </h2>
+
+            <p>
+              ${user.email}
+            </p>
+
+            <select id="editRole">
+
+              <option
+                value="vrijwilliger"
+                ${
+                  user.role ===
+                  "vrijwilliger"
+                    ? "selected"
+                    : ""
+                }
+              >
+                vrijwilliger
+              </option>
+
+              <option
+                value="hulpverlener"
+                ${
+                  user.role ===
+                  "hulpverlener"
+                    ? "selected"
+                    : ""
+                }
+              >
+                hulpverlener
+              </option>
+
+              <option
+                value="intake"
+                ${
+                  user.role ===
+                  "intake"
+                    ? "selected"
+                    : ""
+                }
+              >
+                intake
+              </option>
+
+              <option
+                value="admin"
+                ${
+                  user.role ===
+                  "admin"
+                    ? "selected"
+                    : ""
+                }
+              >
+                admin
+              </option>
+
+            </select>
+
+            <label
+              style="
+                display:flex;
+                gap:10px;
+                margin-top:20px;
+              "
             >
-              vrijwilliger
-            </option>
 
-            <option
-              value="hulpverlener"
-              ${
-                user.role ===
-                "hulpverlener"
-                  ? "selected"
-                  : ""
-              }
-            >
-              hulpverlener
-            </option>
+              <input
+                id="editApproved"
+                type="checkbox"
+                ${
+                  user.approved
+                    ? "checked"
+                    : ""
+                }
+              >
 
-            <option
-              value="intake"
-              ${
-                user.role ===
-                "intake"
-                  ? "selected"
-                  : ""
-              }
-            >
-              intake
-            </option>
+              Goedgekeurd
 
-            <option
-              value="admin"
-              ${
-                user.role ===
-                "admin"
-                  ? "selected"
-                  : ""
-              }
-            >
-              admin
-            </option>
+            </label>
 
-          </select>
+            <div class="modal-actions">
 
-          <label
-            style="
-              display:flex;
-              gap:10px;
-              margin-top:20px;
-            "
-          >
+              <button id="saveUserBtn">
+                Opslaan
+              </button>
 
-            <input
-              id="editApproved"
-              type="checkbox"
-              ${
-                user.approved
-                  ? "checked"
-                  : ""
-              }
-            >
+              <button id="closeUserBtn">
+                Sluiten
+              </button>
 
-            Goedgekeurd
-
-          </label>
-
-          <div class="modal-actions">
-
-            <button id="saveUserBtn">
-              Opslaan
-            </button>
-
-            <button id="closeUserBtn">
-              Sluiten
-            </button>
+            </div>
 
           </div>
+        `;
 
-        </div>
-      `;
+        document.body.appendChild(
+          modal
+        );
 
-      document.body.appendChild(
-        modal
-      );
+        document
+          .getElementById(
+            "closeUserBtn"
+          )
+          .onclick = () => {
 
-      document
-        .getElementById(
-          "closeUserBtn"
-        )
-        .onclick = () => {
+            modal.remove();
+          };
 
-          modal.remove();
-        };
+        document
+          .getElementById(
+            "saveUserBtn"
+          )
+          .onclick = async () => {
 
-      document
-        .getElementById(
-          "saveUserBtn"
-        )
-        .onclick = async () => {
+            const role =
+              document.getElementById(
+                "editRole"
+              ).value;
 
-          const role =
-            document.getElementById(
-              "editRole"
-            ).value;
+            const approved =
+              document.getElementById(
+                "editApproved"
+              ).checked;
 
-          const approved =
-            document.getElementById(
-              "editApproved"
-            ).checked;
+            const { error } =
+              await supabase
+                .from("profiles")
+                .update({
+                  role,
+                  approved
+                })
+                .eq(
+                  "id",
+                  user.id
+                );
 
-          const { error } =
-            await supabase
-              .from("profiles")
-              .update({
-                role,
-                approved
-              })
-              .eq(
-                "id",
-                user.id
+            if (error) {
+
+              alert(
+                error.message
               );
 
-          if (error) {
+              return;
+            }
 
-            alert(
-              error.message
+            modal.remove();
+
+            loadUsers(
+              supabase,
+              state
             );
-
-            return;
-          }
-
-          modal.remove();
-
-          loadUsers(
-            supabase,
-            state
-          );
-        };
-    };
+          };
+      }
+    );
   });
+
+}, 100);
+  
