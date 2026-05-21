@@ -385,4 +385,4 @@ if (
 document.addEventListener(
   "DOMContentLoaded",
   init
-);
+); 
