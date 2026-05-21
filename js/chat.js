@@ -367,3 +367,25 @@ function removeTyping() {
     loadMessages
   };
 }
+supabase
+  .channel("chat-realtime")
+
+  .on(
+    "postgres_changes",
+    {
+      event: "INSERT",
+      schema: "public",
+      table: "messages"
+    },
+    payload => {
+
+      console.log(
+        "NIEUW BERICHT",
+        payload
+      );
+
+      loadMessages();
+    }
+  )
+
+  .subscribe();
