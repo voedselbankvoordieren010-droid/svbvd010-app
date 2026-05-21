@@ -97,7 +97,7 @@ list.innerHTML =
 
     `;
   }).join("");
- id="fixprev2"
+ 
   const previews =
     document.querySelectorAll(
       ".file-preview"
