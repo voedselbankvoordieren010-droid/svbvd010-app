@@ -426,9 +426,27 @@ function showClientDetails(
         ${client.notes || ""}
       </p>
 
-      <button id="closeDetailsBtn">
-        Sluiten
-      </button>
+      <div class="modal-actions">
+
+  <button
+    id="approveClientBtn"
+  >
+    Goedkeuren
+  </button>
+
+  <button
+    id="spoedClientBtn"
+  >
+    Spoed
+  </button>
+
+  <button
+    id="closeDetailsBtn"
+  >
+    Sluiten
+  </button>
+
+</div>
 
     </div>
   `;
@@ -445,4 +463,58 @@ function showClientDetails(
 
       modal.remove();
     };
+}
+document
+  .getElementById(
+    "approveClientBtn"
+  )
+  .onclick = async () => {
+
+    await updateClientStatus(
+      client.id,
+      "actief"
+    );
+
+    modal.remove();
+  };
+
+document
+  .getElementById(
+    "spoedClientBtn"
+  )
+  .onclick = async () => {
+
+    await updateClientStatus(
+      client.id,
+      "spoed"
+    );
+
+    modal.remove();
+  };
+  async function updateClientStatus(
+  clientId,
+  status
+) {
+
+  const { error } =
+    await window.supabase
+      .from("clients")
+      .update({
+        status
+      })
+      .eq(
+        "id",
+        clientId
+      );
+
+  if (error) {
+
+    alert(
+      error.message
+    );
+
+    return;
+  }
+
+  location.reload();
 }
