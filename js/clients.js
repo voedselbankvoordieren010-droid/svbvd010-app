@@ -60,9 +60,18 @@ export async function loadClients(
 
     <div class="clients-header">
 
-      <h1>
-        Cliënten
-      </h1>
+      <div>
+
+        <h1>
+          Cliënten
+        </h1>
+
+        <input
+          id="clientSearch"
+          placeholder="Zoek cliënt..."
+        >
+
+      </div>
 
       <button id="newClientBtn">
         + Nieuwe cliënt
@@ -75,9 +84,9 @@ export async function loadClients(
       ${data.map(client => `
 
         <div
-  class="client-card"
-  data-id="${client.id}"
->
+          class="client-card"
+          data-id="${client.id}"
+        >
 
           <h3>
             ${client.full_name || ""}
@@ -91,9 +100,14 @@ export async function loadClients(
             ${client.phone || "-"}
           </p>
 
-          <p>
+          <div
+            class="
+              status-badge
+              ${client.status}
+            "
+          >
             ${client.status || "-"}
-          </p>
+          </div>
 
         </div>
 
@@ -101,28 +115,67 @@ export async function loadClients(
 
     </div>
   `;
-document
-  .querySelectorAll(
-    ".client-card"
-  )
-  .forEach(card => {
 
-    card.onclick = () => {
+  // detail modal
+  document
+    .querySelectorAll(
+      ".client-card"
+    )
+    .forEach(card => {
 
-      const client =
-        data.find(
-          c =>
-            c.id ===
-            card.dataset.id
+      card.onclick = () => {
+
+        const client =
+          data.find(
+            c =>
+              c.id ===
+              card.dataset.id
+          );
+
+        if (!client) return;
+
+        showClientDetails(
+          client
         );
+      };
+    });
 
-      if (!client) return;
+  // zoekfunctie
+  const search =
+    document.getElementById(
+      "clientSearch"
+    );
 
-      showClientDetails(
-        client
-      );
-    };
-  });
+  if (search) {
+
+    search.addEventListener(
+      "input",
+      e => {
+
+        const value =
+          e.target.value
+            .toLowerCase();
+
+        document
+          .querySelectorAll(
+            ".client-card"
+          )
+          .forEach(card => {
+
+            const visible =
+              card.innerText
+                .toLowerCase()
+                .includes(value);
+
+            card.style.display =
+              visible
+                ? "block"
+                : "none";
+          });
+      }
+    );
+  }
+
   initClientModal(
     supabase,
     state
@@ -176,20 +229,22 @@ export function initClientModal(
           id="clientCity"
           placeholder="Plaats"
         >
-<input
-  id="clientAddress"
-  placeholder="Adres"
->
 
-<input
-  id="clientPostal"
-  placeholder="Postcode"
->
+        <input
+          id="clientAddress"
+          placeholder="Adres"
+        >
 
-<textarea
-  id="clientAnimals"
-  placeholder="Dieren (1 per regel)"
-></textarea>
+        <input
+          id="clientPostal"
+          placeholder="Postcode"
+        >
+
+        <textarea
+          id="clientAnimals"
+          placeholder="Dieren (1 per regel)"
+        ></textarea>
+
         <textarea
           id="clientNotes"
           placeholder="Notities"
@@ -248,22 +303,24 @@ export function initClientModal(
           document.getElementById(
             "clientCity"
           ).value;
+
         const address =
-  document.getElementById(
-    "clientAddress"
-  ).value;
+          document.getElementById(
+            "clientAddress"
+          ).value;
 
-const postal_code =
-  document.getElementById(
-    "clientPostal"
-  ).value;
+        const postal_code =
+          document.getElementById(
+            "clientPostal"
+          ).value;
 
-const animals =
-  document.getElementById(
-    "clientAnimals"
-  ).value
-  .split("\n")
-  .filter(Boolean);
+        const animals =
+          document.getElementById(
+            "clientAnimals"
+          ).value
+          .split("\n")
+          .filter(Boolean);
+
         const notes =
           document.getElementById(
             "clientNotes"
@@ -278,13 +335,10 @@ const animals =
               email,
               phone,
               city,
+              address,
+              postal_code,
+              animals,
               notes,
-
-address,
-
-postal_code,
-
-animals,
 
               status: "nieuw",
 
@@ -310,6 +364,7 @@ animals,
       };
   };
 }
+
 function showClientDetails(
   client
 ) {
