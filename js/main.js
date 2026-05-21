@@ -20,6 +20,7 @@ import {
 } from "./admin.js";
 
 import {
+  loadClients,
   initClientModal
 } from "./clients.js";
 
