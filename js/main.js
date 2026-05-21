@@ -313,7 +313,10 @@ await new Promise(
               state
             );
           }
-
+            initClientModal(
+              supabase,
+               state
+       );
           // CHAT
           if (
             btn.dataset.tab ===

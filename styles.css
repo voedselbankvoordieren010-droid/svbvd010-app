@@ -106,3 +106,58 @@ body {
 
   color: orange;
 }
+.modal-overlay {
+
+  position: fixed;
+
+  inset: 0;
+
+  background:
+    rgba(0,0,0,.7);
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  z-index: 999;
+}
+
+.modal {
+
+  width: 400px;
+
+  background: #1e293b;
+
+  border-radius: 20px;
+
+  padding: 24px;
+
+  color: white;
+}
+
+.modal input,
+.modal textarea {
+
+  width: 100%;
+
+  margin-bottom: 12px;
+
+  padding: 12px;
+
+  border-radius: 10px;
+
+  border: none;
+
+  background: #0f172a;
+
+  color: white;
+}
+
+.modal-actions {
+
+  display: flex;
+
+  gap: 12px;
+}

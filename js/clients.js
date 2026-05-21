@@ -1,98 +1,150 @@
-export async function loadClients(
+import {
+  initClientModal
+} from "./clients.js";
+export function initClientModal(
   supabase,
   state
 ) {
 
-  console.log(
-    "LOAD CLIENTS START"
-  );
-
-  const container =
+  const btn =
     document.getElementById(
-      "clients"
+      "newClientBtn"
     );
 
-  if (!container) return;
+  if (!btn) return;
 
-  container.innerHTML =
-    "<p>Laden...</p>";
+  btn.onclick = () => {
 
-  const {
-    data,
-    error
-  } = await supabase
-    .from("clients")
-    .select("*")
-    .order(
-      "created_at",
-      { ascending: false }
-    );
+    const modal =
+      document.createElement("div");
 
-  console.log(
-    "CLIENTS DATA:",
-    data
-  );
+    modal.className =
+      "modal-overlay";
 
-  console.log(
-    "CLIENTS ERROR:",
-    error
-  );
+    modal.innerHTML = `
 
-  if (error) {
+      <div class="modal">
 
-    container.innerHTML = `
-      <p>
-        Fout bij laden cliënten
-      </p>
-    `;
+        <h2>
+          Nieuwe cliënt
+        </h2>
 
-    return;
-  }
+        <input
+          id="clientName"
+          placeholder="Naam"
+        >
 
-  if (!data.length) {
+        <input
+          id="clientEmail"
+          placeholder="Email"
+        >
 
-    container.innerHTML = `
-      <p>
-        Geen cliënten gevonden
-      </p>
-    `;
+        <input
+          id="clientPhone"
+          placeholder="Telefoon"
+        >
 
-    return;
-  }
+        <input
+          id="clientCity"
+          placeholder="Plaats"
+        >
 
-  container.innerHTML =
-    data.map(client => `
+        <textarea
+          id="clientNotes"
+          placeholder="Notities"
+        ></textarea>
 
-      <div class="client-card">
+        <div class="modal-actions">
 
-        <h3>
-          ${client.full_name || ""}
-        </h3>
+          <button id="saveClientBtn">
+            Opslaan
+          </button>
 
-        <p>
-          📧 ${client.email || "-"}
-        </p>
+          <button id="closeModalBtn">
+            Sluiten
+          </button>
 
-        <p>
-          📞 ${client.phone || "-"}
-        </p>
-
-        <p>
-          📍 ${client.city || "-"}
-        </p>
-
-        <p>
-          Status:
-          <strong>
-            ${client.status || "-"}
-          </strong>
-        </p>
-
-        <p>
-          ${client.notes || ""}
-        </p>
+        </div>
 
       </div>
+    `;
 
-    `).join("");
+    document.body.appendChild(
+      modal
+    );
+
+    document
+      .getElementById(
+        "closeModalBtn"
+      )
+      .onclick = () => {
+
+        modal.remove();
+      };
+
+    document
+      .getElementById(
+        "saveClientBtn"
+      )
+      .onclick = async () => {
+
+        const full_name =
+          document.getElementById(
+            "clientName"
+          ).value;
+
+        const email =
+          document.getElementById(
+            "clientEmail"
+          ).value;
+
+        const phone =
+          document.getElementById(
+            "clientPhone"
+          ).value;
+
+        const city =
+          document.getElementById(
+            "clientCity"
+          ).value;
+
+        const notes =
+          document.getElementById(
+            "clientNotes"
+          ).value;
+
+        const { error } =
+          await supabase
+            .from("clients")
+            .insert({
+
+              full_name,
+              email,
+              phone,
+              city,
+              notes,
+
+              status: "nieuw",
+
+              created_by:
+                state.session.user.id
+            });
+
+        if (error) {
+
+          alert(
+            error.message
+          );
+
+          return;
+        }
+
+        modal.remove();
+
+        loadClients(
+          supabase,
+          state
+        );
+      };
+  };
 }
