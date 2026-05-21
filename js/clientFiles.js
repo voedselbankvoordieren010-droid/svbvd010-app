@@ -97,6 +97,33 @@ list.innerHTML =
 
     `;
   }).join("");
+```javascript id="fixprev2"
+  const previews =
+    document.querySelectorAll(
+      ".file-preview"
+    );
+
+  for (const img of previews) {
+
+    const path =
+      img.dataset.path;
+
+    const { data } =
+      await supabase
+        .storage
+        .from("client-files")
+        .createSignedUrl(
+          path,
+          3600
+        );
+
+    if (data?.signedUrl) {
+
+      img.src =
+        data.signedUrl;
+    }
+  }
+```
 
 
   document
