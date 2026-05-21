@@ -1,4 +1,10 @@
 import {
+  loadClientFiles,
+  uploadClientFile
+} from "./clientFiles";
+
+
+import {
   openEditClientModal
 } from "./clientEdit";
 
@@ -50,6 +56,25 @@ export function showClientDetails(
       </h3>
 
       <ul>
+      
+      <h3>
+        Bestanden
+      </h3>
+
+      <input
+        id="clientFileInput"
+        type="file"
+      >
+
+      <button
+        id="uploadClientFileBtn"
+      >
+        Upload bestand
+      </button>
+
+      <div id="clientFilesList">
+      </div>
+
 
         ${(client.animals || [])
           .map(animal => `
@@ -81,6 +106,24 @@ export function showClientDetails(
   document.body.appendChild(
     modal
   );
+
+  loadClientFiles(
+    client.id,
+    supabase
+  );
+
+  document
+    .getElementById(
+      "uploadClientFileBtn"
+    )
+    .onclick = () => {
+
+      uploadClientFile(
+        client,
+        supabase
+      );
+    };
+
 
   
   document
