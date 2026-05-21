@@ -171,7 +171,48 @@ await new Promise(
     "PROFILE OK",
     state.profile
   );
+const role =
+  state.profile.role;
 
+const canViewClients =
+  [
+    "admin",
+    "hulpverlener",
+    "intake"
+  ].includes(role);
+
+const canViewAdmin =
+  role === "admin";
+
+if (
+  !canViewAdmin
+) {
+
+  const adminBtn =
+    document.querySelector(
+      '[data-tab="admin"]'
+    );
+
+  if (adminBtn) {
+
+    adminBtn.remove();
+  }
+}
+
+if (
+  !canViewClients
+) {
+
+  const clientsBtn =
+    document.querySelector(
+      '[data-tab="clients"]'
+    );
+
+  if (clientsBtn) {
+
+    clientsBtn.remove();
+  }
+}
   // NOTIFICATIES
   await loadNotifications(
     supabase,

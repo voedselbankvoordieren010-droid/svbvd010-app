@@ -243,3 +243,36 @@ body {
 
   color: #f87171;
 }
+.role-badge {
+
+  display: inline-block;
+
+  padding: 6px 12px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+
+  font-weight: bold;
+}
+
+.role-badge.admin {
+
+  background: #ef444420;
+
+  color: #f87171;
+}
+
+.role-badge.vrijwilliger {
+
+  background: #3b82f620;
+
+  color: #60a5fa;
+}
+
+.role-badge.intake {
+
+  background: #22c55e20;
+
+  color: #4ade80;
+}

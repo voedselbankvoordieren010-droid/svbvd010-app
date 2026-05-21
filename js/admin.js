@@ -3,6 +3,18 @@ export async function loadUsers(
   state
 ) {
 
+  if (
+    state.profile.role !==
+    "admin"
+  ) {
+
+    return;
+  }
+export async function loadUsers(
+  supabase,
+  state
+) {
+
   const list =
     document.getElementById(
       "userList"
