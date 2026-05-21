@@ -463,7 +463,7 @@ function showClientDetails(
 
       modal.remove();
     };
-}
+
 document
   .getElementById(
     "spoedClientBtn"
