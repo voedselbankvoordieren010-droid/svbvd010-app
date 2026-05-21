@@ -66,26 +66,79 @@ async function showLogin() {
 
   app.innerHTML = `
 
-  <div class="login-screen">
+    <div class="login-screen">
 
-    <div class="login-card">
+      <div class="login-card">
 
-      <h1>
-        SVBVD010
-      </h1>
+        <h1>
+          SVBVD010
+        </h1>
 
-      <button id="loginBtn">
-        Inloggen met Microsoft
-      </button>
-    <button id="googleLoginBtn">
-  Inloggen met Google
-</button>
+        <button id="loginBtn">
+          Inloggen met Microsoft
+        </button>
 
+        <button id="googleLoginBtn">
+          Inloggen met Google
+        </button>
+
+      </div>
 
     </div>
+  `;
 
-  </div>
-`;
+  // MICROSOFT LOGIN
+  const loginBtn =
+    document.getElementById(
+      "loginBtn"
+    );
+
+  if (loginBtn) {
+
+    loginBtn.onclick =
+      async () => {
+
+        const {
+          error
+        } = await supabase
+          .auth
+          .signInWithOAuth({
+
+            provider: "azure"
+          });
+
+        if (error) {
+
+          console.error(
+            "MICROSOFT LOGIN ERROR:",
+            error
+          );
+        }
+      };
+  }
+
+  // GOOGLE LOGIN
+  const googleBtn =
+    document.getElementById(
+      "googleLoginBtn"
+    );
+
+  if (googleBtn) {
+
+    googleBtn.onclick =
+      async () => {
+
+        console.log(
+          "GOOGLE LOGIN CLICK"
+        );
+
+        await loginWithGoogle(
+          supabase
+        );
+      };
+  }
+}
+
 
 const loginBtn =
   document.getElementById(
