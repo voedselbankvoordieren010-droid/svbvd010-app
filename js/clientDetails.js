@@ -82,6 +82,7 @@ export function showClientDetails(
     modal
   );
 
+  
   document
     .getElementById(
       "closeDetailsBtn"
@@ -90,8 +91,7 @@ export function showClientDetails(
 
       modal.remove();
     };
-}
-```javascript
+
   document
     .getElementById(
       "editClientBtn"
@@ -103,5 +103,4 @@ export function showClientDetails(
         supabase
       );
     };
-```
-
+}
