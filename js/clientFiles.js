@@ -53,26 +53,7 @@ export async function loadClientFiles(
     return;
   }
 
-  list.innerHTML =
-    data.map(file => `
-
-      <div class="file-item">
-
-        <p>
-          ${file.file_name}
-        </p>
-
-        <button
-          class="open-file-btn"
-          data-path="${file.file_path}"
-        >
-          Openen
-        </button>
-
-      </div>
-
-    `).join("");
-
+  list.innerHTML = data.map(file => { const isImage = file.file_name .match( /\.(jpg|jpeg|png|gif|webp)$/i ); return ` <div class="file-item"> ${ isImage ? ` <img class="file-preview" src="https://qybobqolknvovigickpy.supabase.co/storage/v1/object/public/client-files/${file.file_path}" > ` : ` <div class="file-icon"> 📄 </div> ` } <p> ${file.file_name} </p> <button class="open-file-btn" data-path="${file.file_path}" > Openen </button> </div> `; }).join("");
   document
     .querySelectorAll(
       ".open-file-btn"
