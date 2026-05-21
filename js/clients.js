@@ -466,6 +466,19 @@ function showClientDetails(
 }
 document
   .getElementById(
+    "spoedClientBtn"
+  )
+  .onclick = async () => {
+
+    await updateClientStatus(
+      client.id,
+      "spoed"
+    );
+
+    modal.remove();
+  };
+document
+  .getElementById(
     "approveClientBtn"
   )
   .onclick = async () => {
@@ -478,19 +491,7 @@ document
     modal.remove();
   };
 
-document
-  .getElementById(
-    "spoedClientBtn"
-  )
-  .onclick = async () => {
 
-    await updateClientStatus(
-      client.id,
-      "spoed"
-    );
-
-    modal.remove();
-  };
   async function updateClientStatus(
   clientId,
   status
