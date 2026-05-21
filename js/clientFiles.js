@@ -97,7 +97,7 @@ list.innerHTML =
 
     `;
   }).join("");
-```javascript id="fixprev2"
+ id="fixprev2"
   const previews =
     document.querySelectorAll(
       ".file-preview"
@@ -123,7 +123,7 @@ list.innerHTML =
         data.signedUrl;
     }
   }
-```
+
 
 
   document
