@@ -262,3 +262,33 @@ export async function loadProfile(
     return false;
   }
 }
+export async function loginWithGoogle(
+  supabase
+) {
+
+  const {
+    error
+  } = await supabase
+    .auth
+    .signInWithOAuth({
+
+      provider: "google",
+
+      options: {
+
+        redirectTo:
+          window.location.origin
+      }
+    });
+
+  if (error) {
+
+    console.error(
+      error
+    );
+
+    alert(
+      error.message
+    );
+  }
+}
