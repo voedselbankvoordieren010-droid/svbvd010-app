@@ -26,7 +26,8 @@ import {
 
 import {
   loadOwnClientProfile
-} from "./clientPortal.js";
+} from "./clientPortal";
+
 
 import {
   loginWithGoogle
@@ -222,11 +223,14 @@ const role =
   const canViewAdmin =
     role === "admin";
 
-  // CLIENT PORTAL 
-  // if (role === "client") { 
-  // loadOwnClientProfile( 
-  // supabase, 
-  // state.profile ); }
+  // CLIENT PORTAL
+  if (role === "client") {
+
+    loadOwnClientProfile(
+      supabase,
+      state.profile
+    );
+  }
 
 // ADMIN TAB
   if (!canViewAdmin) {
