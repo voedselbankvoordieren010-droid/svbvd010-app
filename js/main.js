@@ -227,42 +227,7 @@ const role =
   const canViewAdmin =
     role === "admin";
 
-  // CLIENT PORTAL
-  if (role === "client") {
-
-    loadOwnClientProfile(
-      supabase,
-      state.profile
-    );
-  }
-
-// ADMIN TAB
-  if (!canViewAdmin) {
-
-    const adminBtn =
-      document.querySelector(
-        '[data-tab="admin"]'
-      );
-
-    if (adminBtn) {
-
-      adminBtn.remove();
-    }
-  }
-
-  // CLIENT TAB
-  if (!canViewClients) {
-
-    const clientsBtn =
-      document.querySelector(
-        '[data-tab="clients"]'
-      );
-
-    if (clientsBtn) {
-
-      clientsBtn.remove();
-    }
-  }
+  // CLIENT PORTAL if (role === "client") { const tabs = document.querySelector( ".tabs" ); if (tabs) { tabs.remove(); } const dashboard = document.getElementById( "dashboard" ); if (dashboard) { dashboard.innerHTML = ` <div id="chatList"></div> `; } await loadOwnClientProfile( supabase, state.profile ); document.body.style.visibility = "visible"; return; } // ADMIN TAB if (!canViewAdmin) { const adminBtn = document.querySelector( '[data-tab="admin"]' ); if (adminBtn) { adminBtn.remove(); } } // CLIENT TAB if (!canViewClients) { const clientsBtn = document.querySelector( '[data-tab="clients"]' ); if (clientsBtn) { clientsBtn.remove(); } }
 
   // NOTIFICATIES
 
