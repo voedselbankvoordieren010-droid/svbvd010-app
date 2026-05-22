@@ -326,6 +326,13 @@ if (role === "client") {
 
 
   // NOTIFICATIES
+if (role === "client") {
+
+  document.body.style.visibility =
+    "visible";
+
+  return;
+}
 
   await loadNotifications(
     supabase,
