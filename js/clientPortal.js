@@ -230,4 +230,5 @@ export async function loadOwnClientProfile(supabase, profile) {
           }
         };
     });
+ }
 }
