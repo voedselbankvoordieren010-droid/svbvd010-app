@@ -4,9 +4,10 @@ export async function loadOwnClientProfile(
 ) {
 
   const clientsPanel =
-    document.getElementById(
-      "clients"
-    );
+  document.getElementById(
+    "chatList"
+  );
+
 
   if (!clientsPanel) {
     return;
