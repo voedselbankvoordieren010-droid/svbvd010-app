@@ -1,4 +1,5 @@
-import "../styles.css";
+import "./styles.css";
+
 
 import { supabase } from "./supabase.js";
 
@@ -220,7 +221,13 @@ const role =
   // CLIENT PORTAL
 if (role === "client") {
 
-  document.body.innerHTML = `
+  const app =
+  document.getElementById(
+    "app"
+  );
+
+app.innerHTML = `
+
 
     <div class="topbar">
 
