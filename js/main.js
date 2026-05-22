@@ -139,46 +139,6 @@ async function showLogin() {
   }
 }
 
-
-const loginBtn =
-  document.getElementById(
-    "loginBtn"
-  );
-
-if (!loginBtn) {
-  return;
-}
-
-loginBtn.onclick =
-  async () => {
-
-    const { error } =
-      await supabase.auth
-        .signInWithOAuth({
-          provider: "azure"
-        });
-
-    if (error) {
-
-      console.error(error);
-
-    }
-  };
-
-}
-document
-  .getElementById(
-    "googleLoginBtn"
-  )
-  ?.addEventListener(
-    "click",
-    () => {
-
-      loginWithGoogle(
-        supabase
-      );
-    }
-  );
 async function init() {
 await new Promise(
   resolve =>
@@ -250,48 +210,57 @@ await new Promise(
     state.profile
   );
 const role =
-  state.profile.role;
+    state.profile.role;
 
-const canViewClients =
-  [
-    "admin",
-    "hulpverlener",
-    "intake"
-  ].includes(role);
-  if ( role === "client" ) { loadOwnClientProfile( supabase, state.profile ); }
-const canViewAdmin =
-  role === "admin";
+  const canViewClients =
+    [
+      "admin",
+      "hulpverlener",
+      "intake"
+    ].includes(role);
 
-if (
-  !canViewAdmin
-) {
+  const canViewAdmin =
+    role === "admin";
 
-  const adminBtn =
-    document.querySelector(
-      '[data-tab="admin"]'
+  // CLIENT PORTAL
+  if (role === "client") {
+
+    loadOwnClientProfile(
+      supabase,
+      state.profile
     );
-
-  if (adminBtn) {
-
-    adminBtn.remove();
   }
-}
 
-if (
-  !canViewClients
-) {
+  // ADMIN TAB
+  if (!canViewAdmin) {
 
-  const clientsBtn =
-    document.querySelector(
-      '[data-tab="clients"]'
-    );
+    const adminBtn =
+      document.querySelector(
+        '[data-tab="admin"]'
+      );
 
-  if (clientsBtn) {
+    if (adminBtn) {
 
-    clientsBtn.remove();
+      adminBtn.remove();
+    }
   }
-}
+
+  // CLIENT TAB
+  if (!canViewClients) {
+
+    const clientsBtn =
+      document.querySelector(
+        '[data-tab="clients"]'
+      );
+
+    if (clientsBtn) {
+
+      clientsBtn.remove();
+    }
+  }
+
   // NOTIFICATIES
+
   await loadNotifications(
     supabase,
     state
