@@ -217,6 +217,55 @@ document.body.style.visibility =
 const role =
     state.profile.role;
 
+  // CLIENT PORTAL
+if (role === "client") {
+
+  document.body.innerHTML = `
+
+    <div class="topbar">
+
+      <div id="userMeta">
+        ${state.profile.email}
+      </div>
+
+      <button id="logoutBtn">
+        Logout
+      </button>
+
+    </div>
+
+    <main class="tab-panel">
+
+      <div id="chatList">
+        Laden...
+      </div>
+
+    </main>
+  `;
+
+  document
+    .getElementById(
+      "logoutBtn"
+    )
+    .onclick = async () => {
+
+      await supabase.auth.signOut();
+
+      location.reload();
+    };
+
+  await loadOwnClientProfile(
+    supabase,
+    state.profile
+  );
+
+  document.body.style.visibility =
+    "visible";
+
+  return;
+}
+
+
   const canViewClients =
     [
       "admin",
@@ -227,8 +276,8 @@ const role =
   const canViewAdmin =
     role === "admin";
 
-  // CLIENT PORTAL if (role === "client") { const tabs = document.querySelector( ".tabs" ); if (tabs) { tabs.remove(); } const dashboard = document.getElementById( "dashboard" ); if (dashboard) { dashboard.innerHTML = ` <div id="chatList"></div> `; } await loadOwnClientProfile( supabase, state.profile ); document.body.style.visibility = "visible"; return; } // ADMIN TAB if (!canViewAdmin) { const adminBtn = document.querySelector( '[data-tab="admin"]' ); if (adminBtn) { adminBtn.remove(); } } // CLIENT TAB if (!canViewClients) { const clientsBtn = document.querySelector( '[data-tab="clients"]' ); if (clientsBtn) { clientsBtn.remove(); } }
 
+    
   // NOTIFICATIES
 
   await loadNotifications(
