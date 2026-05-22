@@ -250,8 +250,37 @@ for (const img of previews) {
 
     img.src =
       data.signedUrl;
-  ; 
-} 
-}; 
-}; 
+  }
+}
+
+document
+  .querySelectorAll(
+    ".open-client-file"
+  )
+  .forEach(btn => {
+
+    btn.onclick =
+      async () => {
+
+        const path =
+          btn.dataset.path;
+
+        const { data } =
+          await supabase
+            .storage
+            .from("client-files")
+            .createSignedUrl(
+              path,
+              3600
+            );
+
+        if (data?.signedUrl) {
+
+          window.open(
+            data.signedUrl
+          );
+        }
+      };
+  });
+}
 }
