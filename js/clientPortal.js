@@ -33,6 +33,201 @@ export async function loadOwnClientProfile(supabase, profile) {
       <p>📞 ${data.phone || "-"}</p>
       <p>📍 ${data.address || "-"}</p>
       <p>Status: ${data.status || "-"}</p>
+    
+      </div>
+
+      <div class="client-card">
+
+        <h2>
+          Mijn bestanden
+        </h2>
+
+        <input
+          id="clientUploadInput"
+          type="file"
+        >
+
+        <button
+          id="uploadClientFileBtn"
+        >
+          Upload bestand
+        </button>
+
+        <div id="clientFilesList">
+          Laden...
+        </div>
+
+      </div>
     </div>
   `;
+
+  await loadClientFiles(
+    supabase,
+    profile.client_id
+  );
+
+  const uploadBtn =
+    document.getElementById(
+      "uploadClientFileBtn"
+    );
+
+  if (uploadBtn) {
+
+    uploadBtn.onclick =
+      async () => {
+
+        const input =
+          document.getElementById(
+            "clientUploadInput"
+          );
+
+        const file =
+          input.files[0];
+
+        if (!file) {
+          return;
+        }
+
+        const filePath =
+          `${profile.client_id}/${Date.now()}-${file.name}`;
+
+        const {
+          error: uploadError
+        } = await supabase
+          .storage
+          .from("client-files")
+          .upload(
+            filePath,
+            file
+          );
+
+        if (uploadError) {
+
+          console.error(
+            uploadError
+          );
+
+          return;
+        }
+
+        await supabase
+          .from("client_files")
+          .insert({
+
+            client_id:
+              profile.client_id,
+
+            file_name:
+              file.name,
+
+            file_path:
+              filePath
+          });
+
+        await loadClientFiles(
+          supabase,
+          profile.client_id
+        );
+      };
+    }
+  async function loadClientFiles(
+  supabase,
+  clientId
+) {
+
+  const list =
+    document.getElementById(
+      "clientFilesList"
+    );
+
+  if (!list) {
+    return;
+  }
+
+  const {
+    data,
+    error
+  } = await supabase
+    .from("client_files")
+    .select("*")
+    .eq(
+      "client_id",
+      clientId
+    )
+    .order(
+      "created_at",
+      {
+        ascending: false
+      }
+    );
+
+  if (error) {
+
+    console.error(error);
+
+    list.innerHTML =
+      "Fout bij laden";
+
+    return;
+  }
+
+  if (!data?.length) {
+
+    list.innerHTML =
+      "Geen bestanden";
+
+    return;
+  }
+
+  list.innerHTML =
+    data.map(file => `
+
+      <div class="file-item">
+
+        <p>
+          ${file.file_name}
+        </p>
+
+        <button
+          class="open-client-file"
+          data-path="${file.file_path}"
+        >
+          Openen
+        </button>
+
+      </div>
+
+    `).join("");
+
+  document
+    .querySelectorAll(
+      ".open-client-file"
+    )
+    .forEach(btn => {
+
+      btn.onclick =
+        async () => {
+
+          const path =
+            btn.dataset.path;
+
+          const { data } =
+            await supabase
+              .storage
+              .from("client-files")
+              .createSignedUrl(
+                path,
+                3600
+              );
+
+          if (
+            data?.signedUrl
+          ) {
+
+            window.open(
+              data.signedUrl
+            );
+          }
+        };
+    });
 }
