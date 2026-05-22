@@ -141,7 +141,11 @@ async function showLogin() {
 }
 
 async function init() {
-await new Promise(
+document.body.style.visibility =
+    "hidden";
+
+
+  await new Promise(
   resolve =>
     setTimeout(resolve, 1500)
 );
@@ -425,6 +429,9 @@ const role =
         }
       );
     });
+   document.body.style.visibility =
+    "visible";
+
 
   console.log("APP READY");
 }
