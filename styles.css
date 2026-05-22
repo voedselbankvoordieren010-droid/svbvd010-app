@@ -353,3 +353,33 @@ body {
 
   border-radius: 999px;
 }
+.file-item {
+
+  background: #273449;
+
+  border-radius: 20px;
+
+  padding: 20px;
+
+  margin-top: 20px;
+}
+
+.file-preview {
+
+  width: 100%;
+
+  max-height: 250px;
+
+  object-fit: cover;
+
+  border-radius: 16px;
+
+  margin-bottom: 16px;
+}
+
+.file-icon {
+
+  font-size: 60px;
+
+  margin-bottom: 16px;
+}

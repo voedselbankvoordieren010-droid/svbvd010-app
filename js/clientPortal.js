@@ -180,9 +180,36 @@ export async function loadOwnClientProfile(supabase, profile) {
   }
 
   list.innerHTML =
-    data.map(file => `
+  data.map(file => {
+
+    const isImage =
+      file.file_name.match(
+        /\.(jpg|jpeg|png|gif|webp)$/i
+      );
+
+    const preview =
+      isImage
+        ? `
+
+          <img
+            class="file-preview"
+            data-path="${file.file_path}"
+          >
+
+        `
+        : `
+
+          <div class="file-icon">
+            📄
+          </div>
+
+        `;
+
+    return `
 
       <div class="file-item">
+
+        ${preview}
 
         <p>
           ${file.file_name}
@@ -197,38 +224,34 @@ export async function loadOwnClientProfile(supabase, profile) {
 
       </div>
 
-    `).join("");
+    `;
+  }).join("");
 
-  document
-    .querySelectorAll(
-      ".open-client-file"
-    )
-    .forEach(btn => {
+const previews =
+  document.querySelectorAll(
+    ".file-preview"
+  );
 
-      btn.onclick =
-        async () => {
+for (const img of previews) {
 
-          const path =
-            btn.dataset.path;
+  const path =
+    img.dataset.path;
 
-          const { data } =
-            await supabase
-              .storage
-              .from("client-files")
-              .createSignedUrl(
-                path,
-                3600
-              );
+  const { data } =
+    await supabase
+      .storage
+      .from("client-files")
+      .createSignedUrl(
+        path,
+        3600
+      );
 
-          if (
-            data?.signedUrl
-          ) {
+  if (data?.signedUrl) {
 
-            window.open(
-              data.signedUrl
-            );
-          }
-        };
-    });
- }
+    img.src =
+      data.signedUrl;
+  ; 
+} 
+}; 
+}; 
 }
