@@ -265,53 +265,6 @@ if (role === "client") {
   return;
 }
 
-// STOP hier volledig voor clients
-if (role === "client") {
-
-  document.body.innerHTML = `
-
-    <div class="topbar">
-
-      <div id="userMeta">
-        ${state.profile.email}
-      </div>
-
-      <button id="logoutBtn">
-        Logout
-      </button>
-
-    </div>
-
-    <main class="tab-panel">
-
-      <div id="chatList">
-        Laden...
-      </div>
-
-    </main>
-  `;
-
-  document
-    .getElementById(
-      "logoutBtn"
-    )
-    .onclick = async () => {
-
-      await supabase.auth.signOut();
-
-      location.reload();
-    };
-
-  await loadOwnClientProfile(
-    supabase,
-    state.profile
-  );
-
-  document.body.style.visibility =
-    "visible";
-
-  return;
-}
 
   const canViewClients =
     [
@@ -322,17 +275,6 @@ if (role === "client") {
 
   const canViewAdmin =
     role === "admin";
-
-
-
-  // NOTIFICATIES
-if (role === "client") {
-
-  document.body.style.visibility =
-    "visible";
-
-  return;
-}
 
   await loadNotifications(
     supabase,
