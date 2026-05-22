@@ -1,11 +1,11 @@
 import "../styles.css";
 
-
 import { supabase } from "./supabase.js";
 
 import {
   checkSession,
-  loadProfile
+  loadProfile,
+  loginWithGoogle
 } from "./auth.js";
 
 import {
@@ -27,13 +27,7 @@ import {
 
 import {
   loadOwnClientProfile
-} from "./clientPortal";
-
-
-import {
-  loginWithGoogle
-} from "./auth.js";
-
+} from "./clientPortal.js";
 
 console.log("MAIN STARTED");
 
@@ -45,9 +39,11 @@ const state = {
 window.supabase = supabase;
 window.state = state;
 
+// GLOBAL ERRORS
 window.addEventListener(
   "error",
   e => {
+
     console.error(
       "GLOBAL ERROR:",
       e.error
@@ -55,6 +51,7 @@ window.addEventListener(
   }
 );
 
+// LOGIN SCREEN
 async function showLogin() {
 
   const app =
@@ -130,10 +127,6 @@ async function showLogin() {
     googleBtn.onclick =
       async () => {
 
-        console.log(
-          "GOOGLE LOGIN CLICK"
-        );
-
         await loginWithGoogle(
           supabase
         );
@@ -141,98 +134,26 @@ async function showLogin() {
   }
 }
 
-async function init() {
-document.body.style.visibility =
-    "hidden";
-
-
-  await new Promise(
-  resolve =>
-    setTimeout(resolve, 1500)
-);
-
-  console.log("INIT START");
-
-  // access token uit URL verwijderen
-  const hash =
-    window.location.hash;
-
-  if (
-    hash &&
-    hash.includes(
-      "access_token"
-    )
-  ) {
-
-    window.history.replaceState(
-      null,
-      null,
-      window.location.pathname +
-      window.location.search
-    );
-  }
-
-  // SESSION
-  const ok =
-    await checkSession(
-      supabase,
-      state
-    );
-
-  if (!ok) {
-
-    console.error(
-      "GEEN SESSION"
-    );
-
-    await showLogin();
-
-    return;
-  }
-
-  console.log(
-    "SESSION OK",
-    state.session
-  );
-
-  // PROFILE
-  const profileOk =
-    await loadProfile(
-      supabase,
-      state
-    );
-
-  if (!profileOk) {
-
-    console.error(
-      "PROFILE FAILED"
-    );
-
-    return;
-  }
-
-  console.log(
-    "PROFILE OK",
-    state.profile
-  );
-const role =
-    state.profile.role;
-
-  // CLIENT PORTAL
-if (role === "client") {
+// CLIENT PORTAL
+async function renderClientPortal() {
 
   const app =
-  document.getElementById(
-    "app"
-  );
+    document.getElementById(
+      "app"
+    );
 
-app.innerHTML = `
+  if (!app) {
+    return;
+  }
 
+  app.innerHTML = `
 
     <div class="topbar">
 
       <div id="userMeta">
+
         ${state.profile.email}
+
       </div>
 
       <button id="logoutBtn">
@@ -250,28 +171,35 @@ app.innerHTML = `
     </main>
   `;
 
-  document
-    .getElementById(
+  const logoutBtn =
+    document.getElementById(
       "logoutBtn"
-    )
-    .onclick = async () => {
+    );
 
-      await supabase.auth.signOut();
+  if (logoutBtn) {
 
-      location.reload();
-    };
+    logoutBtn.onclick =
+      async () => {
+
+        await supabase
+          .auth
+          .signOut();
+
+        location.reload();
+      };
+  }
 
   await loadOwnClientProfile(
     supabase,
     state.profile
   );
-
-  document.body.style.visibility =
-    "visible";
-
-  return;
 }
 
+// ADMIN DASHBOARD
+async function renderDashboard() {
+
+  const role =
+    state.profile?.role;
 
   const canViewClients =
     [
@@ -283,6 +211,7 @@ app.innerHTML = `
   const canViewAdmin =
     role === "admin";
 
+  // NOTIFICATIONS
   await loadNotifications(
     supabase,
     state
@@ -303,7 +232,35 @@ app.innerHTML = `
     chat.init();
   }
 
-  // notificaties
+  // ADMIN TAB
+  if (!canViewAdmin) {
+
+    const adminBtn =
+      document.querySelector(
+        '[data-tab="admin"]'
+      );
+
+    if (adminBtn) {
+
+      adminBtn.remove();
+    }
+  }
+
+  // CLIENT TAB
+  if (!canViewClients) {
+
+    const clientsBtn =
+      document.querySelector(
+        '[data-tab="clients"]'
+      );
+
+    if (clientsBtn) {
+
+      clientsBtn.remove();
+    }
+  }
+
+  // NOTIFICATIONS UI
   const notifBell =
     document.getElementById(
       "notifBell"
@@ -332,7 +289,7 @@ app.innerHTML = `
     );
   }
 
-  // logout
+  // LOGOUT
   const logoutBtn =
     document.getElementById(
       "logoutBtn"
@@ -344,14 +301,16 @@ app.innerHTML = `
       "click",
       async () => {
 
-        await supabase.auth.signOut();
+        await supabase
+          .auth
+          .signOut();
 
-        window.location.reload();
+        location.reload();
       }
     );
   }
 
-  // tabs
+  // TABS
   document
     .querySelectorAll(
       ".tab-button"
@@ -362,7 +321,7 @@ app.innerHTML = `
         "click",
         () => {
 
-          // active knop
+          // ACTIVE BUTTON
           document
             .querySelectorAll(
               ".tab-button"
@@ -377,7 +336,7 @@ app.innerHTML = `
             "is-active"
           );
 
-          // panels verbergen
+          // HIDE PANELS
           document
             .querySelectorAll(
               ".tab-panel"
@@ -388,7 +347,7 @@ app.innerHTML = `
               )
             );
 
-          // juiste panel tonen
+          // SHOW PANEL
           const panel =
             document.getElementById(
               btn.dataset.tab
@@ -423,11 +382,13 @@ app.innerHTML = `
               supabase,
               state
             );
-          }
+
             initClientModal(
               supabase,
-               state
-       );
+              state
+            );
+          }
+
           // CHAT
           if (
             btn.dataset.tab ===
@@ -442,19 +403,92 @@ app.innerHTML = `
               chat.loadMessages();
             }
           }
-
         }
       );
     });
-   document.body.style.visibility =
-    "visible";
+}
 
+// INIT
+async function init() {
 
-  console.log("APP READY");
+  console.log(
+    "INIT START"
+  );
+
+  // REMOVE ACCESS TOKEN FROM URL
+  const hash =
+    window.location.hash;
+
+  if (
+    hash &&
+    hash.includes(
+      "access_token"
+    )
+  ) {
+
+    window.history.replaceState(
+      null,
+      null,
+      window.location.pathname +
+      window.location.search
+    );
+  }
+
+  // SESSION
+  const hasSession =
+    await checkSession(
+      supabase,
+      state
+    );
+
+  if (!hasSession) {
+
+    await showLogin();
+
+    return;
+  }
+
+  // PROFILE
+  const profileLoaded =
+    await loadProfile(
+      supabase,
+      state
+    );
+
+  if (!profileLoaded) {
+
+    console.error(
+      "PROFILE FAILED"
+    );
+
+    return;
+  }
+
+  const role =
+    state.profile?.role;
+
+  // CLIENT
+  if (role === "client") {
+
+    await renderClientPortal();
+
+    console.log(
+      "CLIENT PORTAL READY"
+    );
+
+    return;
+  }
+
+  // ADMIN DASHBOARD
+  await renderDashboard();
+
+  console.log(
+    "APP READY"
+  );
 }
 
 // START
 document.addEventListener(
   "DOMContentLoaded",
   init
-); 
+);

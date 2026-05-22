@@ -12,20 +12,17 @@ export async function checkSession(
       .auth
       .getSession();
 
-    console.log(
-      "SESSION:",
-      data
-    );
+    if (error) {
 
-    console.log(
-      "SESSION ERROR:",
-      error
-    );
+      console.error(
+        "SESSION ERROR:",
+        error
+      );
 
-    if (
-      error ||
-      !data?.session
-    ) {
+      return false;
+    }
+
+    if (!data?.session) {
 
       console.log(
         "GEEN SESSION"
@@ -36,6 +33,10 @@ export async function checkSession(
 
     state.session =
       data.session;
+
+    console.log(
+      "SESSION OK"
+    );
 
     return true;
 
@@ -73,7 +74,7 @@ export async function loadProfile(
       return false;
     }
 
-    // bestaand profiel ophalen
+    // BESTAAND PROFIEL
     let {
       data: profile,
       error: profileError
@@ -86,31 +87,36 @@ export async function loadProfile(
       )
       .maybeSingle();
 
-    console.log(
-      "PROFILE DATA:",
-      profile
-    );
-
-    console.log(
-      "PROFILE ERROR:",
-      profileError
-    );
-
     if (profileError) {
 
       console.error(
+        "PROFILE ERROR:",
         profileError
       );
 
       return false;
     }
 
-    // profiel bestaat nog niet
+    // NIEUW PROFIEL
     if (!profile) {
 
       console.log(
         "NIEUW PROFIEL"
       );
+
+      const email =
+        user.email
+          ?.trim()
+          ?.toLowerCase() || "";
+
+      const full_name =
+        user.user_metadata
+          ?.full_name ||
+
+        user.user_metadata
+          ?.name ||
+
+        email;
 
       const {
         data: newProfile,
@@ -122,18 +128,9 @@ export async function loadProfile(
           id:
             user.id,
 
-          email:
-            user.email,
+          email,
 
-          full_name:
-
-            user.user_metadata
-              ?.full_name ||
-
-            user.user_metadata
-              ?.name ||
-
-            user.email,
+          full_name,
 
           role: "client",
 
@@ -156,9 +153,35 @@ export async function loadProfile(
         newProfile;
     }
 
-    // automatische client koppeling
+    // ROLE VALIDATIE
+    const validRoles =
+      [
+        "admin",
+        "hulpverlener",
+        "intake",
+        "client"
+      ];
+
     if (
-      profile.role === "client" &&
+      !validRoles.includes(
+        profile.role
+      )
+    ) {
+
+      console.warn(
+        "ONGELDIGE ROLE:",
+        profile.role
+      );
+
+      profile.role =
+        "client";
+    }
+
+    // CLIENT KOPPELING
+    if (
+      profile.role ===
+      "client" &&
+
       !profile.client_id
     ) {
 
@@ -166,15 +189,20 @@ export async function loadProfile(
         "ZOEK CLIENT KOPPELING"
       );
 
+      const email =
+        profile.email
+          ?.trim()
+          ?.toLowerCase();
+
       const {
         data: linkedClient,
         error: clientError
       } = await supabase
         .from("clients")
         .select("id")
-        .eq(
+        .ilike(
           "email",
-          profile.email
+          email
         )
         .maybeSingle();
 
@@ -184,9 +212,10 @@ export async function loadProfile(
           "CLIENT SEARCH ERROR:",
           clientError
         );
-      }
 
-      if (linkedClient) {
+      } else if (
+        linkedClient
+      ) {
 
         console.log(
           "CLIENT GEVONDEN"
@@ -225,10 +254,11 @@ export async function loadProfile(
       }
     }
 
+    // STATE
     state.profile =
       profile;
 
-    // user info tonen
+    // USER INFO
     const userMeta =
       document.getElementById(
         "userMeta"
@@ -262,33 +292,66 @@ export async function loadProfile(
     return false;
   }
 }
+
 export async function loginWithGoogle(
   supabase
 ) {
 
-  const {
-    error
-  } = await supabase
-    .auth
-    .signInWithOAuth({
+  try {
 
-      provider: "google",
+    const {
+      error
+    } = await supabase
+      .auth
+      .signInWithOAuth({
 
-      options: {
+        provider: "google",
 
-        redirectTo:
-          window.location.origin
-      }
-    });
+        options: {
 
-  if (error) {
+          redirectTo:
+            window.location.origin
+        }
+      });
+
+    if (error) {
+
+      console.error(
+        "GOOGLE LOGIN ERROR:",
+        error
+      );
+
+      alert(
+        error.message
+      );
+    }
+
+  } catch (err) {
 
     console.error(
-      error
+      "GOOGLE LOGIN CRASH:",
+      err
     );
+  }
+}
 
-    alert(
-      error.message
+export async function logout(
+  supabase
+) {
+
+  try {
+
+    await supabase
+      .auth
+      .signOut();
+
+    location.reload();
+
+  } catch (err) {
+
+    console.error(
+      "LOGOUT ERROR:",
+      err
     );
   }
 }

@@ -2,110 +2,157 @@ import { supabase }
   from "./supabase.js";
 
 /**
- * Require logged-in user
+ * REQUIRE AUTH
  */
 
 export async function requireAuth({
 
-  requireAdmin = false
+  requireAdmin = false,
+
+  requireRoles = []
 
 } = {}) {
 
-  // kleine delay voor OAuth
-  await new Promise(
-    r => setTimeout(r, 300)
-  );
+  try {
 
-  // session ophalen
-  const {
-    data,
-    error
-  } = await supabase.auth.getSession();
+    // SESSION
+    const {
+      data,
+      error
+    } = await supabase
+      .auth
+      .getSession();
 
-  console.log(
-    "AUTH SESSION:",
-    data
-  );
+    if (
+      error ||
+      !data?.session
+    ) {
 
-  if (
-    error ||
-    !data?.session
-  ) {
+      console.warn(
+        "GEEN SESSION"
+      );
+
+      return null;
+    }
+
+    const user =
+      data.session.user;
+
+    // PROFILE
+    const {
+      data: profile,
+      error: profileError
+    } = await supabase
+
+      .from("profiles")
+
+      .select("*")
+
+      .eq(
+        "id",
+        user.id
+      )
+
+      .maybeSingle();
+
+    if (profileError) {
+
+      console.error(
+        "PROFILE ERROR:",
+        profileError
+      );
+
+      return null;
+    }
+
+    // GEEN PROFIEL
+    if (!profile) {
+
+      console.warn(
+        "GEEN PROFIEL"
+      );
+
+      return null;
+    }
+
+    // ROLE VALIDATIE
+    const validRoles =
+      [
+        "admin",
+        "hulpverlener",
+        "intake",
+        "client"
+      ];
+
+    if (
+      !validRoles.includes(
+        profile.role
+      )
+    ) {
+
+      console.warn(
+        "ONGELDIGE ROLE:",
+        profile.role
+      );
+
+      return null;
+    }
+
+    // APPROVED CHECK
+    if (!profile.approved) {
+
+      console.warn(
+        "NIET GOEDGEKEURD"
+      );
+
+      return null;
+    }
+
+    // ADMIN CHECK
+    if (
+      requireAdmin &&
+      profile.role !== "admin"
+    ) {
+
+      console.warn(
+        "GEEN ADMIN"
+      );
+
+      return null;
+    }
+
+    // ROLE CHECK
+    if (
+      requireRoles.length > 0 &&
+      !requireRoles.includes(
+        profile.role
+      )
+    ) {
+
+      console.warn(
+        "GEEN TOEGANG"
+      );
+
+      return null;
+    }
+
+    return {
+
+      user,
+
+      profile,
+
+      session:
+        data.session
+    };
+
+  } catch (err) {
 
     console.error(
-      "GEEN SESSION"
+      "AUTH CRASH:",
+      err
     );
 
     return null;
   }
-
-  const user =
-    data.session.user;
-
-  // profiel ophalen
-  const {
-    data: profile,
-    error: profileError
-  } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq(
-      "id",
-      user.id
-    )
-    .maybeSingle();
-
-  console.log(
-    "PROFILE:",
-    profile
-  );
-
-  console.log(
-    "PROFILE ERROR:",
-    profileError
-  );
-
-  if (profileError) {
-
-    console.error(
-      profileError
-    );
-
-    return null;
-  }
-
-  // profiel bestaat niet
-  if (!profile) {
-
-    console.warn(
-      "GEEN PROFIEL"
-    );
-
-    return null;
-  }
-
-  // niet goedgekeurd
-  if (!profile.approved) {
-
-    console.warn(
-      "NIET GOEDGEKEURD"
-    );
-
-    return null;
-  }
-
-  // admin check
-  if (
-    requireAdmin &&
-    profile.role !== "admin"
-  ) {
-
-    console.warn(
-      "GEEN ADMIN"
-    );
-
-    return null;
-  }
-
-  return profile;
 }

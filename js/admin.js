@@ -3,10 +3,15 @@ export async function loadUsers(
   state
 ) {
 
+  // ALLEEN ADMIN
   if (
-    state.profile.role !==
+    state.profile?.role !==
     "admin"
   ) {
+
+    console.warn(
+      "GEEN ADMIN"
+    );
 
     return;
   }
@@ -24,9 +29,11 @@ export async function loadUsers(
     return;
   }
 
-  container.innerHTML =
-    "<p>Laden...</p>";
+  container.innerHTML = `
+    <p>Laden...</p>
+  `;
 
+  // USERS OPHALEN
   const {
     data,
     error
@@ -50,25 +57,37 @@ export async function loadUsers(
     error
   );
 
+  // ERROR
   if (error) {
 
+    console.error(error);
+
     container.innerHTML = `
-      <p>Fout bij laden users</p>
+
+      <p>
+        Fout bij laden users
+      </p>
+
     `;
 
     return;
   }
 
+  // GEEN USERS
   if (!data?.length) {
 
     container.innerHTML = `
-      <p>Geen gebruikers gevonden</p>
+
+      <p>
+        Geen gebruikers gevonden
+      </p>
+
     `;
 
     return;
   }
 
-  // stats
+  // STATS
   const total =
     document.getElementById(
       "adminTotal"
@@ -106,48 +125,58 @@ export async function loadUsers(
       ).length;
   }
 
-  // cards render
+  // RENDER
   container.innerHTML =
-    data.map(user => `
+    data.map(user => {
 
-      <div
-        class="
-          client-card
-          admin-user-card
-        "
-        data-user-id="${user.id}"
-      >
+      const safeRole =
+        user.role || "client";
 
-        <h3>
-          ${user.full_name || "-"}
-        </h3>
-
-        <p>
-          ${user.email || "-"}
-        </p>
+      return `
 
         <div
           class="
-            role-badge
-            ${user.role}
+            client-card
+            admin-user-card
           "
+          data-user-id="${user.id}"
         >
-          ${user.role || "-"}
+
+          <h3>
+            ${user.full_name || "-"}
+          </h3>
+
+          <p>
+            ${user.email || "-"}
+          </p>
+
+          <div
+            class="
+              role-badge
+              ${safeRole}
+            "
+          >
+
+            ${safeRole}
+
+          </div>
+
+          <p>
+
+            ${
+              user.approved
+                ? "✅ Goedgekeurd"
+                : "⏳ Wachtend"
+            }
+
+          </p>
+
         </div>
 
-        <p>
-          ${
-            user.approved
-              ? "✅ Goedgekeurd"
-              : "⏳ Wachtend"
-          }
-        </p>
+      `;
+    }).join("");
 
-      </div>
-
-    `).join("");
-
-  // click events
+  // EVENTS
   const cards =
     document.querySelectorAll(
       ".admin-user-card"
@@ -160,9 +189,8 @@ export async function loadUsers(
 
   cards.forEach(card => {
 
-    card.addEventListener(
-      "click",
-      async () => {
+    card.onclick =
+      () => {
 
         const userId =
           card.dataset.userId;
@@ -172,15 +200,16 @@ export async function loadUsers(
             u => u.id === userId
           );
 
-        if (!user) return;
+        if (!user) {
+          return;
+        }
 
         openUserModal(
           supabase,
           state,
           user
         );
-      }
-    );
+      };
   });
 }
 
@@ -189,6 +218,16 @@ function openUserModal(
   state,
   user
 ) {
+
+  // BESTAANDE MODAL WEG
+  const existing =
+    document.querySelector(
+      ".modal-overlay"
+    );
+
+  if (existing) {
+    existing.remove();
+  }
 
   const modal =
     document.createElement(
@@ -207,10 +246,21 @@ function openUserModal(
       </h2>
 
       <p>
-        ${user.email}
+        ${user.email || "-"}
       </p>
 
       <select id="editRole">
+
+        <option
+          value="client"
+          ${
+            user.role === "client"
+              ? "selected"
+              : ""
+          }
+        >
+          client
+        </option>
 
         <option
           value="vrijwilliger"
@@ -303,35 +353,78 @@ function openUserModal(
     modal
   );
 
-  document
-    .getElementById(
+  // SLUITEN
+  const closeBtn =
+    document.getElementById(
       "closeUserBtn"
-    )
-    .onclick = () => {
+    );
 
-      modal.remove();
-    };
+  if (closeBtn) {
 
-  document
-    .getElementById(
+    closeBtn.onclick =
+      () => {
+
+        modal.remove();
+      };
+  }
+
+  // OPSLAAN
+  const saveBtn =
+    document.getElementById(
       "saveUserBtn"
-    )
-    .onclick = async () => {
+    );
 
-      const role =
-        document.getElementById(
-          "editRole"
-        ).value;
+  if (saveBtn) {
 
-      const approved =
-        document.getElementById(
-          "editApproved"
-        ).checked;
+    saveBtn.onclick =
+      async () => {
 
-      const { error } =
-        await supabase
+        saveBtn.disabled =
+          true;
+
+        const role =
+          document.getElementById(
+            "editRole"
+          )?.value || "client";
+
+        const approved =
+          document.getElementById(
+            "editApproved"
+          )?.checked || false;
+
+        // ROLE VALIDATIE
+        const validRoles =
+          [
+            "client",
+            "vrijwilliger",
+            "hulpverlener",
+            "intake",
+            "admin"
+          ];
+
+        if (
+          !validRoles.includes(
+            role
+          )
+        ) {
+
+          alert(
+            "Ongeldige role"
+          );
+
+          saveBtn.disabled =
+            false;
+
+          return;
+        }
+
+        // UPDATE
+        const {
+          error
+        } = await supabase
           .from("profiles")
           .update({
+
             role,
             approved
           })
@@ -340,20 +433,28 @@ function openUserModal(
             user.id
           );
 
-      if (error) {
+        if (error) {
 
-        alert(
-          error.message
+          console.error(
+            error
+          );
+
+          alert(
+            error.message
+          );
+
+          saveBtn.disabled =
+            false;
+
+          return;
+        }
+
+        modal.remove();
+
+        await loadUsers(
+          supabase,
+          state
         );
-
-        return;
-      }
-
-      modal.remove();
-
-      loadUsers(
-        supabase,
-        state
-      );
-    };
+      };
+  }
 }

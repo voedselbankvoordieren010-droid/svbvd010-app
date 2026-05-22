@@ -20,9 +20,11 @@ export async function loadClients(
     return;
   }
 
-  container.innerHTML =
-    "<p>Laden...</p>";
+  container.innerHTML = `
+    <p>Laden...</p>
+  `;
 
+  // CLIENTS OPHALEN
   const {
     data,
     error
@@ -46,28 +48,37 @@ export async function loadClients(
     error
   );
 
+  // ERROR
   if (error) {
 
+    console.error(error);
+
     container.innerHTML = `
+
       <p>
         Fout bij laden cliënten
       </p>
+
     `;
 
     return;
   }
 
+  // GEEN CLIENTS
   if (!data?.length) {
 
     container.innerHTML = `
+
       <p>
         Geen cliënten gevonden
       </p>
+
     `;
 
     return;
   }
 
+  // RENDER
   container.innerHTML = `
 
     <div class="clients-header">
@@ -93,69 +104,76 @@ export async function loadClients(
 
     <div class="client-grid">
 
-      ${data.map(client => `
+      ${data.map(client => {
 
-        <div
-          class="client-card"
-          data-id="${client.id}"
-        >
+        const safeStatus =
+          client.status || "nieuw";
 
-          <h3>
-            ${client.full_name || ""}
-          </h3>
-
-          <p>
-            ${client.email || "-"}
-          </p>
-
-          <p>
-            ${client.phone || "-"}
-          </p>
+        return `
 
           <div
-            class="
-              status-badge
-              ${client.status}
-            "
+            class="client-card"
+            data-id="${client.id}"
           >
-            ${client.status || "-"}
+
+            <h3>
+              ${client.full_name || ""}
+            </h3>
+
+            <p>
+              ${client.email || "-"}
+            </p>
+
+            <p>
+              ${client.phone || "-"}
+            </p>
+
+            <div
+              class="
+                status-badge
+                ${safeStatus}
+              "
+            >
+              ${safeStatus}
+            </div>
+
           </div>
 
-        </div>
-
-      `).join("")}
+        `;
+      }).join("")}
 
     </div>
   `;
 
-  // detail modal
+  // DETAIL MODAL
   document
     .querySelectorAll(
       ".client-card"
     )
     .forEach(card => {
 
-      card.onclick = () => {
+      card.onclick =
+        () => {
 
-        const client =
-          data.find(
-            c =>
-              c.id ===
-              card.dataset.id
+          const client =
+            data.find(
+              c =>
+                c.id ===
+                card.dataset.id
+            );
+
+          if (!client) {
+            return;
+          }
+
+          showClientDetails(
+            client,
+            supabase
           );
-
-        if (!client) {
-          return;
-        }
-
-        showClientDetails(
-          client,
-          supabase
-        );
-      };
+        };
     });
 
-  // zoeken
+  // ZOEKEN
   const search =
     document.getElementById(
       "clientSearch"
@@ -169,7 +187,8 @@ export async function loadClients(
 
         const value =
           e.target.value
-            .toLowerCase();
+            .toLowerCase()
+            .trim();
 
         document
           .querySelectorAll(
@@ -191,6 +210,7 @@ export async function loadClients(
     );
   }
 
+  // NIEUWE CLIENT
   initClientModal(
     supabase,
     state
@@ -211,142 +231,159 @@ export function initClientModal(
     return;
   }
 
-  btn.onclick = () => {
+  btn.onclick =
+    () => {
 
-    const modal =
-      document.createElement(
-        "div"
-      );
+      // BESTAANDE MODAL WEG
+      const existing =
+        document.querySelector(
+          ".modal-overlay"
+        );
 
-    modal.className =
-      "modal-overlay";
+      if (existing) {
+        existing.remove();
+      }
 
-    modal.innerHTML = `
+      const modal =
+        document.createElement(
+          "div"
+        );
 
-      <div class="modal">
+      modal.className =
+        "modal-overlay";
 
-        <h2>
-          Nieuwe cliënt
-        </h2>
+      modal.innerHTML = `
 
-        <input
-          id="clientName"
-          placeholder="Naam"
-        >
+        <div class="modal">
 
-        <input
-          id="clientEmail"
-          placeholder="Email"
-        >
+          <h2>
+            Nieuwe cliënt
+          </h2>
 
-        <input
-          id="clientPhone"
-          placeholder="Telefoon"
-        >
+          <input
+            id="clientName"
+            placeholder="Naam"
+          >
 
-        <input
-          id="clientCity"
-          placeholder="Plaats"
-        >
+          <input
+            id="clientEmail"
+            placeholder="Email"
+          >
 
-        <input
-          id="clientAddress"
-          placeholder="Adres"
-        >
+          <input
+            id="clientPhone"
+            placeholder="Telefoon"
+          >
 
-        <input
-          id="clientPostal"
-          placeholder="Postcode"
-        >
+          <input
+            id="clientCity"
+            placeholder="Plaats"
+          >
 
-        <textarea
-          id="clientAnimals"
-          placeholder="Dieren (1 per regel)"
-        ></textarea>
+          <input
+            id="clientAddress"
+            placeholder="Adres"
+          >
 
-        <textarea
-          id="clientNotes"
-          placeholder="Notities"
-        ></textarea>
+          <input
+            id="clientPostal"
+            placeholder="Postcode"
+          >
 
-        <div class="modal-actions">
+          <textarea
+            id="clientAnimals"
+            placeholder="Dieren (1 per regel)"
+          ></textarea>
 
-          <button id="saveClientBtn">
-            Opslaan
-          </button>
+          <textarea
+            id="clientNotes"
+            placeholder="Notities"
+          ></textarea>
 
-          <button id="closeModalBtn">
-            Sluiten
-          </button>
+          <div class="modal-actions">
+
+            <button id="saveClientBtn">
+              Opslaan
+            </button>
+
+            <button id="closeModalBtn">
+              Sluiten
+            </button>
+
+          </div>
 
         </div>
+      `;
 
-      </div>
-    `;
+      document.body.appendChild(
+        modal
+      );
 
-    document.body.appendChild(
-      modal
-    );
+      // SLUITEN
+      document
+        .getElementById(
+          "closeModalBtn"
+        )
+        .onclick =
+        () => {
 
-    document
-      .getElementById(
-        "closeModalBtn"
-      )
-      .onclick = () => {
+          modal.remove();
+        };
 
-        modal.remove();
-      };
+      // OPSLAAN
+      document
+        .getElementById(
+          "saveClientBtn"
+        )
+        .onclick =
+        async () => {
 
-    document
-      .getElementById(
-        "saveClientBtn"
-      )
-      .onclick = async () => {
+          const full_name =
+            document.getElementById(
+              "clientName"
+            )?.value?.trim() || "";
 
-        const full_name =
-          document.getElementById(
-            "clientName"
-          ).value;
+          const email =
+            document.getElementById(
+              "clientEmail"
+            )?.value?.trim() || "";
 
-        const email =
-          document.getElementById(
-            "clientEmail"
-          ).value;
+          const phone =
+            document.getElementById(
+              "clientPhone"
+            )?.value?.trim() || "";
 
-        const phone =
-          document.getElementById(
-            "clientPhone"
-          ).value;
+          const city =
+            document.getElementById(
+              "clientCity"
+            )?.value?.trim() || "";
 
-        const city =
-          document.getElementById(
-            "clientCity"
-          ).value;
+          const address =
+            document.getElementById(
+              "clientAddress"
+            )?.value?.trim() || "";
 
-        const address =
-          document.getElementById(
-            "clientAddress"
-          ).value;
+          const postal_code =
+            document.getElementById(
+              "clientPostal"
+            )?.value?.trim() || "";
 
-        const postal_code =
-          document.getElementById(
-            "clientPostal"
-          ).value;
+          const animals =
+            document.getElementById(
+              "clientAnimals"
+            )?.value
+              ?.split("\n")
+              .map(a => a.trim())
+              .filter(Boolean) || [];
 
-        const animals =
-          document.getElementById(
-            "clientAnimals"
-          ).value
-          .split("\n")
-          .filter(Boolean);
+          const notes =
+            document.getElementById(
+              "clientNotes"
+            )?.value?.trim() || "";
 
-        const notes =
-          document.getElementById(
-            "clientNotes"
-          ).value;
-
-        const { error } =
-          await supabase
+          const {
+            error
+          } = await supabase
             .from("clients")
             .insert({
 
@@ -365,22 +402,23 @@ export function initClientModal(
                 state.session.user.id
             });
 
-        if (error) {
+          if (error) {
 
-          alert(
-            error.message
+            console.error(error);
+
+            alert(
+              error.message
+            );
+
+            return;
+          }
+
+          modal.remove();
+
+          await loadClients(
+            supabase,
+            state
           );
-
-          return;
-        }
-
-        modal.remove();
-
-        loadClients(
-          supabase,
-          state
-        );
-      };
-  };
+        };
+    };
 }
-

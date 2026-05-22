@@ -1,37 +1,184 @@
-const CACHE_NAME = "app-v4";
+const CACHE_NAME =
+  "svbvd010-v5";
 
-const urlsToCache = [
-  "/app/index.html"
+const STATIC_FILES = [
+
+  "/",
+  "/index.html"
+
 ];
 
-self.addEventListener("install", (event) => {
-  self.skipWaiting();
+// ======================
+// INSTALL
+// ======================
 
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
-  );
-});
+self.addEventListener(
+  "install",
+  event => {
 
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.map(key => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
+    console.log(
+      "SW INSTALL"
+    );
+
+    self.skipWaiting();
+
+    event.waitUntil(
+
+      caches
+        .open(CACHE_NAME)
+
+        .then(async cache => {
+
+          try {
+
+            await cache.addAll(
+              STATIC_FILES
+            );
+
+          } catch (err) {
+
+            console.error(
+              "CACHE ERROR:",
+              err
+            );
           }
         })
+    );
+  }
+);
+
+// ======================
+// ACTIVATE
+// ======================
+
+self.addEventListener(
+  "activate",
+  event => {
+
+    console.log(
+      "SW ACTIVATE"
+    );
+
+    event.waitUntil(
+
+      caches.keys()
+        .then(keys => {
+
+          return Promise.all(
+
+            keys.map(key => {
+
+              if (
+                key !== CACHE_NAME
+              ) {
+
+                console.log(
+                  "DELETE CACHE:",
+                  key
+                );
+
+                return caches.delete(
+                  key
+                );
+              }
+            })
+          );
+        })
+    );
+
+    self.clients.claim();
+  }
+);
+
+// ======================
+// FETCH
+// ======================
+
+self.addEventListener(
+  "fetch",
+  event => {
+
+    const request =
+      event.request;
+
+    // ALLEEN GET REQUESTS
+    if (
+      request.method !==
+      "GET"
+    ) {
+      return;
+    }
+
+    // GEEN SUPABASE CACHE
+    if (
+      request.url.includes(
+        "supabase.co"
       )
-    )
-  );
+    ) {
+      return;
+    }
 
-  self.clients.claim();
-});
+    event.respondWith(
 
-self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    fetch(event.request)
-      .catch(() => caches.match(event.request))
-  );
-});
+      fetch(request)
+
+        .then(response => {
+
+          // ONGELDIGE RESPONSE
+          if (
+            !response ||
+            response.status !== 200
+          ) {
+
+            return response;
+          }
+
+          // CACHE COPY
+          const responseClone =
+            response.clone();
+
+          caches.open(
+            CACHE_NAME
+          )
+
+          .then(cache => {
+
+            cache.put(
+              request,
+              responseClone
+            );
+          });
+
+          return response;
+        })
+
+        .catch(async () => {
+
+          // CACHE FALLBACK
+          const cached =
+            await caches.match(
+              request
+            );
+
+          if (cached) {
+
+            return cached;
+          }
+
+          // HTML FALLBACK
+          if (
+            request.headers.get(
+              "accept"
+            )?.includes(
+              "text/html"
+            )
+          ) {
+
+            return caches.match(
+              "/index.html"
+            );
+          }
+        })
+    );
+  }
+);

@@ -1,24 +1,103 @@
-# Logs
+```gitignore id="j4m2qa"
+# ======================
+# LOGS
+# ======================
+
 logs
 *.log
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# ======================
+# DEPENDENCIES
+# ======================
+
 node_modules
+
+# ======================
+# BUILD FILES
+# ======================
+
 dist
 dist-ssr
+.vite
+
+# ======================
+# ENV FILES
+# ======================
+
+.env
+.env.*
+!.env.example
+
 *.local
 
-# Editor directories and files
+# ======================
+# CACHE
+# ======================
+
+.cache
+.temp
+tmp
+
+# ======================
+# EDITORS
+# ======================
+
 .vscode/*
 !.vscode/extensions.json
+
 .idea
+
+# ======================
+# SYSTEM FILES
+# ======================
+
 .DS_Store
+Thumbs.db
+
+# ======================
+# WINDOWS
+# ======================
+
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
+
+# ======================
+# SWAP FILES
+# ======================
+
 *.sw?
+*.swp
+
+# ======================
+# TESTING
+# ======================
+
+coverage
+
+# ======================
+# VERCEL
+# ======================
+
+.vercel
+
+# ======================
+# SUPABASE
+# ======================
+
+.supabase
+
+# ======================
+# PWA
+# ======================
+
+workbox-*
+sw.js
+```

@@ -1,15 +1,62 @@
 {
-  "name": "Voedselbank Dieren App",
-  "short_name": "SVBVD010",
-  "start_url": "/app/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ff6600",
+  "name":
+    "Stichting Voedselbank voor Dieren 010",
+
+  "short_name":
+    "SVBVD010",
+
+  "description":
+    "Hulpverlenersportaal en cliëntenapp voor Stichting Voedselbank voor Dieren 010",
+
+  "start_url":
+    "/",
+
+  "scope":
+    "/",
+
+  "display":
+    "standalone",
+
+  "orientation":
+    "portrait",
+
+  "background_color":
+    "#081225",
+
+  "theme_color":
+    "#ff6b00",
+
+  "lang":
+    "nl-NL",
+
   "icons": [
+
     {
-      "src": "/logo.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src":
+        "/logo-192.png",
+
+      "sizes":
+        "192x192",
+
+      "type":
+        "image/png",
+
+      "purpose":
+        "any maskable"
+    },
+
+    {
+      "src":
+        "/logo-512.png",
+
+      "sizes":
+        "512x512",
+
+      "type":
+        "image/png",
+
+      "purpose":
+        "any maskable"
     }
   ]
 }

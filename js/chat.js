@@ -4,16 +4,24 @@ export function initChat(
 ) {
 
   console.log(
-    "📦 chat.js geladen"
+    "💬 CHAT MODULE"
   );
 
-  let activeConversation = null;
+  let activeConversation =
+    null;
 
-  let channel = null;
+  let chatChannel =
+    null;
 
-  let typingChannel = null;
+  let typingChannel =
+    null;
 
-  let typingTimeout;
+  let typingTimeout =
+    null;
+
+  // ======================
+  // ELEMENTS
+  // ======================
 
   const el = {
 
@@ -36,21 +44,113 @@ export function initChat(
       document.getElementById(
         "chatHeader"
       )
-
   };
 
-  function formatTime(date) {
+  // ======================
+  // FORMAT TIME
+  // ======================
 
-    if (!date) return "";
+  function formatTime(
+    date
+  ) {
+
+    if (!date) {
+      return "";
+    }
 
     return new Date(date)
       .toLocaleTimeString(
         [],
         {
+
           hour: "2-digit",
+
           minute: "2-digit"
         }
       );
+  }
+
+  // ======================
+  // CLEANUP
+  // ======================
+
+  function cleanupRealtime() {
+
+    if (chatChannel) {
+
+      supabase.removeChannel(
+        chatChannel
+      );
+
+      chatChannel =
+        null;
+    }
+
+    if (typingChannel) {
+
+      supabase.removeChannel(
+        typingChannel
+      );
+
+      typingChannel =
+        null;
+    }
+  }
+
+  // ======================
+  // RENDER MESSAGE
+  // ======================
+
+  function renderMessage(
+    message
+  ) {
+
+    const box =
+      el.list();
+
+    if (!box) {
+      return;
+    }
+
+    const isMe =
+      message.user_auth_id ===
+      state.session.user.id;
+
+    const div =
+      document.createElement(
+        "div"
+      );
+
+    div.className =
+      `chat-bubble ${
+        isMe
+          ? "chat-me"
+          : "chat-other"
+      }`;
+
+    const text =
+      document.createElement(
+        "div"
+      );
+
+    text.textContent =
+      message.bericht || "";
+
+    const time =
+      document.createElement(
+        "small"
+      );
+
+    time.textContent =
+      formatTime(
+        message.created_at
+      );
+
+    div.appendChild(text);
+
+    div.appendChild(time);
+
+    box.appendChild(div);
   }
 
   // ======================
@@ -60,7 +160,7 @@ export function initChat(
   async function loadConversations() {
 
     console.log(
-      "🔥 LOAD CONVERSATIONS START"
+      "🔥 LOAD CONVERSATIONS"
     );
 
     const {
@@ -94,37 +194,36 @@ export function initChat(
         }
       );
 
-    console.log(
-      "DATA:",
-      data
-    );
-
-    console.log(
-      "ERROR:",
-      error
-    );
-
     if (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
 
       return;
     }
 
-    const box = el.conv();
+    const box =
+      el.conv();
 
-    if (!box) return;
+    if (!box) {
+      return;
+    }
 
     box.innerHTML = "";
 
     if (!data?.length) {
 
       box.innerHTML = `
+
         <div style="
           padding:20px;
         ">
+
           Geen gesprekken
+
         </div>
+
       `;
 
       return;
@@ -144,6 +243,7 @@ export function initChat(
         "chat-item";
 
       div.innerHTML = `
+
         <div style="
           flex:1;
         ">
@@ -186,9 +286,11 @@ export function initChat(
             ${
               c.unread > 0
                 ? `
+
                   <span class="badge">
                     ${c.unread}
                   </span>
+
                 `
                 : ""
             }
@@ -250,12 +352,13 @@ export function initChat(
 
           subscribeRealtime();
 
-          loadMessages();
+          await loadMessages();
         };
 
       box.appendChild(div);
     }
 
+    // AUTO OPEN EERSTE
     if (
       !activeConversation &&
       data.length > 0
@@ -266,7 +369,7 @@ export function initChat(
 
       subscribeRealtime();
 
-      loadMessages();
+      await loadMessages();
     }
   }
 
@@ -276,8 +379,11 @@ export function initChat(
 
   async function loadMessages() {
 
-    if (!activeConversation)
+    if (
+      !activeConversation
+    ) {
       return;
+    }
 
     const {
       data,
@@ -302,56 +408,32 @@ export function initChat(
 
     if (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
 
       return;
     }
 
-    const box = el.list();
+    const box =
+      el.list();
 
-    if (!box) return;
+    if (!box) {
+      return;
+    }
 
     box.innerHTML = "";
 
-    data.forEach(m => {
-
-      const isMe =
-        m.user_auth_id ===
-        state.session.user.id;
-
-      const div =
-        document.createElement(
-          "div"
-        );
-
-      div.className =
-        "chat-bubble " +
-
-        (
-          isMe
-            ? "chat-me"
-            : "chat-other"
-        );
-
-      div.innerHTML = `
-        ${m.bericht}
-
-        <br>
-
-        <small>
-          ${formatTime(m.created_at)}
-        </small>
-      `;
-
-      box.appendChild(div);
-    });
+    data.forEach(
+      renderMessage
+    );
 
     box.scrollTop =
       box.scrollHeight;
   }
 
   // ======================
-  // SEND
+  // SEND MESSAGE
   // ======================
 
   async function send() {
@@ -359,7 +441,9 @@ export function initChat(
     const input =
       el.input();
 
-    if (!input) return;
+    if (!input) {
+      return;
+    }
 
     const text =
       input.value.trim();
@@ -367,7 +451,9 @@ export function initChat(
     if (
       !text ||
       !activeConversation
-    ) return;
+    ) {
+      return;
+    }
 
     const {
       error
@@ -384,12 +470,13 @@ export function initChat(
 
         conversation_id:
           activeConversation
-
       });
 
     if (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
 
       return;
     }
@@ -405,7 +492,6 @@ export function initChat(
 
         last_message_at:
           new Date()
-
       })
 
       .eq(
@@ -422,17 +508,21 @@ export function initChat(
 
   function subscribeRealtime() {
 
-    if (channel) {
+    if (!activeConversation) {
+      return;
+    }
+
+    if (chatChannel) {
 
       supabase.removeChannel(
-        channel
+        chatChannel
       );
     }
 
-    channel = supabase
+    chatChannel = supabase
 
       .channel(
-        "chat-live"
+        `chat-${activeConversation}`
       )
 
       .on(
@@ -447,36 +537,13 @@ export function initChat(
 
           filter:
             `conversation_id=eq.${activeConversation}`
-
         },
 
-        () => {
+        async () => {
 
-          loadMessages();
+          await loadMessages();
 
-          loadConversations();
-        }
-      )
-
-      .on(
-        "broadcast",
-        {
-          event: "typing"
-        },
-        payload => {
-
-          if (
-            payload.payload
-              .conversation !==
-            activeConversation
-          ) return;
-
-          showTyping();
-
-          setTimeout(
-            removeTyping,
-            1200
-          );
+          await loadConversations();
         }
       )
 
@@ -493,6 +560,10 @@ export function initChat(
       typingTimeout
     );
 
+    if (!activeConversation) {
+      return;
+    }
+
     if (!typingChannel) {
 
       typingChannel =
@@ -500,12 +571,8 @@ export function initChat(
           "typing"
         );
 
-      typingChannel
-        .subscribe();
+      typingChannel.subscribe();
     }
-
-    if (!activeConversation)
-      return;
 
     typingChannel.send({
 
@@ -514,10 +581,10 @@ export function initChat(
       event: "typing",
 
       payload: {
+
         conversation:
           activeConversation
       }
-
     });
 
     typingTimeout =
@@ -525,45 +592,6 @@ export function initChat(
         () => {},
         800
       );
-  }
-
-  function showTyping() {
-
-    removeTyping();
-
-    const div =
-      document.createElement(
-        "div"
-      );
-
-    div.id =
-      "typingIndicator";
-
-    div.className =
-      "chat-bubble chat-other";
-
-    div.style.opacity =
-      "0.7";
-
-    div.textContent =
-      "… is aan het typen";
-
-    const list =
-      el.list();
-
-    if (!list) return;
-
-    list.appendChild(div);
-  }
-
-  function removeTyping() {
-
-    const t =
-      document.getElementById(
-        "typingIndicator"
-      );
-
-    if (t) t.remove();
   }
 
   // ======================
@@ -614,14 +642,20 @@ export function initChat(
     }
 
     loadConversations();
+
+    // PAGE EXIT CLEANUP
+    window.addEventListener(
+      "beforeunload",
+      cleanupRealtime
+    );
   }
 
   return {
 
     init,
 
-    loadMessages
+    loadMessages,
 
+    cleanupRealtime
   };
-
 }

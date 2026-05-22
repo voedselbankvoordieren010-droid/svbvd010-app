@@ -3,17 +3,34 @@ import {
   uploadClientFile
 } from "./clientFiles";
 
-
 import {
   openEditClientModal
 } from "./clientEdit";
-
 
 export function showClientDetails(
   client,
   supabase
 ) {
 
+  // BESTAANDE MODAL WEG
+  const existing =
+    document.querySelector(
+      ".modal-overlay"
+    );
+
+  if (existing) {
+    existing.remove();
+  }
+
+  // ANIMALS
+  const animals =
+    Array.isArray(
+      client.animals
+    )
+      ? client.animals
+      : [];
+
+  // MODAL
   const modal =
     document.createElement(
       "div"
@@ -24,7 +41,7 @@ export function showClientDetails(
 
   modal.innerHTML = `
 
-    <div class="modal">
+    <div class="modal client-modal">
 
       <h2>
         ${client.full_name || ""}
@@ -55,8 +72,20 @@ export function showClientDetails(
         Dieren
       </h3>
 
-      <ul>
-      
+      <ul class="animal-list">
+
+        ${animals
+          .map(animal => `
+
+            <li>
+              ${animal}
+            </li>
+
+          `)
+          .join("")}
+
+      </ul>
+
       <h3>
         Bestanden
       </h3>
@@ -73,18 +102,9 @@ export function showClientDetails(
       </button>
 
       <div id="clientFilesList">
+        Laden...
       </div>
 
-
-        ${(client.animals || [])
-          .map(animal => `
-            <li>${animal}</li>
-          `)
-          .join("")}
-
-      </ul>
-
-      
       <div class="modal-actions">
 
         <button
@@ -101,49 +121,67 @@ export function showClientDetails(
 
       </div>
 
+    </div>
   `;
 
   document.body.appendChild(
     modal
   );
 
+  // BESTANDEN LADEN
   loadClientFiles(
     client.id,
     supabase
   );
 
-  document
-    .getElementById(
+  // UPLOAD
+  const uploadBtn =
+    document.getElementById(
       "uploadClientFileBtn"
-    )
-    .onclick = () => {
+    );
 
-      uploadClientFile(
-        client,
-        supabase
-      );
-    };
+  if (uploadBtn) {
 
+    uploadBtn.onclick =
+      async () => {
 
-  
-  document
-    .getElementById(
+        await uploadClientFile(
+          client,
+          supabase
+        );
+      };
+  }
+
+  // SLUITEN
+  const closeBtn =
+    document.getElementById(
       "closeDetailsBtn"
-    )
-    .onclick = () => {
+    );
 
-      modal.remove();
-    };
+  if (closeBtn) {
 
-  document
-    .getElementById(
+    closeBtn.onclick =
+      () => {
+
+        modal.remove();
+      };
+  }
+
+  // EDIT
+  const editBtn =
+    document.getElementById(
       "editClientBtn"
-    )
-    .onclick = () => {
+    );
 
-      openEditClientModal(
-        client,
-        supabase
-      );
-    };
+  if (editBtn) {
+
+    editBtn.onclick =
+      () => {
+
+        openEditClientModal(
+          client,
+          supabase
+        );
+      };
+  }
 }

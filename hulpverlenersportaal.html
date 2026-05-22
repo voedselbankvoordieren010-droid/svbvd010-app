@@ -117,7 +117,7 @@ body {
 
 .chat-layout {
   display:flex;
-  height:500px;
+  height:calc(100vh - 140px);
 }
 
 .chat-sidebar {
@@ -204,6 +204,12 @@ body {
   cursor:pointer;
 }
 /* ===== UI UPGRADE ===== */
+#logoutBtn { 
+  background:#ff6600; 
+  color:white; border:none; 
+  padding:10px 16px; 
+  border-radius:10px; 
+  cursor:pointer; }
 
 .chat-item {
   display:flex;
@@ -244,6 +250,28 @@ body {
   font-size:16px;
   cursor:pointer;
 }	
+
+@media (max-width:768px) {
+
+  .chat-layout {
+
+    flex-direction:column;
+
+    height:auto;
+  }
+
+  .chat-sidebar {
+
+    width:100%;
+
+    max-height:200px;
+  }
+
+  .chat-main {
+
+    min-height:60vh;
+  }
+}
 </style>
 </head>
 

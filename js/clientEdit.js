@@ -1,8 +1,20 @@
 export function openEditClientModal(
   client,
-  supabase
+  supabase,
+  onSave = null
 ) {
 
+  // BESTAANDE MODAL WEGHALEN
+  const existing =
+    document.querySelector(
+      ".modal-overlay"
+    );
+
+  if (existing) {
+    existing.remove();
+  }
+
+  // MODAL
   const modal =
     document.createElement(
       "div"
@@ -10,6 +22,13 @@ export function openEditClientModal(
 
   modal.className =
     "modal-overlay";
+
+  const safeAnimals =
+    Array.isArray(
+      client.animals
+    )
+      ? client.animals.join("\n")
+      : "";
 
   modal.innerHTML = `
 
@@ -21,38 +40,38 @@ export function openEditClientModal(
 
       <input
         id="editName"
-        value="${client.full_name || ""}"
         placeholder="Naam"
+        value="${client.full_name || ""}"
       >
 
       <input
         id="editEmail"
-        value="${client.email || ""}"
         placeholder="Email"
+        value="${client.email || ""}"
       >
 
       <input
         id="editPhone"
-        value="${client.phone || ""}"
         placeholder="Telefoon"
+        value="${client.phone || ""}"
       >
 
       <input
         id="editAddress"
-        value="${client.address || ""}"
         placeholder="Adres"
+        value="${client.address || ""}"
       >
 
       <input
         id="editPostal"
-        value="${client.postal_code || ""}"
         placeholder="Postcode"
+        value="${client.postal_code || ""}"
       >
 
       <textarea
         id="editAnimals"
         placeholder="Dieren"
-      >${(client.animals || []).join("\n")}</textarea>
+      >${safeAnimals}</textarea>
 
       <textarea
         id="editNotes"
@@ -78,60 +97,76 @@ export function openEditClientModal(
     modal
   );
 
-  document
-    .getElementById(
+  // SLUITEN
+  const closeBtn =
+    document.getElementById(
       "closeEditBtn"
-    )
-    .onclick = () => {
+    );
 
-      modal.remove();
-    };
+  if (closeBtn) {
 
-  document
-    .getElementById(
+    closeBtn.onclick =
+      () => {
+
+        modal.remove();
+      };
+  }
+
+  // OPSLAAN
+  const saveBtn =
+    document.getElementById(
       "saveEditBtn"
-    )
-    .onclick = async () => {
+    );
 
-      const full_name =
-        document.getElementById(
-          "editName"
-        ).value;
+  if (saveBtn) {
 
-      const email =
-        document.getElementById(
-          "editEmail"
-        ).value;
+    saveBtn.onclick =
+      async () => {
 
-      const phone =
-        document.getElementById(
-          "editPhone"
-        ).value;
+        saveBtn.disabled = true;
 
-      const address =
-        document.getElementById(
-          "editAddress"
-        ).value;
+        const full_name =
+          document.getElementById(
+            "editName"
+          )?.value?.trim() || "";
 
-      const postal_code =
-        document.getElementById(
-          "editPostal"
-        ).value;
+        const email =
+          document.getElementById(
+            "editEmail"
+          )?.value?.trim() || "";
 
-      const animals =
-        document.getElementById(
-          "editAnimals"
-        ).value
-        .split("\n")
-        .filter(Boolean);
+        const phone =
+          document.getElementById(
+            "editPhone"
+          )?.value?.trim() || "";
 
-      const notes =
-        document.getElementById(
-          "editNotes"
-        ).value;
+        const address =
+          document.getElementById(
+            "editAddress"
+          )?.value?.trim() || "";
 
-      const { error } =
-        await supabase
+        const postal_code =
+          document.getElementById(
+            "editPostal"
+          )?.value?.trim() || "";
+
+        const animals =
+          document.getElementById(
+            "editAnimals"
+          )?.value
+            ?.split("\n")
+            .map(a => a.trim())
+            .filter(Boolean) || [];
+
+        const notes =
+          document.getElementById(
+            "editNotes"
+          )?.value?.trim() || "";
+
+        // UPDATE
+        const {
+          error
+        } = await supabase
           .from("clients")
           .update({
 
@@ -148,17 +183,33 @@ export function openEditClientModal(
             client.id
           );
 
-      if (error) {
+        if (error) {
 
-        alert(
-          error.message
-        );
+          console.error(
+            "UPDATE ERROR:",
+            error
+          );
 
-        return;
-      }
+          alert(
+            error.message
+          );
 
-      modal.remove();
+          saveBtn.disabled =
+            false;
 
-      location.reload();
-    };
+          return;
+        }
+
+        // CALLBACK
+        if (
+          typeof onSave ===
+          "function"
+        ) {
+
+          await onSave();
+        }
+
+        modal.remove();
+      };
+  }
 }

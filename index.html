@@ -18,7 +18,53 @@
     SVBVD010 PRO
   </title>
 
-  
+  <!-- SEO -->
+
+  <meta
+    name="description"
+    content="
+      Hulpverlenersportaal van
+      Stichting Voedselbank
+      voor Dieren 010
+    "
+  />
+
+  <!-- PWA -->
+
+  <link
+    rel="manifest"
+    href="/manifest.json"
+  />
+
+  <meta
+    name="theme-color"
+    content="#ff6b00"
+  />
+
+  <!-- IOS -->
+
+  <meta
+    name="
+      apple-mobile-web-app-capable
+    "
+    content="yes"
+  />
+
+  <meta
+    name="
+      apple-mobile-web-app-status-bar-style
+    "
+    content="
+      black-translucent
+    "
+  />
+
+  <!-- ICON -->
+
+  <link
+    rel="icon"
+    href="/logo-192.png"
+  />
 
 </head>
 
@@ -28,21 +74,47 @@
 
     <!-- TOPBAR -->
 
-    <div class="topbar">
+    <header class="topbar">
 
       <div id="userMeta">
         Laden...
       </div>
 
-      <button id="logoutBtn">
-        Logout
-      </button>
+      <div
+        style="
+          display:flex;
+          align-items:center;
+          gap:12px;
+        "
+      >
 
-    </div>
+        <!-- NOTIFICATIONS -->
+
+        <button
+          id="notifBell"
+          aria-label="
+            Notificaties
+          "
+        >
+          🔔
+        </button>
+
+        <span id="notifCount">
+        </span>
+
+        <!-- LOGOUT -->
+
+        <button id="logoutBtn">
+          Logout
+        </button>
+
+      </div>
+
+    </header>
 
     <!-- TABS -->
 
-    <div class="tabs">
+    <nav class="tabs">
 
       <button
         class="
@@ -68,11 +140,11 @@
         Admin
       </button>
 
-    </div>
+    </nav>
 
     <!-- CHAT -->
 
-    <div
+    <main
       id="chat"
       class="tab-panel"
     >
@@ -95,6 +167,7 @@
           placeholder="
             Typ een bericht...
           "
+          autocomplete="off"
         >
 
         <button id="sendChatBtn">
@@ -103,22 +176,22 @@
 
       </div>
 
-    </div>
+    </main>
 
     <!-- CLIENTS -->
 
-    <div
+    <section
       id="clients"
       class="
         tab-panel
         hidden
       "
     >
-    </div>
+    </section>
 
     <!-- ADMIN -->
 
-    <div
+    <section
       id="admin"
       class="
         tab-panel
@@ -172,22 +245,62 @@
       >
       </div>
 
+    </section>
+
+    <!-- NOTIFICATIONS PANEL -->
+
+    <div
+      id="notifications"
+      class="hidden"
+    >
     </div>
-
-    <!-- NOTIFICATIONS -->
-
-    <div id="notifications">
-    </div>
-
-    <span id="notifCount">
-    </span>
 
   </div>
+
+  <!-- MAIN -->
 
   <script
     type="module"
     src="./js/main.js"
   ></script>
+
+  <!-- SERVICE WORKER -->
+
+  <script>
+
+    if (
+      "serviceWorker" in navigator
+    ) {
+
+      window.addEventListener(
+        "load",
+        () => {
+
+          navigator
+            .serviceWorker
+            .register(
+              "/service-worker.js"
+            )
+
+            .then(() => {
+
+              console.log(
+                "SW REGISTERED"
+              );
+            })
+
+            .catch(err => {
+
+              console.error(
+                "SW ERROR:",
+                err
+              );
+            });
+        }
+      );
+    }
+
+  </script>
 
 </body>
 

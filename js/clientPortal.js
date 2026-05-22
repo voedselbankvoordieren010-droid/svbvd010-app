@@ -1,71 +1,122 @@
-export async function loadOwnClientProfile(supabase, profile) {
-  const clientsPanel = document.getElementById("chatList");
+export async function loadOwnClientProfile(
+  supabase,
+  profile
+) {
+
+  const clientsPanel =
+    document.getElementById(
+      "chatList"
+    );
 
   if (!clientsPanel) {
     return;
   }
 
-  // 1. Veiligere check met '?.', voor het geval profile zelf null/undefined is
+  // GEEN CLIENT GEKOPPELD
   if (!profile?.client_id) {
-    clientsPanel.innerHTML = `<p>Geen cliënt gekoppeld</p>`;
+
+    clientsPanel.innerHTML = `
+      <p>
+        Geen cliënt gekoppeld
+      </p>
+    `;
+
     return;
   }
 
-  const { data, error } = await supabase
+  // CLIENT OPHALEN
+  const {
+    data,
+    error
+  } = await supabase
     .from("clients")
     .select("*")
-    .eq("id", profile.client_id)
-    .maybeSingle(); // 2. 'maybeSingle' voorkomt een crash als de ID niet bestaat
+    .eq(
+      "id",
+      profile.client_id
+    )
+    .maybeSingle();
 
-  // 3. Betere foutafhandeling: toon ook als er simpelweg geen dossier is gevonden
+  // FOUT
   if (error || !data) {
-    console.error("Supabase fout of leeg resultaat:", error);
-    clientsPanel.innerHTML = `<p>Fout bij laden dossier (bestaat niet of geen toegang)</p>`;
+
+    console.error(
+      "CLIENT LOAD ERROR:",
+      error
+    );
+
+    clientsPanel.innerHTML = `
+      <p>
+        Fout bij laden dossier
+      </p>
+    `;
+
     return;
   }
 
-  // 4. Data veilig tonen
+  // UI
   clientsPanel.innerHTML = `
+
     <div class="client-card">
-      <h1>Mijn dossier</h1>
-      <h2>${data.full_name || "Naam onbekend"}</h2>
-      <p>📧 ${data.email || "-"}</p>
-      <p>📞 ${data.phone || "-"}</p>
-      <p>📍 ${data.address || "-"}</p>
-      <p>Status: ${data.status || "-"}</p>
-    
+
+      <h1>
+        Mijn dossier
+      </h1>
+
+      <h2>
+        ${data.full_name || "Naam onbekend"}
+      </h2>
+
+      <p>
+        📧 ${data.email || "-"}
+      </p>
+
+      <p>
+        📞 ${data.phone || "-"}
+      </p>
+
+      <p>
+        📍 ${data.address || "-"}
+      </p>
+
+      <p>
+        Status:
+        ${data.status || "-"}
+      </p>
+
+    </div>
+
+    <div class="client-card">
+
+      <h2>
+        Mijn bestanden
+      </h2>
+
+      <input
+        id="clientUploadInput"
+        type="file"
+      >
+
+      <button
+        id="uploadClientFileBtn"
+      >
+        Upload bestand
+      </button>
+
+      <div id="clientFilesList">
+        Laden...
       </div>
 
-      <div class="client-card">
-
-        <h2>
-          Mijn bestanden
-        </h2>
-
-        <input
-          id="clientUploadInput"
-          type="file"
-        >
-
-        <button
-          id="uploadClientFileBtn"
-        >
-          Upload bestand
-        </button>
-
-        <div id="clientFilesList">
-          Laden...
-        </div>
-
-      </div>
     </div>
   `;
 
+  // BESTANDEN LADEN
   await loadClientFiles(
     supabase,
     profile.client_id
   );
 
+  // UPLOAD BUTTON
   const uploadBtn =
     document.getElementById(
       "uploadClientFileBtn"
@@ -91,6 +142,7 @@ export async function loadOwnClientProfile(supabase, profile) {
         const filePath =
           `${profile.client_id}/${Date.now()}-${file.name}`;
 
+        // STORAGE UPLOAD
         const {
           error: uploadError
         } = await supabase
@@ -110,6 +162,7 @@ export async function loadOwnClientProfile(supabase, profile) {
           return;
         }
 
+        // DATABASE INSERT
         await supabase
           .from("client_files")
           .insert({
@@ -124,13 +177,16 @@ export async function loadOwnClientProfile(supabase, profile) {
               filePath
           });
 
+        // REFRESH
         await loadClientFiles(
           supabase,
           profile.client_id
         );
       };
-    }
-  async function loadClientFiles(
+  }
+}
+
+async function loadClientFiles(
   supabase,
   clientId
 ) {
@@ -161,6 +217,7 @@ export async function loadOwnClientProfile(supabase, profile) {
       }
     );
 
+  // ERROR
   if (error) {
 
     console.error(error);
@@ -171,6 +228,7 @@ export async function loadOwnClientProfile(supabase, profile) {
     return;
   }
 
+  // GEEN BESTANDEN
   if (!data?.length) {
 
     list.innerHTML =
@@ -179,108 +237,110 @@ export async function loadOwnClientProfile(supabase, profile) {
     return;
   }
 
+  // RENDER
   list.innerHTML =
-  data.map(file => {
+    data.map(file => {
 
-    const isImage =
-      file.file_name.match(
-        /\.(jpg|jpeg|png|gif|webp)$/i
-      );
+      const isImage =
+        file.file_name.match(
+          /\.(jpg|jpeg|png|gif|webp)$/i
+        );
 
-    const preview =
-      isImage
-        ? `
+      const preview =
+        isImage
+          ? `
 
-          <img
-            class="file-preview"
+            <img
+              class="file-preview"
+              data-path="${file.file_path}"
+            >
+
+          `
+          : `
+
+            <div class="file-icon">
+              📄
+            </div>
+
+          `;
+
+      return `
+
+        <div class="file-item">
+
+          ${preview}
+
+          <p>
+            ${file.file_name}
+          </p>
+
+          <button
+            class="open-client-file"
             data-path="${file.file_path}"
           >
+            Openen
+          </button>
 
-        `
-        : `
+        </div>
 
-          <div class="file-icon">
-            📄
-          </div>
+      `;
+    }).join("");
 
-        `;
+  // PREVIEWS
+  const previews =
+    document.querySelectorAll(
+      ".file-preview"
+    );
 
-    return `
+  for (const img of previews) {
 
-      <div class="file-item">
+    const path =
+      img.dataset.path;
 
-        ${preview}
+    const { data } =
+      await supabase
+        .storage
+        .from("client-files")
+        .createSignedUrl(
+          path,
+          3600
+        );
 
-        <p>
-          ${file.file_name}
-        </p>
+    if (data?.signedUrl) {
 
-        <button
-          class="open-client-file"
-          data-path="${file.file_path}"
-        >
-          Openen
-        </button>
-
-      </div>
-
-    `;
-  }).join("");
-
-const previews =
-  document.querySelectorAll(
-    ".file-preview"
-  );
-
-for (const img of previews) {
-
-  const path =
-    img.dataset.path;
-
-  const { data } =
-    await supabase
-      .storage
-      .from("client-files")
-      .createSignedUrl(
-        path,
-        3600
-      );
-
-  if (data?.signedUrl) {
-
-    img.src =
-      data.signedUrl;
+      img.src =
+        data.signedUrl;
+    }
   }
-}
 
-document
-  .querySelectorAll(
-    ".open-client-file"
-  )
-  .forEach(btn => {
+  // OPEN FILE
+  document
+    .querySelectorAll(
+      ".open-client-file"
+    )
+    .forEach(btn => {
 
-    btn.onclick =
-      async () => {
+      btn.onclick =
+        async () => {
 
-        const path =
-          btn.dataset.path;
+          const path =
+            btn.dataset.path;
 
-        const { data } =
-          await supabase
-            .storage
-            .from("client-files")
-            .createSignedUrl(
-              path,
-              3600
+          const { data } =
+            await supabase
+              .storage
+              .from("client-files")
+              .createSignedUrl(
+                path,
+                3600
+              );
+
+          if (data?.signedUrl) {
+
+            window.open(
+              data.signedUrl
             );
-
-        if (data?.signedUrl) {
-
-          window.open(
-            data.signedUrl
-          );
-        }
-      };
-  });
-}
+          }
+        };
+    });
 }
