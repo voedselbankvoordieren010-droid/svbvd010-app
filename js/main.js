@@ -222,17 +222,13 @@ const role =
   const canViewAdmin =
     role === "admin";
 
-  // CLIENT PORTAL
-  if (role === "client") {
+  // CLIENT PORTAL 
+  // if (role === "client") { 
+  // loadOwnClientProfile( 
+  // supabase, 
+  // state.profile ); }
 
-    console.log(
-      "CLIENT PORTAL"
-    );
-  }
-
-
-
-  // ADMIN TAB
+// ADMIN TAB
   if (!canViewAdmin) {
 
     const adminBtn =
