@@ -904,3 +904,54 @@ button:hover {
 
   margin-bottom: 12px;
 }
+.animals-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 24px;
+}
+
+.animals-grid {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fill,
+      minmax(220px, 1fr)
+    );
+
+  gap: 18px;
+}
+
+.animal-card {
+
+  background: #0f172a;
+
+  border-radius: 18px;
+
+  padding: 20px;
+
+  border:
+    1px solid
+    rgba(255,255,255,0.04);
+
+  transition: 0.2s ease;
+}
+
+.animal-card:hover {
+
+  transform:
+    translateY(-2px);
+}
+
+.animal-icon {
+
+  font-size: 32px;
+
+  margin-bottom: 12px;
+}

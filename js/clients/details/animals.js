@@ -16,22 +16,71 @@ export function renderClientAnimals(
 
   panel.innerHTML = `
 
-    <h3>
-      Dieren
-    </h3>
+    <div class="animals-header">
 
-    ${
-      animals.length
-        ? animals.map(a => `
+      <h3>
+        Dieren
+      </h3>
 
-            <div class="animal-card">
+      <button
+        id="addAnimalBtn"
+        class="btn"
+      >
+        + Dier toevoegen
+      </button>
 
-  🐾 ${a}
+    </div>
 
-</div>
+    <div class="animals-grid">
 
-          `).join("")
-        : "<p>Geen dieren</p>"
-    }
+      ${
+        animals.length
+
+          ? animals.map(animal => `
+
+              <div class="animal-card">
+
+                <div class="animal-icon">
+                  🐾
+                </div>
+
+                <h4>
+                  ${animal}
+                </h4>
+
+                <p>
+                  Geen extra info
+                </p>
+
+              </div>
+
+            `).join("")
+
+          : `
+
+            <p>
+              Geen dieren toegevoegd
+            </p>
+
+          `
+      }
+
+    </div>
   `;
+
+  const addBtn =
+    document.getElementById(
+      "addAnimalBtn"
+    );
+
+  if (addBtn) {
+
+    addBtn.onclick =
+      () => {
+
+        alert(
+          "Dieren toevoegen komt hier 👌"
+        );
+      };
+  }
 }
