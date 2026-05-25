@@ -24,9 +24,11 @@ export function renderClientAnimals(
       animals.length
         ? animals.map(a => `
 
-            <div class="card">
-              ${a}
-            </div>
+            <div class="animal-card">
+
+  🐾 ${a}
+
+</div>
 
           `).join("")
         : "<p>Geen dieren</p>"
