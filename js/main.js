@@ -556,15 +556,15 @@ async function renderDashboard() {
 
           // ADMIN
           if (
-  btn.dataset.tab ===
-  "users"
-) {
+            btn.dataset.tab ===
+            "users"
+          ) {
 
-  loadUsers(
-    supabase,
-    state
-  );
-}
+            loadUsers(
+              supabase,
+              state
+            );
+          }
 
           // CLIENTS
           if (
@@ -573,11 +573,6 @@ async function renderDashboard() {
           ) {
 
             loadClients(
-              supabase,
-              state
-            );
-
-            initClientModal(
               supabase,
               state
             );
