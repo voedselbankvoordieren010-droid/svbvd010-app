@@ -620,3 +620,41 @@ button:hover {
 
   opacity: .9;
 }
+.admin-actions {
+
+  margin-top: 16px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.approve-user-btn {
+
+  background: #22c55e;
+
+  color: white;
+
+  border: none;
+
+  padding: 10px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+}
+
+.role-select {
+
+  background: #0f172a;
+
+  color: white;
+
+  border: none;
+
+  padding: 10px;
+
+  border-radius: 10px;
+}

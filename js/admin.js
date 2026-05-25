@@ -161,15 +161,86 @@ export async function loadUsers(
 
           </div>
 
-          <p>
+          <div class="admin-actions">
 
-            ${
-              user.approved
-                ? "✅ Goedgekeurd"
-                : "⏳ Wachtend"
-            }
+  <p>
 
-          </p>
+    ${
+      user.approved
+        ? "✅ Goedgekeurd"
+        : "⏳ Wachtend"
+    }
+
+  </p>
+
+  ${
+    !user.approved
+      ? `
+
+        <button
+          class="approve-user-btn"
+          data-user-id="${user.id}"
+        >
+          Goedkeuren
+        </button>
+
+      `
+      : ""
+  }
+
+  <select
+    class="role-select"
+    data-user-id="${user.id}"
+  >
+
+    <option
+      value="client"
+      ${
+        safeRole === "client"
+          ? "selected"
+          : ""
+      }
+    >
+      Client
+    </option>
+
+    <option
+      value="intake"
+      ${
+        safeRole === "intake"
+          ? "selected"
+          : ""
+      }
+    >
+      Intake
+    </option>
+
+    <option
+      value="hulpverlener"
+      ${
+        safeRole ===
+        "hulpverlener"
+          ? "selected"
+          : ""
+      }
+    >
+      Hulpverlener
+    </option>
+
+    <option
+      value="admin"
+      ${
+        safeRole === "admin"
+          ? "selected"
+          : ""
+      }
+    >
+      Admin
+    </option>
+
+  </select>
+
+</div>
 
         </div>
 
@@ -188,7 +259,105 @@ export async function loadUsers(
   );
 
   cards.forEach(card => {
+      // APPROVE BUTTONS
 
+document
+  .querySelectorAll(
+    ".approve-user-btn"
+  )
+  .forEach(btn => {
+
+    btn.onclick =
+      async e => {
+
+        e.stopPropagation();
+
+        const userId =
+          btn.dataset.userId;
+
+        const {
+          error
+        } = await supabase
+          .from("profiles")
+          .update({
+
+            approved: true
+
+          })
+          .eq(
+            "id",
+            userId
+          );
+
+        if (error) {
+
+          console.error(error);
+
+          alert(
+            error.message
+          );
+
+          return;
+        }
+
+        loadUsers(
+          supabase,
+          state
+        );
+      };
+  });
+
+
+// ROLE SELECTS
+
+document
+  .querySelectorAll(
+    ".role-select"
+  )
+  .forEach(select => {
+
+    select.onchange =
+      async e => {
+
+        e.stopPropagation();
+
+        const userId =
+          select.dataset.userId;
+
+        const role =
+          select.value;
+
+        const {
+          error
+        } = await supabase
+          .from("profiles")
+          .update({
+
+            role
+
+          })
+          .eq(
+            "id",
+            userId
+          );
+
+        if (error) {
+
+          console.error(error);
+
+          alert(
+            error.message
+          );
+
+          return;
+        }
+
+        loadUsers(
+          supabase,
+          state
+        );
+      };
+  });
     card.onclick =
       () => {
 
