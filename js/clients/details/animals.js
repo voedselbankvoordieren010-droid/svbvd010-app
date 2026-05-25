@@ -269,6 +269,150 @@ document
       </div>
     `;
 
+    document
+  .querySelectorAll(
+    ".delete-animal-btn"
+  )
+  .forEach(btn => {
+
+    btn.onclick =
+      async () => {
+
+        const confirmed =
+          confirm(
+            "Dier verwijderen?"
+          );
+
+        if (!confirmed) {
+          return;
+        }
+
+        const animalId =
+          btn.dataset.id;
+
+        const {
+          error: deleteError
+        } = await supabase
+          .from("animals")
+          .delete()
+          .eq(
+            "id",
+            animalId
+          );
+
+        if (deleteError) {
+
+          console.error(
+            deleteError
+          );
+
+          alert(
+            deleteError.message
+          );
+
+          return;
+        }
+
+        await renderClientAnimals(
+          client,
+          supabase
+        );
+      };
+  });
+
+document
+  .querySelectorAll(
+    ".edit-animal-btn"
+  )
+  .forEach(btn => {
+
+    btn.onclick =
+      async () => {
+
+        const animalId =
+          btn.dataset.id;
+
+        const animal =
+          animals.find(
+            a =>
+              a.id ===
+              animalId
+          );
+
+        if (!animal) {
+          return;
+        }
+
+        const name =
+          prompt(
+            "Naam",
+            animal.name || ""
+          );
+
+        if (!name) {
+          return;
+        }
+
+        const type =
+          prompt(
+            "Soort",
+            animal.type || ""
+          ) || "";
+
+        const breed =
+          prompt(
+            "Ras",
+            animal.breed || ""
+          ) || "";
+
+        const age =
+          prompt(
+            "Leeftijd",
+            animal.age || ""
+          ) || "";
+
+        const status =
+          prompt(
+            "Status",
+            animal.status || ""
+          ) || "actief";
+
+        const {
+          error: updateError
+        } = await supabase
+          .from("animals")
+          .update({
+
+            name,
+            type,
+            breed,
+            age,
+            status
+          })
+          .eq(
+            "id",
+            animalId
+          );
+
+        if (updateError) {
+
+          console.error(
+            updateError
+          );
+
+          alert(
+            updateError.message
+          );
+
+          return;
+        }
+
+        await renderClientAnimals(
+          client,
+          supabase
+        );
+      };
+  });
     document.body.appendChild(
       modal
     );
