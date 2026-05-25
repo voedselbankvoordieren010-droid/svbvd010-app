@@ -1,6 +1,6 @@
 import {
   showClientDetails
-} from "../clientDetails";
+} from "./details/index.js";
 
 import {
   initClientModal
