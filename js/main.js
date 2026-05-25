@@ -208,8 +208,139 @@ async function renderDashboard() {
   }
 
   app.innerHTML = `
-    ...
-  `;
+
+<div class="dashboard-layout">
+
+  <aside class="sidebar">
+
+    <h1 class="logo">
+      SVBVD010
+    </h1>
+
+    <button
+      class="
+        tab-button
+        is-active
+      "
+      data-tab="dashboard"
+    >
+      Dashboard
+    </button>
+
+    <button
+      class="tab-button"
+      data-tab="users"
+    >
+      Gebruikers
+    </button>
+
+    <button
+      class="tab-button"
+      data-tab="chat"
+    >
+      Chat
+    </button>
+
+    <button
+      class="tab-button"
+      data-tab="clients"
+    >
+      Cliënten
+    </button>
+
+  </aside>
+
+  <main class="main-content">
+
+    <div class="topbar">
+
+      <div id="userMeta">
+
+        ${state.profile.email}
+
+      </div>
+
+      <button id="logoutBtn">
+        Uitloggen
+      </button>
+
+    </div>
+
+    <section
+      id="dashboard"
+      class="tab-panel"
+    >
+
+      <h1>
+        Dashboard
+      </h1>
+
+      <div class="cards">
+
+        <div class="card">
+          Nieuw
+        </div>
+
+        <div class="card">
+          Intake
+        </div>
+
+        <div class="card">
+          Spoed
+        </div>
+
+      </div>
+
+    </section>
+
+    <section
+      id="users"
+      class="
+        tab-panel
+        hidden
+      "
+    >
+
+      <h1>
+        Gebruikers
+      </h1>
+
+      <div id="userList">
+      </div>
+
+    </section>
+
+    <section
+      id="chat"
+      class="
+        tab-panel
+        hidden
+      "
+    >
+
+      <div id="chatList">
+      </div>
+
+    </section>
+
+    <section
+      id="clients"
+      class="
+        tab-panel
+        hidden
+      "
+    >
+    </section>
+
+    <div
+      id="notifications"
+    >
+    </div>
+
+  </main>
+
+</div>
+`;
 
   const role =
     state.profile?.role;
