@@ -21,9 +21,8 @@ import {
 } from "./admin.js";
 
 import {
-  loadClients,
-  initClientModal
-} from "./clients.js";
+  loadClients
+} from "./clients/index.js";
 
 import {
   loadOwnClientProfile

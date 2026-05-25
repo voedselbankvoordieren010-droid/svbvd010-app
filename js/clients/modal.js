@@ -1,221 +1,6 @@
 import {
-  showClientDetails
-} from "./clientDetails";
-
-export async function loadClients(
-  supabase,
-  state
-) {
-
-  console.log(
-    "LOAD CLIENTS START"
-  );
-
-  const container =
-    document.getElementById(
-      "clients"
-    );
-
-  if (!container) {
-    return;
-  }
-
-  container.innerHTML = `
-    <p>Laden...</p>
-  `;
-
-  // CLIENTS OPHALEN
-  const {
-    data,
-    error
-  } = await supabase
-    .from("clients")
-    .select("*")
-    .order(
-      "created_at",
-      {
-        ascending: false
-      }
-    );
-
-  console.log(
-    "CLIENTS DATA:",
-    data
-  );
-
-  console.log(
-    "CLIENTS ERROR:",
-    error
-  );
-
-  // ERROR
-  if (error) {
-
-    console.error(error);
-
-    container.innerHTML = `
-
-      <p>
-        Fout bij laden cliënten
-      </p>
-
-    `;
-
-    return;
-  }
-
-  // GEEN CLIENTS
-  if (!data?.length) {
-
-    container.innerHTML = `
-
-      <p>
-        Geen cliënten gevonden
-      </p>
-
-    `;
-
-    return;
-  }
-
-  // RENDER
-  container.innerHTML = `
-
-    <div class="clients-header">
-
-      <div>
-
-        <h1>
-          Cliënten
-        </h1>
-
-        <input
-          id="clientSearch"
-          placeholder="Zoek cliënt..."
-        >
-
-      </div>
-
-      <button id="newClientBtn">
-        + Nieuwe cliënt
-      </button>
-
-    </div>
-
-    <div class="client-grid">
-
-      ${data.map(client => {
-
-        const safeStatus =
-          client.status || "nieuw";
-
-        return `
-
-          <div
-            class="client-card"
-            data-id="${client.id}"
-          >
-
-            <h3>
-              ${client.full_name || ""}
-            </h3>
-
-            <p>
-              ${client.email || "-"}
-            </p>
-
-            <p>
-              ${client.phone || "-"}
-            </p>
-
-            <div
-              class="
-                status-badge
-                ${safeStatus}
-              "
-            >
-              ${safeStatus}
-            </div>
-
-          </div>
-
-        `;
-      }).join("")}
-
-    </div>
-  `;
-
-  // DETAIL MODAL
-  document
-    .querySelectorAll(
-      ".client-card"
-    )
-    .forEach(card => {
-
-      card.onclick =
-        () => {
-
-          const client =
-            data.find(
-              c =>
-                c.id ===
-                card.dataset.id
-            );
-
-          if (!client) {
-            return;
-          }
-
-          showClientDetails(
-            client,
-            supabase
-          );
-        };
-    });
-
-  // ZOEKEN
-  const search =
-    document.getElementById(
-      "clientSearch"
-    );
-
-  if (search) {
-
-    search.addEventListener(
-      "input",
-      e => {
-
-        const value =
-          e.target.value
-            .toLowerCase()
-            .trim();
-
-        document
-          .querySelectorAll(
-            ".client-card"
-          )
-          .forEach(card => {
-
-            const visible =
-              card.innerText
-                .toLowerCase()
-                .includes(value);
-
-            card.style.display =
-              visible
-                ? "block"
-                : "none";
-          });
-      }
-    );
-  }
-
-  // NIEUWE CLIENT
-  initClientModal(
-    supabase,
-    state
-  );
-}
+  loadClients
+} from "./index";
 
 export function initClientModal(
   supabase,
@@ -234,7 +19,6 @@ export function initClientModal(
   btn.onclick =
     () => {
 
-      // BESTAANDE MODAL WEG
       const existing =
         document.querySelector(
           ".modal-overlay"
@@ -302,11 +86,17 @@ export function initClientModal(
 
           <div class="modal-actions">
 
-            <button id="saveClientBtn">
+            <button
+              id="saveClientBtn"
+              class="btn"
+            >
               Opslaan
             </button>
 
-            <button id="closeModalBtn">
+            <button
+              id="closeModalBtn"
+              class="btn"
+            >
               Sluiten
             </button>
 
@@ -319,7 +109,6 @@ export function initClientModal(
         modal
       );
 
-      // SLUITEN
       document
         .getElementById(
           "closeModalBtn"
@@ -330,7 +119,6 @@ export function initClientModal(
           modal.remove();
         };
 
-      // OPSLAAN
       document
         .getElementById(
           "saveClientBtn"
