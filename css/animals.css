@@ -1,0 +1,73 @@
+.animals-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 24px;
+}
+
+.animals-grid {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fill,
+      minmax(320px, 1fr)
+    );
+
+  gap: 20px;
+}
+
+.animal-card {
+
+  background: #0f172a;
+
+  border-radius: 18px;
+
+  padding: 20px;
+
+  border:
+    1px solid
+    rgba(255,255,255,0.04);
+
+  transition: 0.2s ease;
+}
+
+.animal-card:hover {
+
+  transform:
+    translateY(-2px);
+}
+
+.animal-card.deceased {
+
+  opacity: 0.6;
+
+  filter: grayscale(1);
+
+  border:
+    1px solid
+    rgba(255,255,255,0.08);
+}
+
+.animal-icon {
+
+  font-size: 32px;
+
+  margin-bottom: 12px;
+}
+
+.animal-actions {
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 10px;
+
+  margin-top: 18px;
+}

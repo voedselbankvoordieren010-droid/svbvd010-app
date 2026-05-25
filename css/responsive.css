@@ -1,0 +1,51 @@
+@media (
+  max-width: 768px
+) {
+
+  .dashboard-layout {
+
+    flex-direction: column;
+  }
+
+  .sidebar {
+
+    width: 100%;
+
+    border-right: none;
+
+    border-bottom:
+      1px solid
+      rgba(255,255,255,0.05);
+  }
+
+  .topbar {
+
+    flex-direction: column;
+
+    gap: 14px;
+
+    align-items: flex-start;
+  }
+
+  .tab-panel {
+
+    padding: 18px;
+  }
+
+  .modal {
+
+    padding: 18px;
+  }
+
+  .animals-grid,
+  .client-grid {
+
+    grid-template-columns:
+      1fr;
+  }
+
+  .chat-bubble {
+
+    max-width: 95%;
+  }
+}

@@ -1,0 +1,63 @@
+.btn {
+
+  background: #ff6600;
+
+  color: white;
+
+  border: none;
+
+  padding: 12px 18px;
+
+  border-radius: 14px;
+
+  cursor: pointer;
+
+  font-weight: 600;
+
+  transition: 0.2s ease;
+}
+
+.btn:hover {
+
+  opacity: 0.9;
+
+  transform:
+    translateY(-1px);
+}
+
+.danger-btn {
+
+  background: #dc2626;
+}
+
+.danger-btn:hover {
+
+  background: #ef4444;
+}
+
+.deceased-btn {
+
+  background: #64748b;
+}
+
+.deceased-btn:hover {
+
+  background: #94a3b8;
+}
+
+.open-file-btn {
+
+  background: #2563eb;
+
+  color: white;
+
+  border: none;
+
+  padding: 10px 14px;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  margin-top: 10px;
+}

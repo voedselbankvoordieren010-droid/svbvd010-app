@@ -1,4 +1,4 @@
-import "../styles.css";
+import "./css/main.css";
 
 import { supabase } from "./supabase.js";
 

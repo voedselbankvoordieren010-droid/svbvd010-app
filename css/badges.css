@@ -1,0 +1,75 @@
+.status-badge,
+.role-badge {
+
+  display: inline-block;
+
+  padding: 8px 14px;
+
+  border-radius: 999px;
+
+  font-size: 13px;
+
+  font-weight: bold;
+
+  margin-top: 12px;
+}
+
+/* STATUS */
+
+.status-badge.nieuw {
+
+  background: #3b82f620;
+
+  color: #60a5fa;
+}
+
+.status-badge.actief {
+
+  background: #22c55e20;
+
+  color: #4ade80;
+}
+
+.status-badge.spoed {
+
+  background: #ef444420;
+
+  color: #f87171;
+}
+
+.status-badge.overleden {
+
+  background: #64748b40;
+
+  color: #cbd5e1;
+}
+
+/* ROLES */
+
+.role-badge.admin {
+
+  background: #ef444420;
+
+  color: #f87171;
+}
+
+.role-badge.vrijwilliger {
+
+  background: #3b82f620;
+
+  color: #60a5fa;
+}
+
+.role-badge.intake {
+
+  background: #22c55e20;
+
+  color: #4ade80;
+}
+
+.role-badge.client {
+
+  background: #64748b20;
+
+  color: #cbd5e1;
+}
