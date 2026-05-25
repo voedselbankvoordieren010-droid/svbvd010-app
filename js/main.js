@@ -523,9 +523,9 @@ async function renderDashboard() {
 
           // ADMIN
           if (
-            btn.dataset.tab ===
-            "admin"
-          ) {
+  btn.dataset.tab ===
+  "users"
+) {
 
             loadUsers(
               supabase,
