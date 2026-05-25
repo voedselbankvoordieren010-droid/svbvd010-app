@@ -327,12 +327,12 @@ export async function renderClientAnimals(
           return;
         }
 
-                modal.remove();
+           modal.remove();
 
         await renderClientAnimals(
           client,
           supabase
         );
-      };
-  };
+      }
+  }
 }
