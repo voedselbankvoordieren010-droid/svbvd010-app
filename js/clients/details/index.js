@@ -76,23 +76,44 @@ export function showClientDetails(
       </div>
 
       <div
-        id="general"
-        class="client-tab-panel"
-      >
+  id="general"
+  class="client-tab-panel"
+>
 
-        <h2>
-          ${client.full_name}
-        </h2>
+  <h2>
+    ${client.full_name}
+  </h2>
 
-        <p>
-          ${client.email || "-"}
-        </p>
+  <div class="info-card">
 
-        <p>
-          ${client.phone || "-"}
-        </p>
+    <p>
+      📧 ${client.email || "-"}
+    </p>
 
-      </div>
+    <p>
+      📞 ${client.phone || "-"}
+    </p>
+
+    <p>
+      📍 ${client.city || "-"}
+    </p>
+
+    <p>
+      🏠 ${client.address || "-"}
+    </p>
+
+    <p>
+      📮 ${client.postal_code || "-"}
+    </p>
+
+    <p>
+      📌 Status:
+      ${client.status || "nieuw"}
+    </p>
+
+  </div>
+
+</div>
 
       <div
         id="animals"

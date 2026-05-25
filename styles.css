@@ -865,3 +865,26 @@ button:hover {
 
   overflow-y: auto;
 }
+.client-tab-panel {
+
+  margin-top: 24px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 18px;
+}
+
+.info-card {
+
+  background: #0f172a;
+
+  border-radius: 18px;
+
+  padding: 20px;
+
+  border:
+    1px solid
+    rgba(255,255,255,0.04);
+}
