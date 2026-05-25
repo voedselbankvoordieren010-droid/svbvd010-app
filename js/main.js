@@ -284,28 +284,31 @@ async function renderDashboard() {
 
         <div class="notif-wrapper">
 
-          <button id="notifBell">
-          class="
+          <button
+  id="notifBell"
+  class="
     tab-button
     btn
   "
-            🔔
+>
+  🔔
 
-            <span id="notifCount">
-            </span>
+  <span id="notifCount">
+  </span>
 
-          </button>
+</button>
 
           <div id="notifications">
           </div>
 
         </div>
 
-        <button id="logoutBtn">
-          Uitloggen
-          class="btn"
+        <button
+  id="logoutBtn"
+  class="btn"
 >
-        </button>
+  Uitloggen
+</button>
 
       </div>
 
