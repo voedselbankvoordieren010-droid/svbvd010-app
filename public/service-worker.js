@@ -1,5 +1,4 @@
-const CACHE_NAME =
-  "svbvd010-v5";
+const CACHE_NAME = "app-v100";
 
 const STATIC_FILES = [
 
