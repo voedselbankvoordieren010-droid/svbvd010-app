@@ -222,35 +222,45 @@ async function renderDashboard() {
     <nav class="sidebar-nav">
 
       <button
-        class="
-          tab-button
-          is-active
-        "
-        data-tab="dashboard"
-      >
-        Dashboard
-      </button>
+  class="
+    tab-button
+    btn
+    is-active
+  "
+  data-tab="dashboard"
+>
+  Dashboard
+</button>
 
       <button
-        class="tab-button"
-        data-tab="users"
-      >
-        Gebruikers
-      </button>
+  class="
+    tab-button
+    btn
+  "
+  data-tab="users"
+>
+  Gebruikers
+</button>
 
-      <button
-        class="tab-button"
-        data-tab="chat"
-      >
-        Chat
-      </button>
+<button
+  class="
+    tab-button
+    btn
+  "
+  data-tab="chat"
+>
+  Chat
+</button>
 
-      <button
-        class="tab-button"
-        data-tab="clients"
-      >
-        Cliënten
-      </button>
+<button
+  class="
+    tab-button
+    btn
+  "
+  data-tab="clients"
+>
+  Cliënten
+</button>
 
     </nav>
 
@@ -275,7 +285,10 @@ async function renderDashboard() {
         <div class="notif-wrapper">
 
           <button id="notifBell">
-
+          class="
+    tab-button
+    btn
+  "
             🔔
 
             <span id="notifCount">
@@ -290,6 +303,8 @@ async function renderDashboard() {
 
         <button id="logoutBtn">
           Uitloggen
+          class="btn"
+>
         </button>
 
       </div>
