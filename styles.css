@@ -973,3 +973,23 @@ button:hover {
 
   background: #ef4444;
 }
+.deceased-btn {
+
+  background: #64748b;
+}
+
+.deceased-btn:hover {
+
+  background: #94a3b8;
+}
+
+.animal-card.deceased {
+
+  opacity: 0.6;
+
+  border:
+    1px solid
+    rgba(255,255,255,0.08);
+
+  filter: grayscale(1);
+}

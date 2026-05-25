@@ -55,7 +55,16 @@ export async function renderClientAnimals(
           ? animalsList
               .map(
                 (animal) => `
-              <div class="animal-card">
+              <div
+  class="
+    animal-card
+    ${
+      animal.status === "overleden"
+        ? "deceased"
+        : ""
+    }
+  "
+>
                 <div class="animal-icon">🐾</div>
                 <h4>${animal.name || "-"}</h4>
                 <p>${animal.type || "-"}</p>
@@ -79,6 +88,14 @@ export async function renderClientAnimals(
                   >
                     Verwijderen
                   </button>
+
+                  <button
+  class="btn deceased-btn"
+  data-id="${animal.id}"
+>
+  Overleden
+</button>
+
                 </div>
                 <p>Medisch: ${animal.medical_notes || "-"}</p>
               </div>
@@ -211,56 +228,96 @@ export async function renderClientAnimals(
     };
   });
 
-  document.querySelectorAll(
-    ".edit-animal-btn"
-  ).forEach((btn) => {
-    btn.onclick = async () => {
-      const animalId = btn.dataset.id;
-      const animal = animalsList.find(
-        (a) => String(a.id) === animalId
-      );
+  document
+    .querySelectorAll(
+      ".deceased-btn"
+    )
+    .forEach((btn) => {
+      btn.onclick = async () => {
+        const confirmed = confirm(
+          "Markeer dier als overleden?"
+        );
 
-      if (!animal) {
-        return;
-      }
+        if (!confirmed) {
+          return;
+        }
 
-      const name = prompt("Naam", animal.name || "");
-      if (!name) {
-        return;
-      }
+        const animalId = btn.dataset.id;
+        const {
+          error: updateError
+        } = await supabase
+          .from("animals")
+          .update({
+            status: "overleden",
+            is_active: false,
+            deceased_at: new Date().toISOString()
+          })
+          .eq("id", animalId);
 
-      const type = prompt("Soort", animal.type || "") || "";
-      const breed = prompt("Ras", animal.breed || "") || "";
-      const age = prompt("Leeftijd", animal.age || "") || "";
-      const gender = prompt("Geslacht", animal.gender || "") || "";
-      const food = prompt("Voeding", animal.food || "") || "";
-      const status = prompt("Status", animal.status || "") || "actief";
-      const medical_notes = prompt(
-        "Medische info",
-        animal.medical_notes || ""
-      ) || "";
+        if (updateError) {
+          console.error(updateError);
+          alert(updateError.message);
+          return;
+        }
 
-      const { error: updateError } = await supabase
-        .from("animals")
-        .update({
-          name,
-          type,
-          breed,
-          age,
-          gender,
-          food,
-          status,
-          medical_notes
-        })
-        .eq("id", animalId);
+        await renderClientAnimals(client, supabase);
+      };
+    });
 
-      if (updateError) {
-        console.error(updateError);
-        alert(updateError.message);
-        return;
-      }
+  document
+    .querySelectorAll(
+      ".edit-animal-btn"
+    )
+    .forEach((btn) => {
+      btn.onclick = async () => {
+        const animalId = btn.dataset.id;
+        const animal = animalsList.find(
+          (a) => String(a.id) === animalId
+        );
 
-      await renderClientAnimals(client, supabase);
-    };
-  });
+        if (!animal) {
+          return;
+        }
+
+        const name = prompt("Naam", animal.name || "");
+        if (!name) {
+          return;
+        }
+
+        const type = prompt("Soort", animal.type || "") || "";
+        const breed = prompt("Ras", animal.breed || "") || "";
+        const age = prompt("Leeftijd", animal.age || "") || "";
+        const gender = prompt("Geslacht", animal.gender || "") || "";
+        const food = prompt("Voeding", animal.food || "") || "";
+        const status = prompt("Status", animal.status || "") || "actief";
+        const medical_notes = prompt(
+          "Medische info",
+          animal.medical_notes || ""
+        ) || "";
+
+        const {
+          error: updateError
+        } = await supabase
+          .from("animals")
+          .update({
+            name,
+            type,
+            breed,
+            age,
+            gender,
+            food,
+            status,
+            medical_notes
+          })
+          .eq("id", animalId);
+
+        if (updateError) {
+          console.error(updateError);
+          alert(updateError.message);
+          return;
+        }
+
+        await renderClientAnimals(client, supabase);
+      };
+    });
 }
