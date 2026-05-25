@@ -1,5 +1,6 @@
-export function renderClientAnimals(
-  client
+export async function renderClientAnimals(
+  client,
+  supabase
 ) {
 
   const panel =
@@ -11,8 +12,33 @@ export function renderClientAnimals(
     return;
   }
 
-  const animals =
-    client.animals || [];
+  // DATABASE LOAD
+  const {
+    data: animals,
+    error
+  } = await supabase
+    .from("animals")
+    .select("*")
+    .eq(
+      "client_id",
+      client.id
+    )
+    .order(
+      "created_at",
+      {
+        ascending: false
+      }
+    );
+
+  console.log(
+    "ANIMALS:",
+    animals
+  );
+
+  console.log(
+    "ANIMALS ERROR:",
+    error
+  );
 
   panel.innerHTML = `
 
@@ -34,7 +60,7 @@ export function renderClientAnimals(
     <div class="animals-grid">
 
       ${
-        animals.length
+        animals?.length
 
           ? animals.map(animal => `
 
@@ -45,11 +71,20 @@ export function renderClientAnimals(
                 </div>
 
                 <h4>
-                  ${animal}
+                  ${animal.name || "-"}
                 </h4>
 
                 <p>
-                  Geen extra info
+                  ${animal.type || "-"}
+                </p>
+
+                <p>
+                  ${animal.breed || "-"}
+                </p>
+
+                <p>
+                  Leeftijd:
+                  ${animal.age || "-"}
                 </p>
 
               </div>
@@ -68,6 +103,7 @@ export function renderClientAnimals(
     </div>
   `;
 
+  // NIEUW DIER
   const addBtn =
     document.getElementById(
       "addAnimalBtn"
@@ -76,10 +112,64 @@ export function renderClientAnimals(
   if (addBtn) {
 
     addBtn.onclick =
-      () => {
+      async () => {
 
-        alert(
-          "Dieren toevoegen komt hier 👌"
+        const name =
+          prompt(
+            "Naam dier"
+          );
+
+        if (!name) {
+          return;
+        }
+
+        const type =
+          prompt(
+            "Soort dier"
+          ) || "";
+
+        const breed =
+          prompt(
+            "Ras"
+          ) || "";
+
+        const age =
+          prompt(
+            "Leeftijd"
+          ) || "";
+
+        const {
+          error: insertError
+        } = await supabase
+          .from("animals")
+          .insert({
+
+            client_id:
+              client.id,
+
+            name,
+            type,
+            breed,
+            age
+          });
+
+        if (insertError) {
+
+          console.error(
+            insertError
+          );
+
+          alert(
+            insertError.message
+          );
+
+          return;
+        }
+
+        // REFRESH
+        await renderClientAnimals(
+          client,
+          supabase
         );
       };
   }

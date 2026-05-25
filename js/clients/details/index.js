@@ -14,7 +14,7 @@ import {
   renderClientNotes
 } from "./notes.js";
 
-export function showClientDetails(
+export async function showClientDetails(
   client,
   supabase
 ) {
@@ -162,9 +162,10 @@ export function showClientDetails(
 
   initClientTabs();
 
-  renderClientAnimals(
-    client
-  );
+  await renderClientAnimals(
+  client,
+  supabase
+);
 
   renderClientFiles(
     client,
