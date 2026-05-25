@@ -211,80 +211,92 @@ async function renderDashboard() {
 
 <div class="dashboard-layout">
 
+  <!-- SIDEBAR -->
+
   <aside class="sidebar">
 
     <h1 class="logo">
       SVBVD010
     </h1>
 
-    <button
-      class="
-        tab-button
-        is-active
-      "
-      data-tab="dashboard"
-    >
-      Dashboard
-    </button>
+    <nav class="sidebar-nav">
 
-    <button
-      class="tab-button"
-      data-tab="users"
-    >
-      Gebruikers
-    </button>
+      <button
+        class="
+          tab-button
+          is-active
+        "
+        data-tab="dashboard"
+      >
+        Dashboard
+      </button>
 
-    <button
-      class="tab-button"
-      data-tab="chat"
-    >
-      Chat
-    </button>
+      <button
+        class="tab-button"
+        data-tab="users"
+      >
+        Gebruikers
+      </button>
 
-    <button
-      class="tab-button"
-      data-tab="clients"
-    >
-      Cliënten
-    </button>
+      <button
+        class="tab-button"
+        data-tab="chat"
+      >
+        Chat
+      </button>
+
+      <button
+        class="tab-button"
+        data-tab="clients"
+      >
+        Cliënten
+      </button>
+
+    </nav>
 
   </aside>
 
+  <!-- MAIN -->
+
   <main class="main-content">
+
+    <!-- TOPBAR -->
 
     <div class="topbar">
 
-  <div id="userMeta">
+      <div id="userMeta">
 
-    ${state.profile.email}
+        ${state.profile.email}
 
-  </div>
+      </div>
 
-  <div class="topbar-right">
+      <div class="topbar-right">
 
-    <div class="notif-wrapper">
+        <div class="notif-wrapper">
 
-      <button id="notifBell">
+          <button id="notifBell">
 
-        🔔
+            🔔
 
-        <span id="notifCount">
-        </span>
+            <span id="notifCount">
+            </span>
 
-      </button>
+          </button>
 
-      <div id="notifications">
+          <div id="notifications">
+          </div>
+
+        </div>
+
+        <button id="logoutBtn">
+          Uitloggen
+        </button>
+
       </div>
 
     </div>
 
-    <button id="logoutBtn">
-      Uitloggen
-    </button>
-
-  </div>
-
-</div>
+    <!-- DASHBOARD -->
 
     <section
       id="dashboard"
@@ -313,6 +325,8 @@ async function renderDashboard() {
 
     </section>
 
+    <!-- USERS -->
+
     <section
       id="users"
       class="
@@ -330,6 +344,8 @@ async function renderDashboard() {
 
     </section>
 
+    <!-- CHAT -->
+
     <section
       id="chat"
       class="
@@ -343,6 +359,8 @@ async function renderDashboard() {
 
     </section>
 
+        <!-- CLIENTS -->
+
     <section
       id="clients"
       class="
@@ -351,8 +369,6 @@ async function renderDashboard() {
       "
     >
     </section>
-
-    
 
   </main>
 
@@ -527,11 +543,11 @@ async function renderDashboard() {
   "users"
 ) {
 
-            loadUsers(
-              supabase,
-              state
-            );
-          }
+  loadUsers(
+    supabase,
+    state
+  );
+}
 
           // CLIENTS
           if (
