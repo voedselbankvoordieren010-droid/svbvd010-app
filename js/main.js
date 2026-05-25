@@ -198,6 +198,19 @@ async function renderClientPortal() {
 // ADMIN DASHBOARD
 async function renderDashboard() {
 
+  const app =
+    document.getElementById(
+      "app"
+    );
+
+  if (!app) {
+    return;
+  }
+
+  app.innerHTML = `
+    ...
+  `;
+
   const role =
     state.profile?.role;
 
