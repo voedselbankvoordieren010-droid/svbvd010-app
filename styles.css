@@ -553,3 +553,70 @@ button:hover {
     max-width: 95%;
   }
 }
+/* LOGIN SCREEN */
+
+.login-screen {
+
+  min-height: 100vh;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  background: #081225;
+}
+
+.login-card {
+
+  background: #1b273d;
+
+  padding: 40px;
+
+  border-radius: 24px;
+
+  width: 360px;
+
+  text-align: center;
+
+  box-shadow:
+    0 0 30px rgba(0,0,0,.3);
+}
+
+.login-card h1 {
+
+  margin-bottom: 30px;
+
+  color: white;
+
+  font-size: 42px;
+}
+
+.login-card button {
+
+  width: 100%;
+
+  margin-top: 16px;
+
+  padding: 16px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background: #ff6b00;
+
+  color: white;
+
+  font-size: 16px;
+
+  font-weight: bold;
+
+  cursor: pointer;
+}
+
+.login-card button:hover {
+
+  opacity: .9;
+}
