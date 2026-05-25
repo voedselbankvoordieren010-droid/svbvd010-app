@@ -13,36 +13,38 @@ const STATIC_FILES = [
 // ======================
 
 self.addEventListener(
-  "install",
+  "fetch",
   event => {
 
-    console.log(
-      "SW INSTALL"
-    );
+    const url =
+      new URL(
+        event.request.url
+      );
 
-    self.skipWaiting();
+    // GEEN CACHE VOOR SUPABASE
+    if (
+      url.hostname.includes(
+        "supabase.co"
+      )
+    ) {
 
-    event.waitUntil(
+      return;
+    }
 
-      caches
-        .open(CACHE_NAME)
+    event.respondWith(
 
-        .then(async cache => {
+      caches.match(
+        event.request
+      ).then(cached => {
 
-          try {
+        return (
+          cached ||
 
-            await cache.addAll(
-              STATIC_FILES
-            );
-
-          } catch (err) {
-
-            console.error(
-              "CACHE ERROR:",
-              err
-            );
-          }
-        })
+          fetch(
+            event.request
+          )
+        );
+      })
     );
   }
 );
