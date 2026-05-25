@@ -327,7 +327,7 @@ export async function renderClientAnimals(
           return;
         }
 
-        modal.remove();
+                modal.remove();
 
         await renderClientAnimals(
           client,
@@ -335,3 +335,4 @@ export async function renderClientAnimals(
         );
       };
   };
+}
