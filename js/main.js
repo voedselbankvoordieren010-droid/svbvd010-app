@@ -254,17 +254,37 @@ async function renderDashboard() {
 
     <div class="topbar">
 
-      <div id="userMeta">
+  <div id="userMeta">
 
-        ${state.profile.email}
+    ${state.profile.email}
 
-      </div>
+  </div>
 
-      <button id="logoutBtn">
-        Uitloggen
+  <div class="topbar-right">
+
+    <div class="notif-wrapper">
+
+      <button id="notifBell">
+
+        🔔
+
+        <span id="notifCount">
+        </span>
+
       </button>
 
+      <div id="notifications">
+      </div>
+
     </div>
+
+    <button id="logoutBtn">
+      Uitloggen
+    </button>
+
+  </div>
+
+</div>
 
     <section
       id="dashboard"
