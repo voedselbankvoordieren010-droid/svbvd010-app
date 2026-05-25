@@ -713,9 +713,15 @@ button:hover {
 
   align-items: center;
 
-  padding: 24px;
+  padding: 20px 28px;
 
   background: #0f172a;
+
+  border-bottom:
+    1px solid
+    rgba(255,255,255,0.05);
+
+  min-height: 90px;
 }
 
 .tab-panel {
@@ -742,9 +748,42 @@ button:hover {
 
   background: #1e293b;
 
-  border-radius: 20px;
+  border-radius: 24px;
+
+  padding: 28px;
+
+  min-height: 180px;
+
+  transition: 0.2s ease;
+
+  border:
+    1px solid
+    rgba(255,255,255,0.03);
+}
+
+.card:hover {
+
+  transform:
+    translateY(-2px);
+
+  border-color:
+    rgba(255,102,0,0.25);
+}
+.sidebar {
+
+  width: 260px;
+
+  background: #1e293b;
 
   padding: 24px;
 
-  min-height: 120px;
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 24px;
+
+  border-right:
+    1px solid
+    rgba(255,255,255,0.05);
 }
