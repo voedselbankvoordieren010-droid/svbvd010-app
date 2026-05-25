@@ -955,3 +955,21 @@ button:hover {
 
   margin-bottom: 12px;
 }
+.animal-actions {
+
+  display: flex;
+
+  gap: 12px;
+
+  margin-top: 18px;
+}
+
+.danger-btn {
+
+  background: #dc2626;
+}
+
+.danger-btn:hover {
+
+  background: #ef4444;
+}

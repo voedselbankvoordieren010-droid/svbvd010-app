@@ -113,6 +113,23 @@ export async function renderClientAnimals(
                   ${animal.status || "actief"}
                 </p>
 
+                <div class="animal-actions">
+
+  <button
+    class="btn edit-animal-btn"
+    data-id="${animal.id}"
+  >
+    Bewerken
+  </button>
+
+  <button
+    class="btn danger-btn delete-animal-btn"
+    data-id="${animal.id}"
+  >
+    Verwijderen
+  </button>
+
+</div>
                 <p>
                   Medisch:
                   ${animal.medical_notes || "-"}
@@ -139,8 +156,34 @@ export async function renderClientAnimals(
     );
 
   if (!addBtn) {
-    return;
-  }
+  return;
+}
+
+addBtn.onclick = () => {
+
+  // modal code
+
+};
+
+document
+  .querySelectorAll(
+    ".delete-animal-btn"
+  )
+  .forEach(btn => {
+
+    // delete code
+
+  });
+
+document
+  .querySelectorAll(
+    ".edit-animal-btn"
+  )
+  .forEach(btn => {
+
+    // edit code
+
+  });
 
   addBtn.onclick = () => {
     const existing =
