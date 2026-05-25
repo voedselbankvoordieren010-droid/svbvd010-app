@@ -2,7 +2,6 @@ export async function renderClientAnimals(
   client,
   supabase
 ) {
-
   const panel =
     document.getElementById(
       "animals"
@@ -12,44 +11,27 @@ export async function renderClientAnimals(
     return;
   }
 
-  // DATABASE LOAD
   const {
     data: animals,
     error
   } = await supabase
     .from("animals")
     .select("*")
-    .eq(
-      "client_id",
-      client.id
-    )
-    .order(
-      "created_at",
-      {
-        ascending: false
-      }
-    );
+    .eq("client_id", client.id)
+    .order("created_at", {
+      ascending: false
+    });
 
-  console.log(
-    "ANIMALS:",
-    animals
-  );
-
-  console.log(
-    "ANIMALS ERROR:",
-    error
-  );
+  console.log("ANIMALS:", animals);
+  console.log("ANIMALS ERROR:", error);
 
   const animalsList = animals ?? [];
 
   panel.innerHTML = `
-
     <div class="animals-header">
-
       <h3>
         Dieren
       </h3>
-
       <button
         id="addAnimalBtn"
         class="btn"
@@ -57,11 +39,9 @@ export async function renderClientAnimals(
       >
         + Dier toevoegen
       </button>
-
     </div>
 
     <div class="animals-grid">
-
       ${
         error
           ? `
@@ -73,71 +53,37 @@ export async function renderClientAnimals(
             `
           : animalsList.length
           ? animalsList
-              .map(animal => `
-
+              .map(
+                (animal) => `
               <div class="animal-card">
-
-                <div class="animal-icon">
-                  🐾
-                </div>
-
-                <h4>
-                  ${animal.name || "-"}
-                </h4>
-
-                <p>
-                  ${animal.type || "-"}
-                </p>
-
-                <p>
-                  ${animal.breed || "-"}
-                </p>
-
-                <p>
-                  Leeftijd:
-                  ${animal.age || "-"}
-                </p>
-
-                <p>
-                  Geslacht:
-                  ${animal.gender || "-"}
-                </p>
-
-                <p>
-                  Voeding:
-                  ${animal.food || "-"}
-                </p>
-
-                <p>
-                  Status:
-                  ${animal.status || "actief"}
-                </p>
-
+                <div class="animal-icon">🐾</div>
+                <h4>${animal.name || "-"}</h4>
+                <p>${animal.type || "-"}</p>
+                <p>${animal.breed || "-"}</p>
+                <p>Leeftijd: ${animal.age || "-"}</p>
+                <p>Geslacht: ${animal.gender || "-"}</p>
+                <p>Voeding: ${animal.food || "-"}</p>
+                <p>Status: ${animal.status || "actief"}</p>
                 <div class="animal-actions">
-
-  <button
-    class="btn edit-animal-btn"
-    data-id="${animal.id}"
-  >
-    Bewerken
-  </button>
-
-  <button
-    class="btn danger-btn delete-animal-btn"
-    data-id="${animal.id}"
-  >
-    Verwijderen
-  </button>
-
-</div>
-                <p>
-                  Medisch:
-                  ${animal.medical_notes || "-"}
-                </p>
-
+                  <button
+                    class="btn edit-animal-btn"
+                    data-id="${animal.id}"
+                    type="button"
+                  >
+                    Bewerken
+                  </button>
+                  <button
+                    class="btn danger-btn delete-animal-btn"
+                    data-id="${animal.id}"
+                    type="button"
+                  >
+                    Verwijderen
+                  </button>
+                </div>
+                <p>Medisch: ${animal.medical_notes || "-"}</p>
               </div>
-
-            `)
+            `
+              )
               .join("")
           : `
               <p>
@@ -145,47 +91,15 @@ export async function renderClientAnimals(
               </p>
             `
       }
-
     </div>
   `;
 
-  // NIEUW DIER
-  const addBtn =
-    document.getElementById(
-      "addAnimalBtn"
-    );
-
+  const addBtn = document.getElementById("addAnimalBtn");
   if (!addBtn) {
-  return;
-}
+    return;
+  }
 
-addBtn.onclick = () => {
-
-  // modal code
-
-};
-
-document
-  .querySelectorAll(
-    ".delete-animal-btn"
-  )
-  .forEach(btn => {
-
-    // delete code
-
-  });
-
-document
-  .querySelectorAll(
-    ".edit-animal-btn"
-  )
-  .forEach(btn => {
-
-    // edit code
-
-  });
-
-  addBtn.onclick = () => {
+  const openAnimalModal = () => {
     const existing =
       document.querySelector(
         ".animal-modal-overlay"
@@ -195,257 +109,45 @@ document
       existing.remove();
     }
 
-    const modal =
-      document.createElement(
-        "div"
-      );
-
-    modal.className =
-      "animal-modal-overlay";
+    const modal = document.createElement("div");
+    modal.className = "animal-modal-overlay";
 
     modal.innerHTML = `
-
       <div class="animal-modal">
-
-        <h2>
-          Dier toevoegen
-        </h2>
-
-        <input
-          id="animalName"
-          placeholder="Naam"
-        >
-
-        <input
-          id="animalType"
-          placeholder="Soort"
-        >
-
-        <input
-          id="animalBreed"
-          placeholder="Ras"
-        >
-
-        <input
-          id="animalAge"
-          placeholder="Leeftijd"
-        >
-
-        <input
-          id="animalGender"
-          placeholder="Geslacht"
-        >
-
-        <input
-          id="animalFood"
-          placeholder="Voeding"
-        >
-
-        <textarea
-          id="animalMedical"
-          placeholder="Medische info"
-        ></textarea>
-
+        <h2>Dier toevoegen</h2>
+        <input id="animalName" placeholder="Naam">
+        <input id="animalType" placeholder="Soort">
+        <input id="animalBreed" placeholder="Ras">
+        <input id="animalAge" placeholder="Leeftijd">
+        <input id="animalGender" placeholder="Geslacht">
+        <input id="animalFood" placeholder="Voeding">
+        <textarea id="animalMedical" placeholder="Medische info"></textarea>
         <div class="modal-actions">
-
-          <button
-            id="saveAnimalBtn"
-            class="btn"
-            type="button"
-          >
-            Opslaan
-          </button>
-
-          <button
-            id="closeAnimalBtn"
-            class="btn"
-            type="button"
-          >
-            Sluiten
-          </button>
-
+          <button id="saveAnimalBtn" class="btn" type="button">Opslaan</button>
+          <button id="closeAnimalBtn" class="btn" type="button">Sluiten</button>
         </div>
-
       </div>
     `;
 
-    document
-  .querySelectorAll(
-    ".delete-animal-btn"
-  )
-  .forEach(btn => {
+    document.body.appendChild(modal);
 
-    btn.onclick =
-      async () => {
-
-        const confirmed =
-          confirm(
-            "Dier verwijderen?"
-          );
-
-        if (!confirmed) {
-          return;
-        }
-
-        const animalId =
-          btn.dataset.id;
-
-        const {
-          error: deleteError
-        } = await supabase
-          .from("animals")
-          .delete()
-          .eq(
-            "id",
-            animalId
-          );
-
-        if (deleteError) {
-
-          console.error(
-            deleteError
-          );
-
-          alert(
-            deleteError.message
-          );
-
-          return;
-        }
-
-        await renderClientAnimals(
-          client,
-          supabase
-        );
-      };
-  });
-
-document
-  .querySelectorAll(
-    ".edit-animal-btn"
-  )
-  .forEach(btn => {
-
-    btn.onclick =
-      async () => {
-
-        const animalId =
-          btn.dataset.id;
-
-        const animal =
-          animals.find(
-            a =>
-              a.id ===
-              animalId
-          );
-
-        if (!animal) {
-          return;
-        }
-
-        const name =
-          prompt(
-            "Naam",
-            animal.name || ""
-          );
-
-        if (!name) {
-          return;
-        }
-
-        const type =
-          prompt(
-            "Soort",
-            animal.type || ""
-          ) || "";
-
-        const breed =
-          prompt(
-            "Ras",
-            animal.breed || ""
-          ) || "";
-
-        const age =
-          prompt(
-            "Leeftijd",
-            animal.age || ""
-          ) || "";
-
-        const status =
-          prompt(
-            "Status",
-            animal.status || ""
-          ) || "actief";
-
-        const {
-          error: updateError
-        } = await supabase
-          .from("animals")
-          .update({
-
-            name,
-            type,
-            breed,
-            age,
-            status
-          })
-          .eq(
-            "id",
-            animalId
-          );
-
-        if (updateError) {
-
-          console.error(
-            updateError
-          );
-
-          alert(
-            updateError.message
-          );
-
-          return;
-        }
-
-        await renderClientAnimals(
-          client,
-          supabase
-        );
-      };
-  });
-    document.body.appendChild(
-      modal
-    );
-
-    const closeBtn =
-      document.getElementById(
-        "closeAnimalBtn"
-      );
-
+    const closeBtn = document.getElementById("closeAnimalBtn");
     if (closeBtn) {
       closeBtn.onclick = () => {
         modal.remove();
       };
     }
 
-    const saveBtn =
-      document.getElementById(
-        "saveAnimalBtn"
-      );
-
+    const saveBtn = document.getElementById("saveAnimalBtn");
     if (!saveBtn) {
       return;
     }
 
     const getValue = (id) =>
-      document
-        .getElementById(id)
-        ?.value
-        ?.trim() || "";
+      document.getElementById(id)?.value?.trim() || "";
 
     saveBtn.onclick = async () => {
       const name = getValue("animalName");
-
       if (!name) {
         alert("Naam verplicht");
         return;
@@ -458,9 +160,7 @@ document
       const food = getValue("animalFood");
       const medical_notes = getValue("animalMedical");
 
-      const {
-        error: insertError
-      } = await supabase
+      const { error: insertError } = await supabase
         .from("animals")
         .insert({
           client_id: client.id,
@@ -483,4 +183,84 @@ document
       await renderClientAnimals(client, supabase);
     };
   };
+
+  addBtn.onclick = openAnimalModal;
+
+  document.querySelectorAll(
+    ".delete-animal-btn"
+  ).forEach((btn) => {
+    btn.onclick = async () => {
+      const confirmed = confirm("Dier verwijderen?");
+      if (!confirmed) {
+        return;
+      }
+
+      const animalId = btn.dataset.id;
+      const { error: deleteError } = await supabase
+        .from("animals")
+        .delete()
+        .eq("id", animalId);
+
+      if (deleteError) {
+        console.error(deleteError);
+        alert(deleteError.message);
+        return;
+      }
+
+      await renderClientAnimals(client, supabase);
+    };
+  });
+
+  document.querySelectorAll(
+    ".edit-animal-btn"
+  ).forEach((btn) => {
+    btn.onclick = async () => {
+      const animalId = btn.dataset.id;
+      const animal = animalsList.find(
+        (a) => String(a.id) === animalId
+      );
+
+      if (!animal) {
+        return;
+      }
+
+      const name = prompt("Naam", animal.name || "");
+      if (!name) {
+        return;
+      }
+
+      const type = prompt("Soort", animal.type || "") || "";
+      const breed = prompt("Ras", animal.breed || "") || "";
+      const age = prompt("Leeftijd", animal.age || "") || "";
+      const gender = prompt("Geslacht", animal.gender || "") || "";
+      const food = prompt("Voeding", animal.food || "") || "";
+      const status = prompt("Status", animal.status || "") || "actief";
+      const medical_notes = prompt(
+        "Medische info",
+        animal.medical_notes || ""
+      ) || "";
+
+      const { error: updateError } = await supabase
+        .from("animals")
+        .update({
+          name,
+          type,
+          breed,
+          age,
+          gender,
+          food,
+          status,
+          medical_notes
+        })
+        .eq("id", animalId);
+
+      if (updateError) {
+        console.error(updateError);
+        alert(updateError.message);
+        return;
+      }
+
+      await renderClientAnimals(client, supabase);
+    };
+  });
 }
