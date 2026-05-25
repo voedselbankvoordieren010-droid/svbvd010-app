@@ -352,10 +352,7 @@ async function renderDashboard() {
     >
     </section>
 
-    <div
-      id="notifications"
-    >
-    </div>
+    
 
   </main>
 
