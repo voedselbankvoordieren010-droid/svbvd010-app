@@ -1,4 +1,4 @@
-const CACHE_NAME = "app-v100";
+const CACHE_NAME = "app-v101";
 
 const STATIC_FILES = [
 
@@ -20,11 +20,20 @@ self.addEventListener(
         event.request.url
       );
 
-    // GEEN CACHE VOOR SUPABASE
+    // NOOIT SUPABASE CACHEN
     if (
       url.hostname.includes(
         "supabase.co"
       )
+    ) {
+
+      return;
+    }
+
+    // ALLEEN GET REQUESTS
+    if (
+      event.request.method !==
+      "GET"
     ) {
 
       return;
@@ -37,11 +46,28 @@ self.addEventListener(
       ).then(cached => {
 
         return (
+
           cached ||
 
           fetch(
             event.request
-          )
+          ).then(response => {
+
+            const responseClone =
+              response.clone();
+
+            caches.open(
+              CACHE_NAME
+            ).then(cache => {
+
+              cache.put(
+                event.request,
+                responseClone
+              );
+            });
+
+            return response;
+          })
         );
       })
     );
