@@ -87,6 +87,21 @@ export async function renderClientAnimals(
                   ${animal.age || "-"}
                 </p>
 
+                <p>
+  Geslacht:
+  ${animal.gender || "-"}
+</p>
+
+<p>
+  Voeding:
+  ${animal.food || "-"}
+</p>
+
+<p>
+  Status:
+  ${animal.status || "actief"}
+</p>
+
               </div>
 
             `).join("")
@@ -112,31 +127,174 @@ export async function renderClientAnimals(
   if (addBtn) {
 
     addBtn.onclick =
+  () => {
+
+    const existing =
+      document.querySelector(
+        ".animal-modal-overlay"
+      );
+
+    if (existing) {
+      existing.remove();
+    }
+
+    const modal =
+      document.createElement(
+        "div"
+      );
+
+    modal.className =
+      "animal-modal-overlay";
+
+    modal.innerHTML = `
+
+      <div class="animal-modal">
+
+        <h2>
+          Dier toevoegen
+        </h2>
+
+        <input
+          id="animalName"
+          placeholder="Naam"
+        >
+
+        <input
+          id="animalType"
+          placeholder="Soort"
+        >
+
+        <input
+          id="animalBreed"
+          placeholder="Ras"
+        >
+
+        <input
+          id="animalAge"
+          placeholder="Leeftijd"
+        >
+
+        <input
+          id="animalGender"
+          placeholder="Geslacht"
+        >
+
+        <input
+          id="animalFood"
+          placeholder="Voeding"
+        >
+
+        <textarea
+          id="animalMedical"
+          placeholder="Medische info"
+        ></textarea>
+
+        <div class="modal-actions">
+
+          <button
+            id="saveAnimalBtn"
+            class="btn"
+          >
+            Opslaan
+          </button>
+
+          <button
+            id="closeAnimalBtn"
+            class="btn"
+          >
+            Sluiten
+          </button>
+
+        </div>
+
+      </div>
+    `;
+
+    document.body.appendChild(
+      modal
+    );
+
+    document
+      .getElementById(
+        "closeAnimalBtn"
+      )
+      .onclick =
+      () => {
+
+        modal.remove();
+      };
+
+    document
+      .getElementById(
+        "saveAnimalBtn"
+      )
+      .onclick =
       async () => {
 
         const name =
-          prompt(
-            "Naam dier"
-          );
+          document
+            .getElementById(
+              "animalName"
+            )
+            ?.value
+            ?.trim() || "";
 
         if (!name) {
+
+          alert(
+            "Naam verplicht"
+          );
+
           return;
         }
 
         const type =
-          prompt(
-            "Soort dier"
-          ) || "";
+          document
+            .getElementById(
+              "animalType"
+            )
+            ?.value
+            ?.trim() || "";
 
         const breed =
-          prompt(
-            "Ras"
-          ) || "";
+          document
+            .getElementById(
+              "animalBreed"
+            )
+            ?.value
+            ?.trim() || "";
 
         const age =
-          prompt(
-            "Leeftijd"
-          ) || "";
+          document
+            .getElementById(
+              "animalAge"
+            )
+            ?.value
+            ?.trim() || "";
+
+        const gender =
+          document
+            .getElementById(
+              "animalGender"
+            )
+            ?.value
+            ?.trim() || "";
+
+        const food =
+          document
+            .getElementById(
+              "animalFood"
+            )
+            ?.value
+            ?.trim() || "";
+
+        const medical_notes =
+          document
+            .getElementById(
+              "animalMedical"
+            )
+            ?.value
+            ?.trim() || "";
 
         const {
           error: insertError
@@ -150,7 +308,10 @@ export async function renderClientAnimals(
             name,
             type,
             breed,
-            age
+            age,
+            gender,
+            food,
+            medical_notes
           });
 
         if (insertError) {
@@ -166,11 +327,11 @@ export async function renderClientAnimals(
           return;
         }
 
-        // REFRESH
+        modal.remove();
+
         await renderClientAnimals(
           client,
           supabase
         );
       };
-  }
-}
+  };
