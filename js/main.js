@@ -427,6 +427,10 @@ async function init() {
   console.log(
     "INIT START"
   );
+  await new Promise(
+  resolve =>
+    setTimeout(resolve, 1000)
+);
 
   // REMOVE ACCESS TOKEN FROM URL
   const hash =
