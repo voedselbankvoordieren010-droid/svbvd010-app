@@ -224,7 +224,7 @@ export async function renderClientAnimals(
         modal.remove();
       };
 
-    document
+        document
       .getElementById(
         "saveAnimalBtn"
       )
@@ -327,12 +327,12 @@ export async function renderClientAnimals(
           return;
         }
 
-                modal.remove();
+        modal.remove();
 
         await renderClientAnimals(
           client,
           supabase
         );
       };
-  }
+  };
 }
