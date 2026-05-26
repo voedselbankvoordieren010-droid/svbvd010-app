@@ -486,6 +486,15 @@ async function loadPortalAnimals(
               ${animal.status || "actief"}
             </p>
 
+            <button
+  class="
+    btn
+    portal-upload-photo-btn
+  "
+  data-id="${animal.id}"
+>
+  📸 Foto uploaden
+</button>
           </div>
 
         `).join("")}
@@ -493,4 +502,102 @@ async function loadPortalAnimals(
       </div>
 
     `;
+      document
+    .querySelectorAll(
+      ".portal-upload-photo-btn"
+    )
+    .forEach((btn) => {
+
+      btn.onclick =
+        async () => {
+
+          const animalId =
+            btn.dataset.id;
+
+          const input =
+            document.createElement(
+              "input"
+            );
+
+          input.type = "file";
+
+          input.accept =
+            "image/*";
+
+          input.onchange =
+            async () => {
+
+              const file =
+                input.files?.[0];
+
+              if (!file) {
+                return;
+              }
+
+              const filePath = `animals/${animalId}/${Date.now()}-${file.name}`;
+
+              const {
+                error: uploadError
+              } = await supabase
+                .storage
+                .from(
+                  "animal-photos"
+                )
+                .upload(
+                  filePath,
+                  file,
+                  {
+                    upsert: true
+                  }
+                );
+
+              if (uploadError) {
+
+                console.error(
+                  uploadError
+                );
+
+                alert(
+                  uploadError.message
+                );
+
+                return;
+              }
+
+              const {
+                error: updateError
+              } = await supabase
+                .from("animals")
+                .update({
+
+                  photo_url:
+                    filePath
+                })
+                .eq(
+                  "id",
+                  animalId
+                );
+
+              if (updateError) {
+
+                console.error(
+                  updateError
+                );
+
+                alert(
+                  updateError.message
+                );
+
+                return;
+              }
+
+              await loadPortalAnimals(
+                supabase,
+                clientId
+              );
+            };
+
+          input.click();
+        };
+    });
 }
