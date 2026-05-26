@@ -1,0 +1,114 @@
+.agenda-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.agenda-header h1,
+.agenda-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.agenda-header p {
+  margin: 8px 0 0;
+  color: #555;
+  max-width: 520px;
+}
+
+.agenda-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.agenda-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.event-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.08);
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.event-card.holiday {
+  border-color: #ffcc00;
+  background: #fff8e5;
+}
+
+.event-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.event-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 140px;
+}
+
+.event-card h2,
+.event-card h3 {
+  margin: 0 0 10px;
+}
+
+.event-meta {
+  margin: 4px 0;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.agenda-form label {
+  display: block;
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+
+.agenda-form input,
+.agenda-form textarea,
+.agenda-form select {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font: inherit;
+}
+
+.agenda-form-actions,
+.event-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.client-portal-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 0.9fr;
+  gap: 18px;
+  padding: 16px;
+}
+
+.client-portal-aside {
+  display: grid;
+  gap: 14px;
+}
+
+@media (max-width: 950px) {
+  .agenda-grid {
+    grid-template-columns: 1fr;
+  }
+  .client-portal-grid {
+    grid-template-columns: 1fr;
+  }
+}

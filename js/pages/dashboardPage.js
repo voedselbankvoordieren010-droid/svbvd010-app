@@ -2,6 +2,7 @@ import { loadNotifications } from "../notifications.js";
 import { initChat } from "../chat.js";
 import { loadUsers } from "../admin.js";
 import { loadClients } from "../clients/index.js";
+import { loadAdminAgenda } from "../calendar.js";
 
 export async function renderDashboard(supabase, state) {
   const app = document.getElementById("app");
@@ -27,6 +28,9 @@ export async function renderDashboard(supabase, state) {
       </button>
       <button class="tab-button btn" data-tab="chat">
         Chat
+      </button>
+      <button class="tab-button btn" data-tab="agenda">
+        Agenda
       </button>
       <button class="tab-button btn" data-tab="clients">
         Cliënten
@@ -85,6 +89,10 @@ export async function renderDashboard(supabase, state) {
       </div>
     </section>
 
+    <section id="agenda" class="tab-panel hidden">
+      <div id="adminAgenda">Laden...</div>
+    </section>
+
     <section id="clients" class="tab-panel hidden"></section>
   </main>
 </div>
@@ -92,6 +100,7 @@ export async function renderDashboard(supabase, state) {
 
   const role = state.profile?.role;
   const canViewClients = ["admin", "hulpverlener", "intake"].includes(role);
+  const canViewAgenda = ["admin", "hulpverlener"].includes(role);
   const canViewAdmin = role === "admin";
 
   await loadNotifications(supabase, state);
@@ -105,6 +114,13 @@ export async function renderDashboard(supabase, state) {
     const adminBtn = document.querySelector('[data-tab="admin"]');
     if (adminBtn) {
       adminBtn.remove();
+    }
+  }
+
+  if (!canViewAgenda) {
+    const agendaBtn = document.querySelector('[data-tab="agenda"]');
+    if (agendaBtn) {
+      agendaBtn.remove();
     }
   }
 
@@ -165,6 +181,10 @@ export async function renderDashboard(supabase, state) {
         if (chat && chat.loadMessages) {
           chat.loadMessages();
         }
+      }
+
+      if (btn.dataset.tab === "agenda") {
+        loadAdminAgenda(supabase, state, role === "admin");
       }
     });
   });

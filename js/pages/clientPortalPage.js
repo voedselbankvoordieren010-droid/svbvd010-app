@@ -1,4 +1,5 @@
 import { loadOwnClientProfile } from "../clientPortal.js";
+import { loadClientAgenda } from "../calendar.js";
 
 export async function renderClientPortal(supabase, state) {
   const app = document.getElementById("app");
@@ -22,8 +23,11 @@ export async function renderClientPortal(supabase, state) {
       <button id="logoutBtn">Logout</button>
     </div>
 
-    <main class="tab-panel">
-      <div id="chatList">Laden...</div>
+    <main class="client-portal-grid">
+      <section id="chatList" class="client-portal-main">Laden...</section>
+      <aside id="clientAgenda" class="client-portal-aside">
+        <div class="card"><p>Laden agenda...</p></div>
+      </aside>
     </main>
   `;
 
@@ -37,4 +41,5 @@ export async function renderClientPortal(supabase, state) {
   }
 
   await loadOwnClientProfile(supabase, state.profile);
+  await loadClientAgenda(supabase, state.profile);
 }
