@@ -174,58 +174,121 @@ export async function loadOwnClientProfile(
   await loadPortalAnimals(
   supabase,
   profile.client_id
-);
+  );
+
+  await loadClientMessages(
+    supabase,
+    profile
+  );
+
+  const sendBtn =
+    document.getElementById(
+      "sendClientMessageBtn"
+    );
+
+  if (sendBtn) {
+
+    sendBtn.onclick =
+      async () => {
+
+        const input =
+          document.getElementById(
+            "clientMessageInput"
+          );
+
+        const message =
+          input.value.trim();
+
+        if (!message) {
+          return;
+        }
+
+        const {
+          error
+        } = await supabase
+          .from("messages")
+          .insert({
+
+            client_id:
+              profile.client_id,
+
+            sender_id:
+              profile.id,
+
+            message
+          });
+
+        if (error) {
+
+          console.error(error);
+
+          alert(
+            error.message
+          );
+
+          return;
+        }
+
+        input.value = "";
+
+        await loadClientMessages(
+          supabase,
+          profile
+        );
+      };
+  }
+
   // UPLOAD BUTTON
   const uploadBtn =
-  document.getElementById(
-    "uploadClientFileBtn"
-  );
+    document.getElementById(
+      "uploadClientFileBtn"
+    );
 
-const fileInput =
-  document.getElementById(
-    "clientUploadInput"
-  );
+  const fileInput =
+    document.getElementById(
+      "clientUploadInput"
+    );
 
-const fileName =
-  document.getElementById(
-    "selectedFileName"
-  );
+  const fileName =
+    document.getElementById(
+      "selectedFileName"
+    );
 
-if (
-  fileInput &&
-  fileName
-) {
+  if (
+    fileInput &&
+    fileName
+  ) {
 
-  fileInput.onchange =
-    () => {
+    fileInput.onchange =
+      () => {
 
-      fileName.textContent =
-        fileInput.files?.[0]
-          ?.name ||
+        fileName.textContent =
+          fileInput.files?.[0]
+            ?.name ||
 
-        "Geen bestand gekozen";
-    };
-}
+          "Geen bestand gekozen";
+      };
+  }
 
-if (uploadBtn) {
+  if (uploadBtn) {
 
-  uploadBtn.onclick =
-    async () => {
+    uploadBtn.onclick =
+      async () => {
 
-      const input =
-        document.getElementById(
-          "clientUploadInput"
-        );
+        const input =
+          document.getElementById(
+            "clientUploadInput"
+          );
 
-      const file =
-        input.files[0];
+        const file =
+          input.files[0];
 
-      if (!file) {
-        return;
-      }
+        if (!file) {
+          return;
+        }
 
-      const filePath =
-        `${profile.client_id}/${Date.now()}-${file.name}`;
+        const filePath =
+          `${profile.client_id}/${Date.now()}-${file.name}`;
 
         // STORAGE UPLOAD
         const {
@@ -242,6 +305,40 @@ if (uploadBtn) {
 
           console.error(
             uploadError
+          );
+
+          return;
+        }
+
+        // DATABASE INSERT
+        await supabase
+          .from("client_files")
+          .insert({
+
+            client_id:
+              profile.client_id,
+
+            file_name:
+              file.name,
+
+            file_path:
+              filePath
+          });
+
+        // REFRESH
+        await loadClientFiles(
+          supabase,
+          profile.client_id
+        );
+      };
+  }
+}
+
+async function loadClientFiles(
+  supabase,
+  clientId
+) {
+
           );
 
           return;
@@ -674,64 +771,4 @@ async function loadPortalAnimals(
           input.click();
         };
     });
-    await loadClientMessages(
-  supabase,
-  profile
-);
-const sendBtn =
-  document.getElementById(
-    "sendClientMessageBtn"
-  );
-
-if (sendBtn) {
-
-  sendBtn.onclick =
-    async () => {
-
-      const input =
-        document.getElementById(
-          "clientMessageInput"
-        );
-
-      const message =
-        input.value.trim();
-
-      if (!message) {
-        return;
-      }
-
-      const {
-        error
-      } = await supabase
-        .from("messages")
-        .insert({
-
-          client_id:
-            profile.client_id,
-
-          sender_id:
-            profile.id,
-
-          message
-        });
-
-      if (error) {
-
-        console.error(error);
-
-        alert(
-          error.message
-        );
-
-        return;
-      }
-
-      input.value = "";
-
-      await loadClientMessages(
-        supabase,
-        profile
-      );
-    };
-}
 }
