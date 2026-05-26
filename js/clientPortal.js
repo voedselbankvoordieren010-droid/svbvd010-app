@@ -352,40 +352,6 @@ async function loadClientFiles(
   clientId
 ) {
 
-          );
-
-          return;
-        }
-
-        // DATABASE INSERT
-        await supabase
-          .from("client_files")
-          .insert({
-
-            client_id:
-              profile.client_id,
-
-            file_name:
-              file.name,
-
-            file_path:
-              filePath
-          });
-
-        // REFRESH
-        await loadClientFiles(
-          supabase,
-          profile.client_id
-        );
-      };
-  }
-}
-
-async function loadClientFiles(
-  supabase,
-  clientId
-) {
-
   const list =
     document.getElementById(
       "clientFilesList"
