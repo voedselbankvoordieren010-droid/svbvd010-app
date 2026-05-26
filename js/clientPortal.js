@@ -327,8 +327,10 @@ async function loadClientFiles(
           </p>
 
           <button
-            class="open-client-file"
-            data-path="${file.file_path}"
+  class="
+    btn
+    open-client-file
+  "
           >
             Openen
           </button>

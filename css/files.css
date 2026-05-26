@@ -39,3 +39,34 @@
 
   margin-top: 14px;
 }
+#selectedFileName {
+
+  display: inline-block;
+
+  margin-left: 16px;
+
+  margin-right: 16px;
+
+  opacity: .8;
+
+  word-break: break-word;
+}
+.file-item {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+.file-item p {
+
+  margin: 0;
+
+  font-size: 18px;
+}
+.open-client-file {
+
+  width: fit-content;
+}
