@@ -1,0 +1,54 @@
+.site-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: #0f172a;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.site-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.site-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: white;
+  padding: 6px;
+}
+
+.sidebar-toggle {
+  display: none;
+  background: transparent;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+
+.site-title {
+  font-weight: 700;
+  color: #fff;
+  font-size: 16px;
+}
+
+@media (max-width: 700px) {
+  .site-logo { width: 36px; height: 36px; }
+  .site-title { display: none; }
+  .site-top { padding: 8px 12px; }
+}
+
+@media (max-width: 900px) {
+  .sidebar-toggle { display: inline-flex; }
+}
+
+/* compact typography for small screens */
+@media (max-width: 700px) {
+  body { font-size: 14px; }
+}

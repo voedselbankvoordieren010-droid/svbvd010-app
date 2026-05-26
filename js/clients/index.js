@@ -220,6 +220,11 @@ export async function loadClients(
         if (chatTab) {
           chatTab.click();
         }
+        if (window.innerWidth < 900) {
+          const sb = document.querySelector('.sidebar');
+          if (sb) sb.style.display = 'none';
+          window.scrollTo(0,0);
+        }
       };
     });
 

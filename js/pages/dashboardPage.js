@@ -14,7 +14,8 @@ export async function renderDashboard(supabase, state) {
 <div class="dashboard-layout">
   <aside class="sidebar">
     <h1 class="logo">
-      SVBVD010
+      <img src="public/logo.svg" alt="logo">
+      <span>SVBVD010</span>
     </h1>
 
     <nav class="sidebar-nav">
@@ -34,7 +35,13 @@ export async function renderDashboard(supabase, state) {
   </aside>
 
   <main class="main-content">
-    <div class="topbar">
+    <div class="topbar site-top">
+      <div class="site-brand">
+        <img class="site-logo" src="public/logo.svg" alt="Stichting logo">
+        <div class="site-title">Stichting</div>
+      </div>
+      <button id="sidebarToggle" class="btn sidebar-toggle">☰</button>
+
       <div id="userMeta">
         ${state.profile.email}
       </div>
@@ -122,6 +129,15 @@ export async function renderDashboard(supabase, state) {
     logoutBtn.addEventListener("click", async () => {
       await supabase.auth.signOut();
       location.reload();
+    });
+  }
+
+  const sidebarToggle = document.getElementById("sidebarToggle");
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener("click", () => {
+      const sb = document.querySelector('.sidebar');
+      if (!sb) return;
+      sb.style.display = sb.style.display === 'none' ? '' : 'none';
     });
   }
 

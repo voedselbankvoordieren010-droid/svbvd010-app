@@ -8,19 +8,22 @@ export async function renderClientPortal(supabase, state) {
   }
 
   app.innerHTML = `
-    <div class="topbar">
+    <div class="topbar site-top">
+      <div class="site-brand">
+        <img class="site-logo" src="public/logo.svg" alt="Stichting logo">
+        <div class="site-title">Stichting</div>
+      </div>
+      <button id="sidebarToggle" class="btn sidebar-toggle">☰</button>
+
       <div id="userMeta">
         ${state.profile.email}
       </div>
-      <button id="logoutBtn">
-        Logout
-      </button>
+
+      <button id="logoutBtn">Logout</button>
     </div>
 
     <main class="tab-panel">
-      <div id="chatList">
-        Laden...
-      </div>
+      <div id="chatList">Laden...</div>
     </main>
   `;
 

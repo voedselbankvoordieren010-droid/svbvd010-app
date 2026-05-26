@@ -1,20 +1,18 @@
 .sidebar {
 
-  width: 260px;
+  width: 220px;
 
   background: #1e293b;
 
-  padding: 24px;
+  padding: 16px;
 
   display: flex;
 
   flex-direction: column;
 
-  gap: 24px;
+  gap: 16px;
 
-  border-right:
-    1px solid
-    rgba(255,255,255,0.05);
+  border-right: 1px solid rgba(255,255,255,0.05);
 }
 
 .logo {
@@ -22,6 +20,22 @@
   color: #ff6600;
 
   margin: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+.logo img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+@media (max-width: 900px) {
+  .sidebar { display: none; }
 }
 
 .sidebar-nav {

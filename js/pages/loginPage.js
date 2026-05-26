@@ -8,6 +8,14 @@ export async function showLogin(supabase) {
   }
 
   app.innerHTML = `
+    <div class="topbar site-top">
+      <div class="site-brand">
+        <img class="site-logo" src="public/logo.svg" alt="Stichting logo">
+        <div class="site-title">Stichting</div>
+      </div>
+      <button id="sidebarToggle" class="btn sidebar-toggle">☰</button>
+    </div>
+
     <div class="login-screen">
       <div class="login-card">
         <h1>
