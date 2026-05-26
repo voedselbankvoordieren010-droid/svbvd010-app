@@ -215,7 +215,7 @@ function renderEventCard(event, canEdit) {
           <p>${event.description || "Geen omschrijving."}</p>
         </div>
         <div class="event-actions">
-          <button class="btn agenda-download-btn" data-event-id="${event.id}">Download ICS</button>
+          <button class="btn agenda-download-btn" data-event-id="${event.id}">📅 Toevoegen aan agenda</button>
           ${canEdit && !isHoliday ? `<button class="btn agenda-edit-btn" data-event-id="${event.id}">Bewerken</button>` : ""}
           ${canEdit && !isHoliday ? `<button class="btn btn-danger agenda-delete-btn" data-event-id="${event.id}">Verwijderen</button>` : ""}
         </div>
