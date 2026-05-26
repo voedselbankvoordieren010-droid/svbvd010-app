@@ -134,6 +134,36 @@ export async function loadOwnClientProfile(
       </div>
 
     </div>
+
+    <div class="client-card">
+
+      <h2>
+        Chat met hulpverlener
+      </h2>
+
+      <div id="clientMessages">
+        Laden...
+      </div>
+
+      <div class="chat-input-row">
+
+        <textarea
+          id="clientMessageInput"
+          rows="3"
+          placeholder="Typ een bericht..."
+          autocomplete="off"
+        ></textarea>
+
+        <button
+          id="sendClientMessageBtn"
+          class="btn"
+        >
+          Verstuur
+        </button>
+
+      </div>
+
+    </div>
   `;
 
   // BESTANDEN LADEN
