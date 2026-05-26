@@ -28,3 +28,14 @@
 
   margin-bottom: 16px;
 }
+#selectedFileName {
+
+  margin-left: 12px;
+
+  opacity: .8;
+}
+
+.open-client-file {
+
+  margin-top: 14px;
+}

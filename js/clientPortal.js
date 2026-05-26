@@ -102,17 +102,54 @@ export async function loadOwnClientProfile(
         Mijn bestanden
       </h2>
 
-      <input
-        id="clientUploadInput"
-        type="file"
-      >
+      <label
+  class="btn"
+  for="clientUploadInput"
+>
+  📎 Bestand kiezen
+</label>
+
+<input
+  id="clientUploadInput"
+  type="file"
+  hidden
+>
+
+<span id="selectedFileName">
+  Geen bestand gekozen
+</span>
 
       <button
-        id="uploadClientFileBtn"
-      >
+  id="uploadClientFileBtn"
+  class="btn"
+>
         Upload bestand
       </button>
+    const fileInput =
+  document.getElementById(
+    "clientUploadInput"
+  );
 
+const fileName =
+  document.getElementById(
+    "selectedFileName"
+  );
+
+if (
+  fileInput &&
+  fileName
+) {
+
+  fileInput.onchange =
+    () => {
+
+      fileName.textContent =
+        fileInput.files?.[0]
+          ?.name ||
+
+        "Geen bestand gekozen";
+    };
+}
       <div id="clientFilesList">
         Laden...
       </div>
