@@ -49,3 +49,60 @@
     max-width: 95%;
   }
 }
+@media (
+  max-width: 768px
+) {
+
+  .client-card {
+
+    padding: 18px;
+  }
+
+  .portal-animals {
+
+    grid-template-columns:
+      1fr;
+  }
+
+  .portal-animal-card {
+
+    width: 100%;
+
+    box-sizing: border-box;
+  }
+
+  .portal-animal-photo {
+
+    height: 220px;
+  }
+
+  .animal-actions,
+  .modal-actions {
+
+    flex-direction: column;
+  }
+
+  .btn {
+
+    width: 100%;
+  }
+
+  #selectedFileName {
+
+    display: block;
+
+    margin-top: 12px;
+
+    margin-left: 0;
+  }
+
+  .file-item {
+
+    padding: 16px;
+  }
+
+  .file-preview {
+
+    max-height: 180px;
+  }
+}

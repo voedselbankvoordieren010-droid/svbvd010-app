@@ -125,7 +125,30 @@ export async function loadOwnClientProfile(
 >
         Upload bestand
       </button>
-    const fileInput =
+    
+      <div id="clientFilesList">
+        Laden...
+      </div>
+
+    </div>
+  `;
+
+  // BESTANDEN LADEN
+  await loadClientFiles(
+    supabase,
+    profile.client_id
+  );
+  await loadPortalAnimals(
+  supabase,
+  profile.client_id
+);
+  // UPLOAD BUTTON
+  const uploadBtn =
+  document.getElementById(
+    "uploadClientFileBtn"
+  );
+
+const fileInput =
   document.getElementById(
     "clientUploadInput"
   );
@@ -150,47 +173,26 @@ if (
         "Geen bestand gekozen";
     };
 }
-      <div id="clientFilesList">
-        Laden...
-      </div>
 
-    </div>
-  `;
+if (uploadBtn) {
 
-  // BESTANDEN LADEN
-  await loadClientFiles(
-    supabase,
-    profile.client_id
-  );
-  await loadPortalAnimals(
-  supabase,
-  profile.client_id
-);
-  // UPLOAD BUTTON
-  const uploadBtn =
-    document.getElementById(
-      "uploadClientFileBtn"
-    );
+  uploadBtn.onclick =
+    async () => {
 
-  if (uploadBtn) {
+      const input =
+        document.getElementById(
+          "clientUploadInput"
+        );
 
-    uploadBtn.onclick =
-      async () => {
+      const file =
+        input.files[0];
 
-        const input =
-          document.getElementById(
-            "clientUploadInput"
-          );
+      if (!file) {
+        return;
+      }
 
-        const file =
-          input.files[0];
-
-        if (!file) {
-          return;
-        }
-
-        const filePath =
-          `${profile.client_id}/${Date.now()}-${file.name}`;
+      const filePath =
+        `${profile.client_id}/${Date.now()}-${file.name}`;
 
         // STORAGE UPLOAD
         const {
