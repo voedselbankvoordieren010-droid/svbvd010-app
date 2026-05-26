@@ -66,32 +66,30 @@ export async function loadClientMessages(
     return;
   }
 
-  container.innerHTML =
-    data.map(message => {
+  container.innerHTML = "";
 
-      const isMe =
-        message.sender_id ===
-        profile.id;
+  data.forEach(message => {
 
-      return `
+    const isMe =
+      message.sender_id ===
+      profile.id;
 
-        <div
-          class="
-            chat-message
-            ${
-              isMe
-                ? "me"
-                : "other"
-            }
-          "
-        >
+    const messageEl =
+      document.createElement("div");
 
-          <p>
-            ${message.message}
-          </p>
+    messageEl.className =
+      `chat-message ${
+        isMe ? "me" : "other"
+      }`;
 
-        </div>
+    const p =
+      document.createElement("p");
 
-      `;
-    }).join("");
+    p.textContent =
+      message.message || "";
+
+    messageEl.appendChild(p);
+
+    container.appendChild(messageEl);
+  });
 }

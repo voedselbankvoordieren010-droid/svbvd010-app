@@ -234,6 +234,13 @@ export function initChat(
       const convo =
         c.conversations;
 
+      const label =
+        `Gesprek ${c.conversation_id}`;
+
+      const snippet =
+        convo?.last_message ||
+        "Geen berichten";
+
       const div =
         document.createElement(
           "div"
@@ -244,9 +251,7 @@ export function initChat(
 
       div.innerHTML = `
 
-        <div style="
-          flex:1;
-        ">
+        <div class="chat-item-meta">
 
           <div style="
             display:flex;
@@ -255,7 +260,7 @@ export function initChat(
           ">
 
             <b>
-              Gesprek
+              ${label}
             </b>
 
             <small>
@@ -272,15 +277,14 @@ export function initChat(
             display:flex;
             justify-content:
             space-between;
+            gap:12px;
           ">
 
             <small style="
               opacity:0.7;
+              flex:1;
             ">
-              ${
-                convo?.last_message ||
-                "Geen berichten"
-              }
+              ${snippet}
             </small>
 
             ${
@@ -603,6 +607,14 @@ export function initChat(
     console.log(
       "💬 CHAT INIT"
     );
+
+    const header =
+      el.header();
+
+    if (header) {
+      header.textContent =
+        "Vrijwilliger inbox";
+    }
 
     const input =
       el.input();

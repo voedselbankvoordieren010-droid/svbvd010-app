@@ -154,6 +154,23 @@ export async function loadOwnClientProfile(
         Laden...
       </div>
 
+      <div class="emoji-bar">
+
+        <button type="button" class="emoji-button">😊</button>
+        <button type="button" class="emoji-button">😂</button>
+        <button type="button" class="emoji-button">😍</button>
+        <button type="button" class="emoji-button">😎</button>
+        <button type="button" class="emoji-button">🤗</button>
+        <button type="button" class="emoji-button">🐶</button>
+        <button type="button" class="emoji-button">🐱</button>
+        <button type="button" class="emoji-button">🐰</button>
+        <button type="button" class="emoji-button">🦊</button>
+        <button type="button" class="emoji-button">🐻</button>
+        <button type="button" class="emoji-button">🐼</button>
+        <button type="button" class="emoji-button">🦁</button>
+
+      </div>
+
       <div class="chat-input-row">
 
         <textarea
@@ -250,6 +267,30 @@ export async function loadOwnClientProfile(
         );
       };
   }
+
+  const emojiButtons =
+    document.querySelectorAll(
+      ".emoji-button"
+    );
+
+  const messageInput =
+    document.getElementById(
+      "clientMessageInput"
+    );
+
+  emojiButtons.forEach(
+    button => {
+      button.onclick = () => {
+        if (!messageInput) {
+          return;
+        }
+
+        messageInput.value +=
+          button.textContent || "";
+        messageInput.focus();
+      };
+    }
+  );
 
   // UPLOAD BUTTON
   const uploadBtn =
