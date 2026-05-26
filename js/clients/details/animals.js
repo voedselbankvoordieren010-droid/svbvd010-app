@@ -65,6 +65,34 @@ export async function renderClientAnimals(
     }
   "
 >
+${
+  animal.photo_url
+
+    ? `
+
+      <img
+        src="${
+          supabase
+            .storage
+            .from("animal-photos")
+            .getPublicUrl(
+              animal.photo_url
+            )
+            .data.publicUrl
+        }"
+        class="animal-photo"
+      >
+
+    `
+
+    : `
+
+      <div class="animal-icon">
+        🐾
+      </div>
+
+    `
+}
                 <div class="animal-icon">🐾</div>
                 <h4>${animal.name || "-"}</h4>
                 <p>${animal.type || "-"}</p>
@@ -263,7 +291,186 @@ export async function renderClientAnimals(
         await renderClientAnimals(client, supabase);
       };
     });
+document
+  .querySelectorAll(
+    ".upload-animal-photo-btn"
+  )
+  .forEach((btn) => {
 
+    btn.onclick =
+      async () => {
+
+        const animalId =
+          btn.dataset.id;
+
+        const input =
+          document.createElement(
+            "input"
+          );
+
+        input.type = "file";
+
+        input.accept =
+          "image/*";
+
+        input.onchange =
+          async () => {
+
+            const file =
+              input.files?.[0];
+
+            if (!file) {
+              return;
+            }
+
+            const filePath = `animals/${animalId}/${Date.now()}-${file.name}`;
+
+            const {
+              error: uploadError
+            } = await supabase
+              .storage
+              .from(
+                "animal-photos"
+              )
+              .upload(
+                filePath,
+                file,
+                {
+                  upsert: true
+                }
+              );
+
+            if (uploadError) {
+
+              console.error(
+                uploadError
+              );
+
+              alert(
+                uploadError.message
+              );
+
+              return;
+            }
+
+            const {
+              error: updateError
+            } = await supabase
+              .from("animals")
+              .update({
+
+                photo_url:
+                  filePath
+              })
+              .eq(
+                "id",
+                animalId
+              );
+
+            if (updateError) {
+
+              console.error(
+                updateError
+              );
+
+              alert(
+                updateError.message
+              );
+
+              return;
+            }
+
+            await renderClientAnimals(
+              client,
+              supabase
+            );
+          };
+
+        input.click();
+      };
+  });
+
+  document
+  .querySelectorAll(
+    ".delete-animal-photo-btn"
+  )
+  .forEach((btn) => {
+
+    btn.onclick =
+      async () => {
+
+        const animalId =
+          btn.dataset.id;
+
+        const animal =
+          animalsList.find(
+            (a) =>
+              String(a.id) ===
+              animalId
+          );
+
+        if (
+          !animal?.photo_url
+        ) {
+
+          alert(
+            "Geen foto gevonden"
+          );
+
+          return;
+        }
+
+        const confirmed =
+          confirm(
+            "Foto verwijderen?"
+          );
+
+        if (!confirmed) {
+          return;
+        }
+
+        await supabase
+          .storage
+          .from(
+            "animal-photos"
+          )
+          .remove([
+            animal.photo_url
+          ]);
+
+        const {
+          error: updateError
+        } = await supabase
+          .from("animals")
+          .update({
+
+            photo_url: null
+          })
+          .eq(
+            "id",
+            animalId
+          );
+
+        if (updateError) {
+
+          console.error(
+            updateError
+          );
+
+          alert(
+            updateError.message
+          );
+
+          return;
+        }
+
+        await renderClientAnimals(
+          client,
+          supabase
+        );
+      };
+  });
+  
   document
     .querySelectorAll(
       ".edit-animal-btn"
