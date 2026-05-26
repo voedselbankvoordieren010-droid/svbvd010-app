@@ -12,7 +12,8 @@ import {
 
 export async function loadClients(
   supabase,
-  state
+  state,
+  chat = null
 ) {
 
   console.log(
@@ -144,6 +145,18 @@ export async function loadClients(
               ${safeStatus}
             </div>
 
+            ${chat ? `
+              <div class="client-card-actions">
+                <button
+                  class="btn chat-client-btn"
+                  data-client-id="${client.id}"
+                  data-client-name="${client.full_name || client.email || "Cliënt"}"
+                >
+                  Chat met deze cliënt
+                </button>
+              </div>
+            ` : ""}
+
           </div>
 
         `;
@@ -177,6 +190,37 @@ export async function loadClients(
             supabase
           );
         };
+    });
+
+  document
+    .querySelectorAll(
+      ".chat-client-btn"
+    )
+    .forEach(btn => {
+      btn.onclick = async event => {
+        event.stopPropagation();
+
+        const clientId = btn.dataset.clientId;
+        const clientName = btn.dataset.clientName;
+
+        if (!chat || !chat.openConversationForClient) {
+          alert("Chat is niet beschikbaar.");
+          return;
+        }
+
+        await chat.openConversationForClient(
+          clientId,
+          clientName
+        );
+
+        const chatTab = document.querySelector(
+          '[data-tab="chat"]'
+        );
+
+        if (chatTab) {
+          chatTab.click();
+        }
+      };
     });
 
   initClientSearch();

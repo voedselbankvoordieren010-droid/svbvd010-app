@@ -63,9 +63,43 @@ export function initChat(supabase, state) {
       return;
     }
 
+    const conversationIds = data.map(c => c.conversation_id).filter(Boolean);
+    let conversationClientMap = new Map();
+
+    if (conversationIds.length) {
+      const { data: conversations, error: conversationError } = await supabase
+        .from("conversations")
+        .select("id, client_id")
+        .in("id", conversationIds);
+
+      if (conversationError) {
+        console.error(conversationError);
+      } else {
+        conversationClientMap = new Map((conversations || []).map(item => [item.id, item.client_id]));
+      }
+    }
+
+    const clientIds = [...new Set(Array.from(conversationClientMap.values()).filter(Boolean))];
+    let clientsMap = new Map();
+
+    if (clientIds.length) {
+      const { data: clients, error: clientError } = await supabase
+        .from("clients")
+        .select("id, full_name, email")
+        .in("id", clientIds);
+
+      if (clientError) {
+        console.error(clientError);
+      } else {
+        clientsMap = new Map((clients || []).map(client => [client.id, client]));
+      }
+    }
+
     for (const c of data) {
       const convo = c.conversations;
-      const label = `Gesprek ${c.conversation_id}`;
+      const clientId = conversationClientMap.get(c.conversation_id);
+      const client = clientsMap.get(clientId);
+      const label = client?.full_name || client?.email || `Gesprek ${c.conversation_id}`;
       const snippet = convo?.last_message || "Geen berichten";
       const div = document.createElement("div");
       div.className = "chat-item";
@@ -86,10 +120,11 @@ export function initChat(supabase, state) {
         document.querySelectorAll(".chat-item").forEach(i => i.classList.remove("active"));
         div.classList.add("active");
         activeConversation = c.conversation_id;
+        activeClient = client || null;
 
         const header = el.header();
         if (header) {
-          header.textContent = "Chat";
+          header.textContent = client ? `Chat met ${client.full_name || client.email}` : "Chat";
         }
 
         await supabase
@@ -252,6 +287,42 @@ export function initChat(supabase, state) {
     box.scrollTop = box.scrollHeight;
   }
 
+  async function openConversationForClient(clientId, clientName) {
+    if (!clientId) {
+      return;
+    }
+
+    const displayName = clientName || `Cliënt ${clientId}`;
+    const header = el.header();
+    if (header) {
+      header.textContent = `Chat met ${displayName}`;
+    }
+
+    const { data: conversations, error } = await supabase
+      .from("conversations")
+      .select("id")
+      .eq("client_id", clientId)
+      .order("last_message_at", { ascending: false })
+      .limit(1);
+
+    if (error) {
+      console.error(error);
+    }
+
+    if (conversations?.length) {
+      useLegacyMessages = false;
+      activeConversation = conversations[0].id;
+      activeClient = { full_name: clientName };
+    } else {
+      useLegacyMessages = true;
+      activeConversation = clientId;
+      activeClient = { full_name: clientName };
+    }
+
+    subscribeRealtime();
+    await loadMessages();
+  }
+
   async function send() {
     const input = el.input();
     if (!input) {
@@ -377,6 +448,7 @@ export function initChat(supabase, state) {
   return {
     init,
     loadMessages,
-    cleanupRealtime
+    cleanupRealtime,
+    openConversationForClient
   };
 }

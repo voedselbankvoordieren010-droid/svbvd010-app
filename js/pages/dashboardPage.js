@@ -142,7 +142,7 @@ export async function renderDashboard(supabase, state) {
       }
 
       if (btn.dataset.tab === "clients") {
-        loadClients(supabase, state);
+        loadClients(supabase, state, chat);
       }
 
       if (btn.dataset.tab === "chat") {
