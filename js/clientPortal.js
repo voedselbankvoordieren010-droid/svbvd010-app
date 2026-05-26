@@ -1,3 +1,6 @@
+import {
+  loadClientMessages
+} from "../chat/clientChat.js";
 export async function loadOwnClientProfile(
   supabase,
   profile
@@ -641,4 +644,64 @@ async function loadPortalAnimals(
           input.click();
         };
     });
+    await loadClientMessages(
+  supabase,
+  profile
+);
+const sendBtn =
+  document.getElementById(
+    "sendClientMessageBtn"
+  );
+
+if (sendBtn) {
+
+  sendBtn.onclick =
+    async () => {
+
+      const input =
+        document.getElementById(
+          "clientMessageInput"
+        );
+
+      const message =
+        input.value.trim();
+
+      if (!message) {
+        return;
+      }
+
+      const {
+        error
+      } = await supabase
+        .from("messages")
+        .insert({
+
+          client_id:
+            profile.client_id,
+
+          sender_id:
+            profile.id,
+
+          message
+        });
+
+      if (error) {
+
+        console.error(error);
+
+        alert(
+          error.message
+        );
+
+        return;
+      }
+
+      input.value = "";
+
+      await loadClientMessages(
+        supabase,
+        profile
+      );
+    };
+}
 }

@@ -72,3 +72,63 @@
 
   font-size: 12px;
 }
+#clientMessages {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 14px;
+
+  max-height: 400px;
+
+  overflow-y: auto;
+
+  margin-bottom: 20px;
+}
+
+.chat-message {
+
+  padding: 14px 18px;
+
+  border-radius: 18px;
+
+  max-width: 80%;
+
+  word-break: break-word;
+}
+
+.chat-message.me {
+
+  background: #ff6600;
+
+  align-self: flex-end;
+}
+
+.chat-message.other {
+
+  background: #273449;
+
+  align-self: flex-start;
+}
+
+#clientMessageInput {
+
+  width: 100%;
+
+  min-height: 120px;
+
+  border-radius: 16px;
+
+  border: none;
+
+  padding: 16px;
+
+  box-sizing: border-box;
+
+  background: #0f172a;
+
+  color: white;
+
+  margin-bottom: 16px;
+}
