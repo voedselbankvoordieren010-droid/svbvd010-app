@@ -1,6 +1,6 @@
 import {
   loadClientMessages
-} from "../chat/clientChat.js";
+} from "./chat/clientChat.js";
 export async function loadOwnClientProfile(
   supabase,
   profile
