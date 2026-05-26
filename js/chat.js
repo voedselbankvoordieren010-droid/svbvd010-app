@@ -1,177 +1,40 @@
-export function initChat(
-  supabase,
-  state
-) {
+import { formatTime, getMessageText, getMessageSenderId, renderMessage } from "./chat/helpers.js";
 
-  console.log(
-    "💬 CHAT MODULE"
-  );
+export function initChat(supabase, state) {
+  console.log("💬 CHAT MODULE");
 
-  let activeConversation =
-    null;
-
-  let chatChannel =
-    null;
-
-  let typingChannel =
-    null;
-
-  let typingTimeout =
-    null;
-
-  // ======================
-  // ELEMENTS
-  // ======================
+  let activeConversation = null;
+  let useLegacyMessages = false;
+  let activeClient = null;
+  let legacyClientMap = new Map();
+  let chatChannel = null;
+  let typingChannel = null;
+  let typingTimeout = null;
 
   const el = {
-
-    list: () =>
-      document.getElementById(
-        "chatList"
-      ),
-
-    conv: () =>
-      document.getElementById(
-        "chatConversations"
-      ),
-
-    input: () =>
-      document.getElementById(
-        "chatInput"
-      ),
-
-    header: () =>
-      document.getElementById(
-        "chatHeader"
-      )
+    list: () => document.getElementById("chatList"),
+    conv: () => document.getElementById("chatConversations"),
+    input: () => document.getElementById("chatInput"),
+    header: () => document.getElementById("chatHeader")
   };
 
-  // ======================
-  // FORMAT TIME
-  // ======================
-
-  function formatTime(
-    date
-  ) {
-
-    if (!date) {
-      return "";
-    }
-
-    return new Date(date)
-      .toLocaleTimeString(
-        [],
-        {
-
-          hour: "2-digit",
-
-          minute: "2-digit"
-        }
-      );
-  }
-
-  // ======================
-  // CLEANUP
-  // ======================
-
   function cleanupRealtime() {
-
     if (chatChannel) {
-
-      supabase.removeChannel(
-        chatChannel
-      );
-
-      chatChannel =
-        null;
+      supabase.removeChannel(chatChannel);
+      chatChannel = null;
     }
 
     if (typingChannel) {
-
-      supabase.removeChannel(
-        typingChannel
-      );
-
-      typingChannel =
-        null;
+      supabase.removeChannel(typingChannel);
+      typingChannel = null;
     }
   }
-
-  // ======================
-  // RENDER MESSAGE
-  // ======================
-
-  function renderMessage(
-    message
-  ) {
-
-    const box =
-      el.list();
-
-    if (!box) {
-      return;
-    }
-
-    const isMe =
-      message.user_auth_id ===
-      state.session.user.id;
-
-    const div =
-      document.createElement(
-        "div"
-      );
-
-    div.className =
-      `chat-bubble ${
-        isMe
-          ? "chat-me"
-          : "chat-other"
-      }`;
-
-    const text =
-      document.createElement(
-        "div"
-      );
-
-    text.textContent =
-      message.bericht || "";
-
-    const time =
-      document.createElement(
-        "small"
-      );
-
-    time.textContent =
-      formatTime(
-        message.created_at
-      );
-
-    div.appendChild(text);
-
-    div.appendChild(time);
-
-    box.appendChild(div);
-  }
-
-  // ======================
-  // LOAD CONVERSATIONS
-  // ======================
 
   async function loadConversations() {
+    console.log("🔥 LOAD CONVERSATIONS");
 
-    console.log(
-      "🔥 LOAD CONVERSATIONS"
-    );
-
-    const {
-      data,
-      error
-    } = await supabase
-
-      .from(
-        "conversation_participants"
-      )
-
+    const { data, error } = await supabase
+      .from("conversation_participants")
       .select(`
         conversation_id,
         unread,
@@ -181,493 +44,339 @@ export function initChat(
           last_message_at
         )
       `)
-
-      .eq(
-        "user_auth_id",
-        state.session.user.id
-      )
-
-      .order(
-        "conversation_id",
-        {
-          ascending: false
-        }
-      );
+      .eq("user_auth_id", state.session.user.id)
+      .order("conversation_id", { ascending: false });
 
     if (error) {
-
-      console.error(
-        error
-      );
-
+      console.error(error);
       return;
     }
 
-    const box =
-      el.conv();
-
+    const box = el.conv();
     if (!box) {
       return;
     }
 
     box.innerHTML = "";
-
     if (!data?.length) {
-
-      box.innerHTML = `
-
-        <div style="
-          padding:20px;
-        ">
-
-          Geen gesprekken
-
-        </div>
-
-      `;
-
+      await loadMessageConversations();
       return;
     }
 
     for (const c of data) {
-
-      const convo =
-        c.conversations;
-
-      const label =
-        `Gesprek ${c.conversation_id}`;
-
-      const snippet =
-        convo?.last_message ||
-        "Geen berichten";
-
-      const div =
-        document.createElement(
-          "div"
-        );
-
-      div.className =
-        "chat-item";
-
+      const convo = c.conversations;
+      const label = `Gesprek ${c.conversation_id}`;
+      const snippet = convo?.last_message || "Geen berichten";
+      const div = document.createElement("div");
+      div.className = "chat-item";
       div.innerHTML = `
-
         <div class="chat-item-meta">
-
-          <div style="
-            display:flex;
-            justify-content:
-            space-between;
-          ">
-
-            <b>
-              ${label}
-            </b>
-
-            <small>
-              ${
-                formatTime(
-                  convo?.last_message_at
-                )
-              }
-            </small>
-
+          <div style="display:flex;justify-content:space-between;">
+            <b>${label}</b>
+            <small>${formatTime(convo?.last_message_at)}</small>
           </div>
-
-          <div style="
-            display:flex;
-            justify-content:
-            space-between;
-            gap:12px;
-          ">
-
-            <small style="
-              opacity:0.7;
-              flex:1;
-            ">
-              ${snippet}
-            </small>
-
-            ${
-              c.unread > 0
-                ? `
-
-                  <span class="badge">
-                    ${c.unread}
-                  </span>
-
-                `
-                : ""
-            }
-
+          <div style="display:flex;justify-content:space-between;gap:12px;">
+            <small style="opacity:0.7;flex:1;">${snippet}</small>
+            ${c.unread > 0 ? `<span class="badge">${c.unread}</span>` : ""}
           </div>
-
         </div>
       `;
 
-      div.onclick =
-        async () => {
+      div.onclick = async () => {
+        document.querySelectorAll(".chat-item").forEach(i => i.classList.remove("active"));
+        div.classList.add("active");
+        activeConversation = c.conversation_id;
 
-          document
-            .querySelectorAll(
-              ".chat-item"
-            )
+        const header = el.header();
+        if (header) {
+          header.textContent = "Chat";
+        }
 
-            .forEach(i =>
-              i.classList.remove(
-                "active"
-              )
-            );
+        await supabase
+          .from("conversation_participants")
+          .update({ unread: 0 })
+          .eq("user_auth_id", state.session.user.id)
+          .eq("conversation_id", activeConversation);
 
-          div.classList.add(
-            "active"
-          );
-
-          activeConversation =
-            c.conversation_id;
-
-          const header =
-            el.header();
-
-          if (header) {
-
-            header.textContent =
-              "Chat";
-          }
-
-          await supabase
-
-            .from(
-              "conversation_participants"
-            )
-
-            .update({
-              unread: 0
-            })
-
-            .eq(
-              "user_auth_id",
-              state.session.user.id
-            )
-
-            .eq(
-              "conversation_id",
-              activeConversation
-            );
-
-          subscribeRealtime();
-
-          await loadMessages();
-        };
+        subscribeRealtime();
+        await loadMessages();
+      };
 
       box.appendChild(div);
     }
 
-    // AUTO OPEN EERSTE
-    if (
-      !activeConversation &&
-      data.length > 0
-    ) {
-
-      activeConversation =
-        data[0].conversation_id;
-
+    if (!activeConversation && data.length > 0) {
+      activeConversation = data[0].conversation_id;
       subscribeRealtime();
-
       await loadMessages();
     }
   }
 
-  // ======================
-  // LOAD MESSAGES
-  // ======================
+  async function loadMessageConversations() {
+    useLegacyMessages = true;
+    activeConversation = null;
+    activeClient = null;
 
-  async function loadMessages() {
-
-    if (
-      !activeConversation
-    ) {
-      return;
-    }
-
-    const {
-      data,
-      error
-    } = await supabase
-
-      .from("chat")
-
-      .select("*")
-
-      .eq(
-        "conversation_id",
-        activeConversation
-      )
-
-      .order(
-        "created_at",
-        {
-          ascending: true
-        }
-      );
+    const { data, error } = await supabase
+      .from("messages")
+      .select("client_id, sender_id, message, created_at")
+      .order("created_at", { ascending: false });
 
     if (error) {
-
-      console.error(
-        error
-      );
-
+      console.error(error);
+      const box = el.conv();
+      if (box) {
+        box.innerHTML = `<div style="padding:20px;">Geen gesprekken</div>`;
+      }
       return;
     }
 
-    const box =
-      el.list();
+    const messages = data || [];
+    const clientIds = [...new Set(messages.map(m => m.client_id).filter(Boolean))];
 
+    if (!clientIds.length) {
+      const box = el.conv();
+      if (box) {
+        box.innerHTML = `<div style="padding:20px;">Geen gesprekken</div>`;
+      }
+      return;
+    }
+
+    const { data: clients, error: clientError } = await supabase.from("clients").select("id, full_name, email").in("id", clientIds);
+    if (clientError) {
+      console.error(clientError);
+    }
+
+    legacyClientMap = new Map((clients || []).map(c => [c.id, c]));
+    const latestMessageByClient = new Map();
+    const unreadCounts = new Map();
+
+    for (const message of messages) {
+      if (!latestMessageByClient.has(message.client_id)) {
+        latestMessageByClient.set(message.client_id, message);
+      }
+
+      if (message.sender_id !== state.session.user.id) {
+        unreadCounts.set(message.client_id, (unreadCounts.get(message.client_id) || 0) + 1);
+      }
+    }
+
+    const box = el.conv();
     if (!box) {
       return;
     }
 
     box.innerHTML = "";
 
-    data.forEach(
-      renderMessage
-    );
+    for (const [clientId, lastMsg] of latestMessageByClient) {
+      const client = legacyClientMap.get(clientId);
+      const label = client?.full_name || client?.email || `Cliënt ${clientId}`;
+      const snippet = getMessageText(lastMsg) || "Geen berichten";
+      const unread = unreadCounts.get(clientId) || 0;
+      const div = document.createElement("div");
+      div.className = "chat-item";
+      div.innerHTML = `
+        <div class="chat-item-meta">
+          <div style="display:flex;justify-content:space-between;">
+            <b>${label}</b>
+            <small>${formatTime(lastMsg.created_at)}</small>
+          </div>
+          <div style="display:flex;justify-content:space-between;gap:12px;">
+            <small style="opacity:0.7;flex:1;">${snippet}</small>
+            ${unread > 0 ? `<span class="badge">${unread}</span>` : ""}
+          </div>
+        </div>
+      `;
 
-    box.scrollTop =
-      box.scrollHeight;
+      div.onclick = async () => {
+        document.querySelectorAll(".chat-item").forEach(i => i.classList.remove("active"));
+        div.classList.add("active");
+        activeConversation = clientId;
+        activeClient = client || null;
+
+        const header = el.header();
+        if (header) {
+          header.textContent = `Chat met ${label}`;
+        }
+
+        subscribeRealtime();
+        await loadMessages();
+      };
+
+      box.appendChild(div);
+    }
+
+    if (!activeConversation && latestMessageByClient.size > 0) {
+      const [clientId] = latestMessageByClient.keys();
+      activeConversation = clientId;
+      activeClient = legacyClientMap.get(clientId) || null;
+      subscribeRealtime();
+      await loadMessages();
+    }
   }
 
-  // ======================
-  // SEND MESSAGE
-  // ======================
+  async function loadMessages() {
+    if (!activeConversation) {
+      return;
+    }
+
+    let data = [];
+    let error = null;
+
+    if (useLegacyMessages) {
+      ({ data, error } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("client_id", activeConversation)
+        .order("created_at", { ascending: true }));
+    } else {
+      ({ data, error } = await supabase
+        .from("chat")
+        .select("*")
+        .eq("conversation_id", activeConversation)
+        .order("created_at", { ascending: true }));
+    }
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    const box = el.list();
+    if (!box) {
+      return;
+    }
+
+    box.innerHTML = "";
+    data.forEach(message => renderMessage(message, el, state));
+    box.scrollTop = box.scrollHeight;
+  }
 
   async function send() {
-
-    const input =
-      el.input();
-
+    const input = el.input();
     if (!input) {
       return;
     }
 
-    const text =
-      input.value.trim();
-
-    if (
-      !text ||
-      !activeConversation
-    ) {
+    const text = input.value.trim();
+    if (!text || !activeConversation) {
       return;
     }
 
-    const {
-      error
-    } = await supabase
+    let error = null;
 
-      .from("chat")
-
-      .insert({
-
+    if (useLegacyMessages) {
+      ({ error } = await supabase.from("messages").insert({
+        client_id: activeConversation,
+        sender_id: state.session.user.id,
+        message: text
+      }));
+    } else {
+      ({ error } = await supabase.from("chat").insert({
         bericht: text,
-
-        user_auth_id:
-          state.session.user.id,
-
-        conversation_id:
-          activeConversation
-      });
+        user_auth_id: state.session.user.id,
+        conversation_id: activeConversation
+      }));
+    }
 
     if (error) {
-
-      console.error(
-        error
-      );
-
+      console.error(error);
       return;
     }
 
-    await supabase
-
-      .from("conversations")
-
-      .update({
-
-        last_message:
-          text,
-
-        last_message_at:
-          new Date()
-      })
-
-      .eq(
-        "id",
-        activeConversation
-      );
+    if (!useLegacyMessages) {
+      await supabase
+        .from("conversations")
+        .update({
+          last_message: text,
+          last_message_at: new Date()
+        })
+        .eq("id", activeConversation);
+    }
 
     input.value = "";
   }
 
-  // ======================
-  // REALTIME
-  // ======================
-
   function subscribeRealtime() {
-
     if (!activeConversation) {
       return;
     }
 
     if (chatChannel) {
-
-      supabase.removeChannel(
-        chatChannel
-      );
+      supabase.removeChannel(chatChannel);
     }
 
+    const table = useLegacyMessages ? "messages" : "chat";
+    const filter = useLegacyMessages ? `client_id=eq.${activeConversation}` : `conversation_id=eq.${activeConversation}`;
+
     chatChannel = supabase
-
-      .channel(
-        `chat-${activeConversation}`
-      )
-
-      .on(
-        "postgres_changes",
-        {
-
-          event: "INSERT",
-
-          schema: "public",
-
-          table: "chat",
-
-          filter:
-            `conversation_id=eq.${activeConversation}`
-        },
-
-        async () => {
-
-          await loadMessages();
-
-          await loadConversations();
-        }
-      )
-
+      .channel(`${table}-${activeConversation}`)
+      .on("postgres_changes", {
+        event: "INSERT",
+        schema: "public",
+        table,
+        filter
+      }, async () => {
+        await loadMessages();
+        await loadConversations();
+      })
       .subscribe();
   }
 
-  // ======================
-  // TYPING
-  // ======================
-
   function typing() {
-
-    clearTimeout(
-      typingTimeout
-    );
-
+    clearTimeout(typingTimeout);
     if (!activeConversation) {
       return;
     }
 
     if (!typingChannel) {
-
-      typingChannel =
-        supabase.channel(
-          "typing"
-        );
-
+      typingChannel = supabase.channel("typing");
       typingChannel.subscribe();
     }
 
     typingChannel.send({
-
       type: "broadcast",
-
       event: "typing",
-
-      payload: {
-
-        conversation:
-          activeConversation
-      }
+      payload: { conversation: activeConversation }
     });
 
-    typingTimeout =
-      setTimeout(
-        () => {},
-        800
-      );
+    typingTimeout = setTimeout(() => {}, 800);
   }
 
-  // ======================
-  // INIT
-  // ======================
-
   function init() {
+    console.log("💬 CHAT INIT");
 
-    console.log(
-      "💬 CHAT INIT"
-    );
-
-    const header =
-      el.header();
-
+    const header = el.header();
     if (header) {
-      header.textContent =
-        "Vrijwilliger inbox";
+      header.textContent = "Vrijwilliger inbox";
     }
 
-    const input =
-      el.input();
-
-    const sendBtn =
-      document.getElementById(
-        "sendChatBtn"
-      );
+    const input = el.input();
+    const sendBtn = document.getElementById("sendChatBtn");
 
     if (sendBtn) {
-
-      sendBtn.onclick =
-        send;
+      sendBtn.onclick = send;
     }
 
     if (input) {
-
-      input.addEventListener(
-        "keydown",
-        e => {
-
-          if (
-            e.key === "Enter" &&
-            !e.shiftKey
-          ) {
-
-            e.preventDefault();
-
-            send();
-
-          } else {
-
-            typing();
-          }
+      input.addEventListener("keydown", e => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          send();
+        } else {
+          typing();
         }
-      );
+      });
     }
 
     loadConversations();
 
-    // PAGE EXIT CLEANUP
-    window.addEventListener(
-      "beforeunload",
-      cleanupRealtime
-    );
+    window.addEventListener("beforeunload", cleanupRealtime);
   }
 
   return {
-
     init,
-
     loadMessages,
-
     cleanupRealtime
   };
 }
