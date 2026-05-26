@@ -15,6 +15,15 @@ export async function loadOwnClientProfile(
     return;
   }
 
+  if (!profile?.id) {
+    clientsPanel.innerHTML = `
+      <p>
+        Geen geldig profiel gevonden.
+      </p>
+    `;
+    return;
+  }
+
   // GEEN CLIENT GEKOPPELD
   if (!profile?.client_id) {
 
@@ -190,6 +199,10 @@ export async function loadOwnClientProfile(
 
     sendBtn.onclick =
       async () => {
+
+        if (!profile?.client_id || !profile?.id) {
+          return;
+        }
 
         const input =
           document.getElementById(

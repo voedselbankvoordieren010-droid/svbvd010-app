@@ -12,6 +12,19 @@ export async function loadClientMessages(
     return;
   }
 
+  if (!profile?.client_id || !profile?.id) {
+    container.innerHTML = `
+      <p>
+        Geen geldig profiel om berichten te laden.
+      </p>
+    `;
+    return;
+  }
+
+  if (!container) {
+    return;
+  }
+
   const {
     data,
     error
