@@ -1,3 +1,7 @@
+/* ========================================
+   AGENDA LAYOUT
+======================================== */
+
 .agenda-header {
 
   display: flex;
@@ -19,20 +23,17 @@
   font-size: 2rem;
 
   font-weight: 700;
+
+  color: white;
 }
 
 .agenda-header p {
 
   margin-top: 8px;
 
-  color: rgba(
-    255,
-    255,
-    255,
-    0.7
-  );
-
   max-width: 600px;
+
+  color: rgba(255,255,255,.7);
 }
 
 .agenda-actions {
@@ -44,14 +45,190 @@
   gap: 12px;
 }
 
-.agenda-grid {
+/* ========================================
+   FULLCALENDAR
+======================================== */
 
-  display: flex;
+#calendar {
 
-  flex-direction: column;
+  background:
+    linear-gradient(
+      135deg,
+      #0f172a,
+      #1e293b
+    );
 
-  gap: 18px;
+  border-radius: 28px;
+
+  padding: 24px;
+
+  border:
+    1px solid
+    rgba(255,255,255,.05);
+
+  min-height: 800px;
 }
+
+.fc {
+
+  color: white;
+}
+
+/* ========================================
+   TOOLBAR
+======================================== */
+
+.fc-toolbar {
+
+  margin-bottom: 24px !important;
+}
+
+.fc-toolbar-title {
+
+  color: white;
+
+  font-size: 1.8rem;
+
+  font-weight: 700;
+}
+
+.fc-button {
+
+  background: #ff6600 !important;
+
+  border: none !important;
+
+  border-radius: 14px !important;
+
+  padding:
+    10px 18px !important;
+
+  font-weight: 600 !important;
+
+  box-shadow: none !important;
+
+  transition:
+    opacity .2s ease,
+    transform .2s ease;
+}
+
+.fc-button:hover {
+
+  opacity: .9;
+
+  transform:
+    translateY(-1px);
+}
+
+.fc-button-active {
+
+  background: #ea580c !important;
+}
+
+/* ========================================
+   CALENDAR GRID
+======================================== */
+
+.fc-scrollgrid {
+
+  border:
+    1px solid
+    rgba(255,255,255,.05)
+    !important;
+
+  border-radius: 18px;
+
+  overflow: hidden;
+}
+
+.fc-theme-standard td,
+.fc-theme-standard th {
+
+  border-color:
+    rgba(255,255,255,.05)
+    !important;
+}
+
+.fc-col-header-cell {
+
+  background:
+    rgba(255,255,255,.03);
+
+  padding: 12px 0;
+}
+
+.fc-daygrid-day {
+
+  transition:
+    background .2s ease;
+}
+
+.fc-daygrid-day:hover {
+
+  background:
+    rgba(255,255,255,.04);
+}
+
+.fc-daygrid-day-number {
+
+  color: white;
+
+  font-weight: 600;
+
+  padding: 8px;
+}
+
+/* ========================================
+   TODAY
+======================================== */
+
+.fc-day-today {
+
+  background:
+    rgba(
+      255,
+      102,
+      0,
+      0.12
+    ) !important;
+}
+
+/* ========================================
+   EVENTS
+======================================== */
+
+.fc-event {
+
+  border: none !important;
+
+  border-radius: 10px !important;
+
+  padding:
+    4px 8px !important;
+
+  font-size: .9rem;
+
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    opacity .2s ease,
+    transform .2s ease;
+}
+
+.fc-event:hover {
+
+  opacity: .92;
+
+  transform:
+    scale(1.01);
+}
+
+/* ========================================
+   OLD EVENT CARDS
+   (tijdelijk behouden)
+======================================== */
 
 .event-card {
 
@@ -70,33 +247,9 @@
 
   border:
     1px solid
-    rgba(
-      255,
-      255,
-      255,
-      0.05
-    );
+    rgba(255,255,255,.05);
 
   overflow: hidden;
-
-  transition:
-    transform .2s ease,
-    box-shadow .2s ease;
-}
-
-.event-card:hover {
-
-  transform:
-    translateY(-3px);
-
-  box-shadow:
-    0 10px 30px
-    rgba(
-      0,
-      0,
-      0,
-      0.25
-    );
 }
 
 .event-card::before {
@@ -121,67 +274,9 @@
   background: #ffcc00;
 }
 
-.event-card.holiday {
-
-  background:
-    linear-gradient(
-      135deg,
-      #1f2937,
-      #273449
-    );
-}
-
-.event-row {
-
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: flex-start;
-
-  gap: 24px;
-}
-
-.event-card h2,
-.event-card h3 {
-
-  margin: 0 0 12px;
-
-  color: white;
-
-  font-size: 1.6rem;
-}
-
-.event-meta {
-
-  margin: 6px 0;
-
-  color:
-    rgba(
-      255,
-      255,
-      255,
-      0.75
-    );
-
-  font-size: 0.95rem;
-}
-
-.event-card p {
-
-  color: white;
-}
-
-.event-actions {
-
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 10px;
-
-  min-width: 180px;
-}
+/* ========================================
+   FORM
+======================================== */
 
 .agenda-form {
 
@@ -203,12 +298,7 @@
 
   border:
     1px solid
-    rgba(
-      255,
-      255,
-      255,
-      0.05
-    );
+    rgba(255,255,255,.05);
 }
 
 .agenda-form label {
@@ -240,9 +330,9 @@
 
   color: white;
 
-  box-sizing: border-box;
-
   font: inherit;
+
+  box-sizing: border-box;
 }
 
 .agenda-form textarea {
@@ -261,24 +351,9 @@
   margin-top: 20px;
 }
 
-.client-portal-grid {
-
-  display: grid;
-
-  grid-template-columns:
-    1.6fr 0.9fr;
-
-  gap: 20px;
-
-  padding: 18px;
-}
-
-.client-portal-aside {
-
-  display: grid;
-
-  gap: 18px;
-}
+/* ========================================
+   RESPONSIVE
+======================================== */
 
 @media (
   max-width: 950px
@@ -291,190 +366,20 @@
     align-items: flex-start;
   }
 
-  .event-row {
+  .fc-toolbar {
 
     flex-direction: column;
+
+    gap: 12px;
   }
 
-  .event-actions {
+  #calendar {
 
-    width: 100%;
+    padding: 16px;
   }
 
-  .agenda-grid {
+  .fc-toolbar-title {
 
-    gap: 14px;
+    font-size: 1.4rem;
   }
-
-  .client-portal-grid {
-
-    grid-template-columns:
-      1fr;
-  }
-
-  .event-card {
-
-    padding: 20px;
-  }
-
-  .event-card h2,
-  .event-card h3 {
-
-    font-size: 1.3rem;
-  }
-}
-#calendar {
-
-  background:
-    linear-gradient(
-      135deg,
-      #0f172a,
-      #1e293b
-    );
-
-  border-radius: 24px;
-
-  padding: 24px;
-
-  min-height: 800px;
-}
-
-.fc {
-
-  color: white;
-}
-
-.fc-toolbar-title {
-
-  color: white;
-
-  font-size: 1.8rem;
-
-  font-weight: 700;
-}
-
-.fc-toolbar {
-
-  margin-bottom: 24px !important;
-}
-
-.fc-button {
-
-  background: #ff6600 !important;
-
-  border: none !important;
-
-  border-radius: 12px !important;
-
-  padding:
-    10px 16px !important;
-
-  font-weight: 600 !important;
-
-  box-shadow: none !important;
-}
-
-.fc-button:hover {
-
-  opacity: .9;
-}
-
-.fc-button-active {
-
-  background: #ea580c !important;
-}
-
-.fc-daygrid-day {
-
-  transition:
-    background .2s ease;
-}
-
-.fc-daygrid-day:hover {
-
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.04
-    );
-}
-
-.fc-col-header-cell {
-
-  background:
-    rgba(
-      255,
-      255,
-      255,
-      0.03
-    );
-
-  padding: 12px 0;
-}
-
-.fc-daygrid-day-number {
-
-  color: white;
-
-  font-weight: 600;
-}
-
-.fc-event {
-
-  border: none !important;
-
-  border-radius: 10px !important;
-
-  padding:
-    4px 8px !important;
-
-  font-size: .9rem;
-
-  cursor: pointer;
-}
-
-.fc-event:hover {
-
-  opacity: .9;
-}
-
-.fc-scrollgrid {
-
-  border:
-    1px solid
-    rgba(
-      255,
-      255,
-      255,
-      0.05
-    ) !important;
-
-  border-radius: 18px;
-
-  overflow: hidden;
-}
-
-.fc-theme-standard td,
-.fc-theme-standard th {
-
-  border-color:
-    rgba(
-      255,
-      255,
-      255,
-      0.05
-    ) !important;
-}
-
-.fc-day-today {
-
-  background:
-    rgba(
-      255,
-      102,
-      0,
-      0.12
-    ) !important;
 }
