@@ -2,8 +2,8 @@ const CACHE_NAME = "app-v101";
 
 const STATIC_FILES = [
 
-  "/",
-  "/index.html"
+  "./",
+  "./index.html"
 
 ];
 
@@ -202,7 +202,7 @@ self.addEventListener(
           ) {
 
             return caches.match(
-              "/index.html"
+              "./index.html"
             );
           }
         })
