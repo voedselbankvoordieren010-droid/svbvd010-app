@@ -11,7 +11,7 @@ export async function renderClientPortal(supabase, state) {
   app.innerHTML = `
     <div class="topbar site-top">
       <div class="site-brand">
-        <img class="site-logo" src="public/logo.svg" alt="Stichting logo">
+        <img class="site-logo" src="/logo.svg" alt="Stichting logo">
         <div class="site-title">Stichting</div>
       </div>
       <button id="sidebarToggle" class="btn sidebar-toggle">☰</button>

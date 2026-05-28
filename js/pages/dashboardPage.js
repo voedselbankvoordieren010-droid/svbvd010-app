@@ -16,7 +16,7 @@ export async function renderDashboard(supabase, state) {
 <div class="dashboard-layout">
   <aside class="sidebar">
     <h1 class="logo">
-      <img src="public/logo.svg" alt="logo">
+      <img src="/logo.svg" alt="logo">
       <span>SVBVD010</span>
     </h1>
 
@@ -42,7 +42,7 @@ export async function renderDashboard(supabase, state) {
   <main class="main-content">
     <div class="topbar site-top">
       <div class="site-brand">
-        <img class="site-logo" src="public/logo.svg" alt="Stichting logo">
+        <img class="site-logo" src="/logo.svg" alt="Stichting logo">
         <div class="site-title">Stichting</div>
       </div>
       <button id="sidebarToggle" class="btn sidebar-toggle">☰</button>
