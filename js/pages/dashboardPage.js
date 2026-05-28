@@ -3,6 +3,7 @@ import { initChat } from "../chat.js";
 import { loadUsers } from "../admin.js";
 import { loadClients } from "../clients/index.js";
 import { loadAdminAgenda } from "../calendar.js";
+import { loadFullCalendar } from "../calendar/fullCalendar.js";
 
 export async function renderDashboard(supabase, state) {
   const app = document.getElementById("app");
@@ -71,6 +72,7 @@ export async function renderDashboard(supabase, state) {
         <div class="card">Nieuw</div>
         <div class="card">Intake</div>
         <div class="card">Spoed</div>
+        <div id="loadFullCalendar" class="card calendar-card"></div>
       </div>
     </section>
 
@@ -104,6 +106,8 @@ export async function renderDashboard(supabase, state) {
   const canViewAdmin = role === "admin";
 
   await loadNotifications(supabase, state);
+
+  await loadFullCalendar(supabase);
 
   const chat = initChat(supabase, state);
   if (chat && chat.init) {

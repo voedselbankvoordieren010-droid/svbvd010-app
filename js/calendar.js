@@ -14,7 +14,7 @@ const DUTCH_HOLIDAY_STARTS = {
   ]
 };
 
-function getDutchHolidays(year) {
+export function getDutchHolidays(year) {
   const days = DUTCH_HOLIDAY_STARTS[year] || [];
   return days.map(({ title, date }) => ({
     id: `holiday-${year}-${date}`,
@@ -328,7 +328,7 @@ async function loadEventClients(supabase) {
   return data;
 }
 
-async function notifyClientsForEvent(supabase, event) {
+export async function notifyClientsForEvent(supabase, event) {
   const query = supabase.from("profiles").select("id");
   if (event.client_id) {
     query.eq("client_id", event.client_id).eq("role", "client");
