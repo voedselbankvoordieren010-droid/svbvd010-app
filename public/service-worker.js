@@ -3,7 +3,12 @@ const CACHE_NAME = "app-v101";
 const STATIC_FILES = [
 
   "./",
-  "./index.html"
+  "./index.html",
+  "./manifest.json",
+  "./logo-192.png",
+  "./logo-512.png",
+  "./fullcalendar-core.css",
+  "./fullcalendar-daygrid.css"
 
 ];
 
@@ -11,68 +16,13 @@ const STATIC_FILES = [
 // INSTALL
 // ======================
 
-self.addEventListener(
-  "fetch",
-  event => {
-
-    const url =
-      new URL(
-        event.request.url
-      );
-
-    // NOOIT SUPABASE CACHEN
-    if (
-      url.hostname.includes(
-        "supabase.co"
-      )
-    ) {
-
-      return;
-    }
-
-    // ALLEEN GET REQUESTS
-    if (
-      event.request.method !==
-      "GET"
-    ) {
-
-      return;
-    }
-
-    event.respondWith(
-
-      caches.match(
-        event.request
-      ).then(cached => {
-
-        return (
-
-          cached ||
-
-          fetch(
-            event.request
-          ).then(response => {
-
-            const responseClone =
-              response.clone();
-
-            caches.open(
-              CACHE_NAME
-            ).then(cache => {
-
-              cache.put(
-                event.request,
-                responseClone
-              );
-            });
-
-            return response;
-          })
-        );
-      })
-    );
-  }
-);
+self.addEventListener("install", event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(STATIC_FILES))
+      .then(() => self.skipWaiting())
+  );
+});
 
 // ======================
 // ACTIVATE
