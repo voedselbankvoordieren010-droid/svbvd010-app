@@ -1,0 +1,13 @@
+/* Minimal placeholder for FullCalendar daygrid styles. Replace with official CSS for full fidelity. */
+
+.fc .fc-daygrid-body {
+  background:#fff;
+}
+
+.fc .fc-daygrid-day-top {
+  font-weight:600;
+}
+
+.fc .fc-daygrid-event {
+  margin:2px 0;
+}

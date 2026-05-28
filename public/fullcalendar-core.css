@@ -1,0 +1,23 @@
+/* Minimal placeholder for FullCalendar core styles.
+   If you want the exact production styles, replace this file with
+   the contents of @fullcalendar/core/main.min.css from the package
+   or the official CDN copy. */
+
+.fc .fc-toolbar {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+/* Basic day grid cells */
+.fc .fc-daygrid-day {
+  padding:6px;
+}
+
+/* Event chip */
+.fc .fc-event {
+  padding:4px 6px;
+  border-radius:6px;
+  color:#fff;
+  font-size:12px;
+}
