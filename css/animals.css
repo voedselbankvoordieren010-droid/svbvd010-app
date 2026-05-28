@@ -132,3 +132,16 @@
 
   margin-bottom: 16px;
 }
+.portal-animal-card {
+
+  max-width: 320px;
+
+  padding: 12px !important;
+}
+
+.portal-animal-photo {
+
+  height: 180px !important;
+
+  object-fit: cover;
+}

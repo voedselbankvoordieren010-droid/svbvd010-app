@@ -175,16 +175,22 @@ h3 {
 
 .file-card img {
 
-  max-height: 240px !important;
+  width: 180px !important;
+
+  height: 120px !important;
 
   object-fit: cover;
 
-  border-radius: 14px;
+  border-radius: 12px;
 }
 
 .file-card {
 
-  margin-bottom: 14px !important;
+  padding: 14px !important;
+
+  margin-bottom: 12px !important;
+
+  min-height: auto !important;
 }
 
 /* ========================================
