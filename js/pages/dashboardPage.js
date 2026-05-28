@@ -2,7 +2,7 @@ import { loadNotifications } from "../notifications.js";
 import { initChat } from "../chat.js";
 import { loadUsers } from "../admin.js";
 import { loadClients } from "../clients/index.js";
-import { loadAdminAgenda } from "../calendar.js";
+// admin agenda is now handled by FullCalendar
 import { loadFullCalendar } from "../calendar/fullCalendar.js";
 
 export async function renderDashboard(supabase, state) {
@@ -107,7 +107,7 @@ export async function renderDashboard(supabase, state) {
 
   await loadNotifications(supabase, state);
 
-  await loadFullCalendar(supabase);
+  await loadFullCalendar(supabase, state);
 
   const chat = initChat(supabase, state);
   if (chat && chat.init) {
@@ -188,7 +188,7 @@ export async function renderDashboard(supabase, state) {
       }
 
       if (btn.dataset.tab === "agenda") {
-        loadAdminAgenda(supabase, state, role === "admin");
+        loadFullCalendar(supabase, state);
       }
     });
   });

@@ -4,8 +4,12 @@ import interactionPlugin from "@fullcalendar/interaction";
 import { getDutchHolidays, buildCalendarIcs, notifyClientsForEvent } from "../calendar.js";
 
 export async function loadFullCalendar(
-  supabase
+  supabase,
+  state
 ) {
+
+  const role = state?.profile?.role;
+  const canEdit = ["admin", "hulpverlener"].includes(role);
 
   const container =
     document.getElementById(
@@ -85,7 +89,12 @@ export async function loadFullCalendar(
     height: "auto",
     events,
     dateClick(info) {
-      alert(`Nieuwe afspraak op ${info.dateStr}`);
+      if (!canEdit) {
+        alert(`Geen rechten om afspraken toe te voegen.`);
+        return;
+      }
+      // open modal for new event; pass a lightweight eventObj
+      openEventModal({ start: info.date, startStr: info.dateStr, title: "", extendedProps: {} });
     },
     eventClick(info) {
       openEventModal(info.event);
@@ -178,6 +187,13 @@ export async function loadFullCalendar(
         </div>
       </div>`;
     document.body.appendChild(modal);
+    // hide save/delete if user cannot edit
+    if (!canEdit) {
+      const save = modal.querySelector('#fcSave');
+      const del = modal.querySelector('#fcDelete');
+      if (save) save.style.display = 'none';
+      if (del) del.style.display = 'none';
+    }
     return modal;
   }
 
