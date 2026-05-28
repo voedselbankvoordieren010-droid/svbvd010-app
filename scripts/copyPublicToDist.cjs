@@ -23,11 +23,10 @@ async function main() {
   try {
     await copyDir(srcRoot, destRoot);
     console.log('public/ assets copied to dist/');
-    // Also copy into dist/public to preserve references like /public/logo.svg
     const destPublic = path.join(destRoot, 'public');
     await copyDir(srcRoot, destPublic);
     console.log('public/ assets copied to dist/public/');
-    // Try to copy official FullCalendar CSS from node_modules if available
+
     const root = path.resolve(__dirname, '..');
     const candidates = [
       { pkg: '@fullcalendar/core', names: ['main.min.css', 'main.css'], out: 'fullcalendar-core.css' },

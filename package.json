@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "postbuild": "node scripts/copyPublicToDist.js",
+    "postbuild": "node scripts/copyPublicToDist.cjs",
     "preview": "vite preview"
   },
   "dependencies": {
