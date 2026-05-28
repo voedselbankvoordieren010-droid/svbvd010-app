@@ -5,16 +5,18 @@ import { getDutchHolidays, buildCalendarIcs, notifyClientsForEvent } from "../ca
 
 export async function loadFullCalendar(
   supabase,
-  state
+  state,
+  containerId = "loadFullCalendar"
 ) {
 
   const role = state?.profile?.role;
   const canEdit = ["admin", "hulpverlener"].includes(role);
 
   const container =
-    document.getElementById(
-      "loadFullCalendar"
-    );
+    document.getElementById(containerId) ||
+    document.getElementById("loadFullCalendar") ||
+    document.getElementById("adminAgenda") ||
+    document.getElementById("clientAgenda");
 
   if (!container) {
     return;

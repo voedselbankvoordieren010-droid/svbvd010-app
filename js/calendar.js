@@ -109,7 +109,7 @@ export async function loadAdminAgenda(supabase, state, canEdit) {
   try {
     const mod = await import("./calendar/fullCalendar.js");
     if (mod && mod.loadFullCalendar) {
-      await mod.loadFullCalendar(supabase, state);
+      await mod.loadFullCalendar(supabase, state, "adminAgenda");
       return;
     }
   } catch (err) {
@@ -147,7 +147,7 @@ export async function loadClientAgenda(supabase, profile) {
   try {
     const mod = await import("./calendar/fullCalendar.js");
     if (mod && mod.loadFullCalendar) {
-      await mod.loadFullCalendar(supabase, { profile });
+      await mod.loadFullCalendar(supabase, { profile }, "clientAgenda");
       return;
     }
   } catch (err) {
