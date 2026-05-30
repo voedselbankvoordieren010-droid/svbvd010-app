@@ -43,6 +43,21 @@ export async function loadOwnClientProfile(supabase, profile) {
     return;
   }
 
+  const helperResult = data.created_by
+    ? await supabase
+        .from("profiles")
+        .select("full_name, email")
+        .eq("id", data.created_by)
+        .maybeSingle()
+    : { data: null };
+
+  const helper = helperResult.data;
+  const statusNote = data.status === "nieuw"
+    ? "Je aanvraag is ingediend en wacht op goedkeuring door de admin."
+    : data.status === "afgewezen"
+      ? "Je aanvraag is afgewezen. Neem contact op met je hulpverlener of admin."
+      : "Je registratie is goedgekeurd. Je kunt je dossier en afspraken beheren.";
+
   clientsPanel.innerHTML = `
     <div class="client-card">
       <h1>
@@ -63,6 +78,13 @@ export async function loadOwnClientProfile(supabase, profile) {
       <p>
         Status:
         ${data.status || "-"}
+      </p>
+      <p>
+        ${statusNote}
+      </p>
+      <p>
+        🧑‍⚕️ Hulpverlener:
+        ${helper ? `${helper.full_name || helper.email}` : "Nog niet toegewezen"}
       </p>
     </div>
 

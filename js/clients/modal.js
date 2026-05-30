@@ -169,26 +169,27 @@ export function initClientModal(
               "clientNotes"
             )?.value?.trim() || "";
 
+          const clientRecord = {
+            full_name,
+            email,
+            phone,
+            city,
+            address,
+            postal_code,
+            animals,
+            notes,
+            status: "nieuw"
+          };
+
+          if (state.profile?.role === "hulpverlener") {
+            clientRecord.created_by = state.session.user.id;
+          }
+
           const {
             error
           } = await supabase
             .from("clients")
-            .insert({
-
-              full_name,
-              email,
-              phone,
-              city,
-              address,
-              postal_code,
-              animals,
-              notes,
-
-              status: "nieuw",
-
-              created_by:
-                state.session.user.id
-            });
+            .insert(clientRecord);
 
           if (error) {
 

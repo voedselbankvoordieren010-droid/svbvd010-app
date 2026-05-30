@@ -14,9 +14,20 @@ import {
   renderClientNotes
 } from "./notes.js";
 
+import {
+  sendNotification
+} from "../../notifications.js";
+
+import {
+  sendEmailApi,
+  buildClientStatusHtml,
+  buildHelperStatusHtml
+} from "../../email.js";
+
 export async function showClientDetails(
   client,
-  supabase
+  supabase,
+  state
 ) {
 
   const existing =
@@ -35,6 +46,17 @@ export async function showClientDetails(
 
   modal.className =
     "modal-overlay";
+
+  const helperResult = client.created_by
+    ? await supabase
+        .from("profiles")
+        .select("full_name, email")
+        .eq("id", client.created_by)
+        .maybeSingle()
+    : { data: null };
+
+  const helper = helperResult.data;
+  const isAdmin = state?.profile?.role === "admin";
 
   modal.innerHTML = `
 
@@ -111,6 +133,11 @@ export async function showClientDetails(
       ${client.status || "nieuw"}
     </p>
 
+    <p>
+      🧑‍⚕️ Hulpverlener:
+      ${helper ? `${helper.full_name || helper.email}` : "Niet toegewezen"}
+    </p>
+
   </div>
 
 </div>
@@ -143,6 +170,20 @@ export async function showClientDetails(
       </div>
 
       <div class="modal-actions">
+        ${isAdmin ? `
+          <button
+            id="approveClientBtn"
+            class="btn"
+          >
+            Goedkeuren
+          </button>
+          <button
+            id="rejectClientBtn"
+            class="btn btn-secondary"
+          >
+            Afwijzen
+          </button>
+        ` : ""}
 
         <button
           id="closeClientDetails"
@@ -150,7 +191,6 @@ export async function showClientDetails(
         >
           Sluiten
         </button>
-
       </div>
 
     </div>
@@ -176,6 +216,37 @@ export async function showClientDetails(
     client
   );
 
+  if (isAdmin) {
+    const approveBtn = document.getElementById(
+      "approveClientBtn"
+    );
+    const rejectBtn = document.getElementById(
+      "rejectClientBtn"
+    );
+
+    if (approveBtn) {
+      approveBtn.onclick = async () => {
+        await updateClientStatus(
+          supabase,
+          client,
+          "goedgekeurd"
+        );
+        modal.remove();
+      };
+    }
+
+    if (rejectBtn) {
+      rejectBtn.onclick = async () => {
+        await updateClientStatus(
+          supabase,
+          client,
+          "afgewezen"
+        );
+        modal.remove();
+      };
+    }
+  }
+
   document
     .getElementById(
       "closeClientDetails"
@@ -185,4 +256,102 @@ export async function showClientDetails(
 
       modal.remove();
     };
+}
+
+async function updateClientStatus(
+  supabase,
+  client,
+  newStatus
+) {
+  const { error } = await supabase
+    .from("clients")
+    .update({ status: newStatus })
+    .eq("id", client.id);
+
+  if (error) {
+    console.error(error);
+    alert("Kon status niet bijwerken.");
+    return;
+  }
+
+  const helperResult = client.created_by
+    ? await supabase
+        .from("profiles")
+        .select("id, full_name, email")
+        .eq("id", client.created_by)
+        .maybeSingle()
+    : { data: null };
+
+  const clientProfileResult = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("client_id", client.id)
+    .maybeSingle();
+
+  let clientProfileId = clientProfileResult.data?.id;
+  if (!clientProfileId && client.email) {
+    const { data: emailProfile } = await supabase
+      .from("profiles")
+      .select("id")
+      .ilike("email", client.email)
+      .maybeSingle();
+
+    clientProfileId = emailProfile?.id;
+  }
+
+  const statusLabel = newStatus === "goedgekeurd"
+    ? "goedgekeurd"
+    : "afgewezen";
+
+  const helperMessage = client.full_name
+    ? `Cliënt ${client.full_name} is ${statusLabel}. Bekijk de cliënt in je overzicht.`
+    : `Een cliënt is ${statusLabel}.`;
+
+  if (helperResult.data?.id) {
+    await sendNotification(
+      supabase,
+      helperResult.data.id,
+      helperMessage
+    );
+
+    if (helperResult.data.email) {
+      await safeSendEmail(
+        helperResult.data.email,
+        `Cliënt ${client.full_name || "(zonder naam)"} is ${statusLabel}`,
+        `Beste ${helperResult.data.full_name || "hulpverlener"},\n\nCliënt ${client.full_name || "(zonder naam)"} is ${statusLabel} door de admin.\n\nMet vriendelijke groet,\nStichting SVBVD010`,
+        buildHelperStatusHtml({
+          clientName: client.full_name,
+          statusLabel
+        })
+      );
+    }
+  }
+
+  if (clientProfileId || client.email) {
+    await sendNotification(
+      supabase,
+      clientProfileId,
+      clientMessage
+    );
+
+    if (client.email) {
+      await safeSendEmail(
+        client.email,
+        `Je aanvraag is ${statusLabel}`,
+        `Beste ${client.full_name || "cliënt"},\n\nJe aanvraag is ${statusLabel} door de admin.\n\nMet vriendelijke groet,\nStichting SVBVD010`,
+        buildClientStatusHtml({
+          clientName: client.full_name,
+          statusLabel
+        })
+      );
+    }
+  }
+}
+
+async function safeSendEmail(to, subject, text, html) {
+  try {
+    await sendEmailApi({ to, subject, text, html });
+  } catch (error) {
+    console.warn("Email send failed, continuing zonder blokkade:", error);
+  }
 }

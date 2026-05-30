@@ -212,7 +212,7 @@ export async function renderDashboard(supabase, state) {
       }
 
       if (btn.dataset.tab === "agenda") {
-        loadFullCalendar(supabase, state);
+        loadFullCalendar(supabase, state, "adminAgenda");
       }
     });
   });

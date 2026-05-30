@@ -67,17 +67,17 @@ export async function renderVolunteerPage(supabase, state) {
   chat.init();
 
   await loadFullCalendar(supabase, state, "volunteerCalendar");
-  await loadVolunteerClients(supabase, chat);
+  await loadVolunteerClients(supabase, state, chat);
 
   const regionFilter = document.getElementById("volunteerRegionFilter");
   if (regionFilter) {
     regionFilter.addEventListener("change", () => {
-      loadVolunteerClients(supabase, chat, regionFilter.value);
+      loadVolunteerClients(supabase, state, chat, regionFilter.value);
     });
   }
 }
 
-async function loadVolunteerClients(supabase, chat, region = "Alle regio's") {
+async function loadVolunteerClients(supabase, state, chat, region = "Alle regio's") {
   const listEl = document.getElementById("volunteerClientList");
   if (!listEl) {
     return;
@@ -87,8 +87,12 @@ async function loadVolunteerClients(supabase, chat, region = "Alle regio's") {
 
   let query = supabase
     .from("clients")
-    .select("id, full_name, email, phone, city, postal_code, address, status")
+    .select("id, full_name, email, phone, city, postal_code, address, status, created_by")
     .order("full_name", { ascending: true });
+
+  if (state.profile?.role === "hulpverlener") {
+    query = query.eq("created_by", state.profile.id);
+  }
 
   if (region && region !== "Alle regio's") {
     const normalized = region.toLowerCase();

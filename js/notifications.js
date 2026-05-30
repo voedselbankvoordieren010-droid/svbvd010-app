@@ -204,3 +204,28 @@ export async function loadNotifications(
     );
   });
 }
+
+export async function sendNotification(
+  supabase,
+  userAuthId,
+  message
+) {
+  if (!userAuthId || !message) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("notifications")
+    .insert({
+      user_auth_id: userAuthId,
+      bericht: message,
+      gelezen: false
+    });
+
+  if (error) {
+    console.error(
+      "SEND NOTIFICATION ERROR:",
+      error
+    );
+  }
+}
