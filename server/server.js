@@ -1,6 +1,12 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import cors from "cors";
 import { sendEmail } from "./email.js";
+
+console.log("SMTP_USER =", process.env.SMTP_USER);
+console.log("SMTP_FROM =", process.env.SMTP_FROM);
 
 const app = express();
 app.use(cors());
