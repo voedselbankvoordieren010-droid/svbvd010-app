@@ -24,9 +24,10 @@ export async function renderVolunteerPage(supabase, state) {
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
             <div>
               <h2 style="margin:0">Chat</h2>
-              <p style="margin:4px 0 0;color:#666;font-size:0.95rem;">Admin en vrijwilliger kunnen hier bij elkaar inloggen.</p>
+              <p style="margin:4px 0 0;color:#666;font-size:0.95rem;">Admin en vrijwilliger kunnen hier met elkaar chatten.</p>
             </div>
           </div>
+          <div style="margin-bottom:16px;color:#444;font-size:0.95rem;">De agenda hieronder is alleen bewerkbaar door admin en vrijwilligers.</div>
           <div id="volunteerChatHeader" class="chat-header">Vrijwilliger inbox</div>
           <div id="volunteerChatConversations" class="chat-conversations"></div>
           <div id="volunteerChatList" class="chat-list"></div>

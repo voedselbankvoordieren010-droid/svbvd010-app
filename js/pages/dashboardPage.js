@@ -111,7 +111,7 @@ export async function renderDashboard(supabase, state) {
   const canViewUsers = role === "admin";
   const canViewVolunteer = ["admin", "hulpverlener"].includes(role);
   const canViewClients = ["admin", "hulpverlener", "intake"].includes(role);
-  const canViewAgenda = ["hulpverlener"].includes(role);
+  const canViewAgenda = ["admin", "hulpverlener"].includes(role);
 
   const dashboardHeading = document.querySelector("#dashboard h1");
   if (dashboardHeading) {
