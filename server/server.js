@@ -1,12 +1,10 @@
 import "dotenv/config";
 import fs from "fs";
+import express from "express";
+import cors from "cors";
+import { sendEmail } from "./email.js";
 
 console.log(".env exists:", fs.existsSync(".env"));
-console.log("SMTP_USER =", process.env.SMTP_USER);
-console.log("SMTP_FROM =", process.env.SMTP_FROM);
-
-import express from "express";
-
 console.log("SMTP_USER =", process.env.SMTP_USER);
 console.log("SMTP_FROM =", process.env.SMTP_FROM);
 
