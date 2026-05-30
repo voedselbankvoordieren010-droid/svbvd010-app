@@ -1,6 +1,6 @@
 import { formatTime, getMessageText, getMessageSenderId, renderMessage } from "./chat/helpers.js";
 
-export function initChat(supabase, state) {
+export function initChat(supabase, state, prefix = "") {
   console.log("💬 CHAT MODULE");
 
   let activeConversation = null;
@@ -12,10 +12,10 @@ export function initChat(supabase, state) {
   let typingTimeout = null;
 
   const el = {
-    list: () => document.getElementById("chatList"),
-    conv: () => document.getElementById("chatConversations"),
-    input: () => document.getElementById("chatInput"),
-    header: () => document.getElementById("chatHeader")
+    list: () => document.getElementById(`${prefix}chatList`),
+    conv: () => document.getElementById(`${prefix}chatConversations`),
+    input: () => document.getElementById(`${prefix}chatInput`),
+    header: () => document.getElementById(`${prefix}chatHeader`)
   };
 
   function cleanupRealtime() {
@@ -423,7 +423,7 @@ export function initChat(supabase, state) {
     }
 
     const input = el.input();
-    const sendBtn = document.getElementById("sendChatBtn");
+    const sendBtn = document.getElementById(`${prefix}sendChatBtn`);
 
     if (sendBtn) {
       sendBtn.onclick = send;

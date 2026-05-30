@@ -153,6 +153,13 @@ export async function loadProfile(
         newProfile;
     }
 
+    // NORMALISEER ROLE
+    if (typeof profile.role === "string") {
+      profile.role = profile.role
+        .trim()
+        .toLowerCase();
+    }
+
     // ROLE VALIDATIE
     const validRoles =
       [

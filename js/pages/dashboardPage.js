@@ -2,6 +2,7 @@ import { loadNotifications } from "../notifications.js";
 import { initChat } from "../chat.js";
 import { loadUsers } from "../admin.js";
 import { loadClients } from "../clients/index.js";
+import { renderVolunteerPage } from "./volunteerPage.js";
 // admin agenda is now handled by FullCalendar
 import { loadFullCalendar } from "../calendar/fullCalendar.js";
 
@@ -29,6 +30,9 @@ export async function renderDashboard(supabase, state) {
       </button>
       <button class="tab-button btn" data-tab="chat">
         Chat
+      </button>
+      <button class="tab-button btn" data-tab="volunteer">
+        Vrijwilliger
       </button>
       <button class="tab-button btn" data-tab="agenda">
         Agenda
@@ -91,6 +95,8 @@ export async function renderDashboard(supabase, state) {
       </div>
     </section>
 
+    <section id="volunteer" class="tab-panel hidden"></section>
+
     <section id="agenda" class="tab-panel hidden">
       <div id="adminAgenda">Laden...</div>
     </section>
@@ -101,9 +107,16 @@ export async function renderDashboard(supabase, state) {
 `;
 
   const role = state.profile?.role;
+  const pageTitle = role === "admin" ? "Beheer dashboard" : role === "hulpverlener" ? "Dashboard hulpverlener" : "Dashboard";
+  const canViewUsers = role === "admin";
+  const canViewVolunteer = ["admin", "hulpverlener"].includes(role);
   const canViewClients = ["admin", "hulpverlener", "intake"].includes(role);
-  const canViewAgenda = ["admin", "hulpverlener"].includes(role);
-  const canViewAdmin = role === "admin";
+  const canViewAgenda = ["hulpverlener"].includes(role);
+
+  const dashboardHeading = document.querySelector("#dashboard h1");
+  if (dashboardHeading) {
+    dashboardHeading.textContent = pageTitle;
+  }
 
   await loadNotifications(supabase, state);
 
@@ -114,10 +127,17 @@ export async function renderDashboard(supabase, state) {
     chat.init();
   }
 
-  if (!canViewAdmin) {
-    const adminBtn = document.querySelector('[data-tab="admin"]');
-    if (adminBtn) {
-      adminBtn.remove();
+  if (!canViewUsers) {
+    const usersBtn = document.querySelector('[data-tab="users"]');
+    if (usersBtn) {
+      usersBtn.remove();
+    }
+  }
+
+  if (!canViewVolunteer) {
+    const volunteerBtn = document.querySelector('[data-tab="volunteer"]');
+    if (volunteerBtn) {
+      volunteerBtn.remove();
     }
   }
 
@@ -175,6 +195,10 @@ export async function renderDashboard(supabase, state) {
 
       if (btn.dataset.tab === "users") {
         loadUsers(supabase, state);
+      }
+
+      if (btn.dataset.tab === "volunteer") {
+        renderVolunteerPage(supabase, state);
       }
 
       if (btn.dataset.tab === "clients") {

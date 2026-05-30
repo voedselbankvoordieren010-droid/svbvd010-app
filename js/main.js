@@ -5,6 +5,7 @@ import { checkSession, loadProfile } from "./auth.js";
 import { showLogin } from "./pages/loginPage.js";
 import { renderClientPortal } from "./pages/clientPortalPage.js";
 import { renderDashboard } from "./pages/dashboardPage.js";
+import { showTwoFactorVerification } from "./pages/twoFactorPage.js";
 
 console.log("MAIN STARTED");
 
@@ -19,6 +20,22 @@ window.state = state;
 window.addEventListener("error", e => {
   console.error("GLOBAL ERROR:", e.error);
 });
+
+function requiresTwoFactor(profile) {
+  return profile && ["client", "hulpverlener"].includes(profile.role);
+}
+
+async function routeAuthenticated() {
+  const role = state.profile?.role;
+  if (role === "client") {
+    await renderClientPortal(supabase, state);
+    console.log("CLIENT PORTAL READY");
+    return;
+  }
+
+  await renderDashboard(supabase, state);
+  console.log("APP READY");
+}
 
 async function init() {
   console.log("INIT START");
@@ -42,15 +59,15 @@ async function init() {
     return;
   }
 
-  const role = state.profile?.role;
-  if (role === "client") {
-    await renderClientPortal(supabase, state);
-    console.log("CLIENT PORTAL READY");
-    return;
+  if (requiresTwoFactor(state.profile) && !state.twoFactorVerified) {
+    const verified = await showTwoFactorVerification(state);
+    if (!verified) {
+      console.error("TWO-FAILURE");
+      return;
+    }
   }
 
-  await renderDashboard(supabase, state);
-  console.log("APP READY");
+  await routeAuthenticated();
 }
 
 document.addEventListener("DOMContentLoaded", init);
