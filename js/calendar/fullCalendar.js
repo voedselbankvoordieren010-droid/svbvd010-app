@@ -22,11 +22,14 @@ export async function loadFullCalendar(
     return;
   }
 
+  const calendarId = `calendar-${containerId}`;
+  const clientSelectId = `calendarClientFilter-${containerId}`;
+
   container.innerHTML =
     `
 
       <div
-        id="calendar"
+        id="${calendarId}"
       >
       </div>
 
@@ -80,8 +83,8 @@ export async function loadFullCalendar(
   ];
 
   const calendarEl =
-    document.getElementById(
-      "calendar"
+    container.querySelector(
+      `#${calendarId}`
     );
 
   const calendar = new Calendar(calendarEl, {
@@ -109,13 +112,13 @@ export async function loadFullCalendar(
   filterRow.className = "calendar-filter-row";
   filterRow.innerHTML = `
     <label style="display:inline-block;margin-right:8px">Filter cliënt:</label>
-    <select id="calendarClientFilter"><option value="">Alle cliënten</option>
+    <select id="${clientSelectId}"><option value="">Alle cliënten</option>
       ${clients.map(c => `<option value="${c.id}">${c.full_name}</option>`).join("")}
     </select>
   `;
   container.insertBefore(filterRow, calendarEl);
 
-  const clientSelect = document.getElementById("calendarClientFilter");
+  const clientSelect = document.getElementById(clientSelectId);
   clientSelect.addEventListener("change", () => {
     const clientId = clientSelect.value;
     const filtered = events.filter(e => {
@@ -130,6 +133,37 @@ export async function loadFullCalendar(
   });
 
   calendar.render();
+
+  if (!window.__fullCalendarInstances) {
+    window.__fullCalendarInstances = [];
+  }
+
+  const updateAllCalendars = () => {
+    (window.__fullCalendarInstances || []).forEach(instance => {
+      if (instance && typeof instance.updateSize === "function") {
+        instance.updateSize();
+      }
+    });
+  };
+
+  if (!window.__fullCalendarEventHandlersAdded) {
+    window.addEventListener("resize", updateAllCalendars);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        updateAllCalendars();
+      }
+    });
+    window.__fullCalendarEventHandlersAdded = true;
+  }
+
+  if (!window.__fullCalendarInstances.includes(calendar)) {
+    window.__fullCalendarInstances.push(calendar);
+  }
+
+  if (calendarEl && (calendarEl.offsetWidth === 0 || calendarEl.clientWidth === 0)) {
+    window.requestAnimationFrame(updateAllCalendars);
+    setTimeout(updateAllCalendars, 120);
+  }
 
   function toInputValue(value) {
     if (!value) return "";

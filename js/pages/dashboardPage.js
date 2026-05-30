@@ -193,6 +193,12 @@ export async function renderDashboard(supabase, state) {
         panel.classList.remove("hidden");
       }
 
+      if (btn.dataset.tab === "dashboard") {
+        loadFullCalendar(supabase, state).then(() => {
+          window.dispatchEvent(new Event("resize"));
+        });
+      }
+
       if (btn.dataset.tab === "users") {
         loadUsers(supabase, state);
       }
@@ -212,7 +218,9 @@ export async function renderDashboard(supabase, state) {
       }
 
       if (btn.dataset.tab === "agenda") {
-        loadFullCalendar(supabase, state, "adminAgenda");
+        loadFullCalendar(supabase, state, "adminAgenda").then(() => {
+          window.dispatchEvent(new Event("resize"));
+        });
       }
     });
   });
