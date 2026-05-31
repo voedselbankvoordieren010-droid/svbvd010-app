@@ -139,7 +139,25 @@ export async function notifyClientsForEvent(supabase, event) {
     gelezen: false
   }));
 
-  await supabase.from("notifications").insert(notifications);
+  const notificationApiUrl =
+    window.NOTIFICATION_API_URL ||
+    "http://localhost:3001/send-notification";
+
+  await Promise.all(
+    notifications.map(n =>
+      fetch(notificationApiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(n)
+      }).then(res => {
+        if (!res.ok) {
+          return res.text().then(text => {
+            console.error("Calendar notification failed:", res.status, res.statusText, text);
+          }).catch(() => console.error("Calendar notification failed with status", res.status));
+        }
+      }).catch(err => console.error("Calendar notification error:", err))
+    )
+  );
 }
 
 export async function loadClientAgenda(supabase, profile) {

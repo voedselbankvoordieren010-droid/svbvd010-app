@@ -27,13 +27,32 @@ export async function loadNotifications(
   }
 
   // GEEN SESSION
-  if (
-    !state?.session?.user?.id
-  ) {
+      const notificationApiUrl =
+        window.NOTIFICATION_API_URL ||
+        "http://localhost:3001/send-notification";
 
-    console.warn(
-      "GEEN USER SESSION"
-    );
+      const response = await fetch(notificationApiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          user_auth_id: userAuthId,
+          bericht: message,
+          gelezen: false
+        })
+      });
+
+      if (!response.ok) {
+        const body = await response.text().catch(() => null);
+        console.error(
+          "SEND NOTIFICATION ERROR:",
+          response.status,
+          response.statusText,
+          body
+        );
+        return;
+      }
 
     return;
   }
@@ -214,18 +233,29 @@ export async function sendNotification(
     return;
   }
 
-  const { error } = await supabase
-    .from("notifications")
-    .insert({
+  const notificationApiUrl =
+    window.NOTIFICATION_API_URL ||
+    "http://localhost:3001/send-notification";
+
+  const response = await fetch(notificationApiUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
       user_auth_id: userAuthId,
       bericht: message,
       gelezen: false
-    });
+    })
+  });
 
-  if (error) {
+  if (!response.ok) {
+    const body = await response.text().catch(() => null);
     console.error(
       "SEND NOTIFICATION ERROR:",
-      error
+      response.status,
+      response.statusText,
+      body
     );
   }
 }
