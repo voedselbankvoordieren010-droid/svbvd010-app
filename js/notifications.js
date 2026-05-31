@@ -26,36 +26,10 @@ export async function loadNotifications(
     return;
   }
 
-  // GEEN SESSION
-      const notificationApiUrl =
-        window.NOTIFICATION_API_URL ||
-        "http://localhost:3001/send-notification";
-
-      const response = await fetch(notificationApiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          user_auth_id: userAuthId,
-          bericht: message,
-          gelezen: false
-        })
-      });
-
-      if (!response.ok) {
-        const body = await response.text().catch(() => null);
-        console.error(
-          "SEND NOTIFICATION ERROR:",
-          response.status,
-          response.statusText,
-          body
-        );
-        return;
-      }
-
-    return;
-  }
+ // GEEN SESSION
+if (!state?.session?.user?.id) {
+  return;
+}
 
   // LOADING
   container.innerHTML = `
