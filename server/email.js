@@ -1,39 +1,42 @@
-import nodemailer from "nodemailer";
-import dotenv from "dotenv";
+import "isomorphic-fetch";
+import { Client } from "@microsoft/microsoft-graph-client";
+import { ClientSecretCredential } from "@azure/identity";
 
-dotenv.config();
+const credential = new ClientSecretCredential(
+  process.env.AZURE_TENANT_ID,
+  process.env.AZURE_CLIENT_ID,
+  process.env.AZURE_CLIENT_SECRET
+);
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
+const graphClient = Client.init({
+  authProvider: {
+    getAccessToken: async () => {
+      const token = await credential.getToken(
+        "https://graph.microsoft.com/.default"
+      );
+      return token.token;
+    }
   }
 });
 
-transporter.verify()
-  .then(() => console.log("SMTP connection OK"))
-  .catch(err => console.error("SMTP VERIFY ERROR:", err));
-
 export async function sendEmail({ to, subject, text, html }) {
-  if (!to || !subject) {
-    throw new Error("Missing required email fields: to and subject.");
-  }
-
-  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
-  if (!from) {
-    throw new Error("SMTP_FROM or SMTP_USER must be configured.");
-  }
-
-  const info = await transporter.sendMail({
-    from,
-    to,
-    subject,
-    text,
-    html
+  await graphClient.api("/users/noreply@svbvd010.nl/sendMail").post({
+    message: {
+      subject,
+      body: {
+        contentType: html ? "HTML" : "Text",
+        content: html || text || ""
+      },
+      toRecipients: [
+        {
+          emailAddress: {
+            address: to
+          }
+        }
+      ]
+    },
+    saveToSentItems: true
   });
 
-  return info;
+  return { success: true };
 }
