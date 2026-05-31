@@ -194,49 +194,59 @@ export async function loadUsers(
   >
 
     <option
-      value="client"
-      ${
-        safeRole === "client"
-          ? "selected"
-          : ""
-      }
-    >
-      Client
-    </option>
+  value="client"
+  ${
+    safeRole === "client"
+      ? "selected"
+      : ""
+  }
+>
+  Client
+</option>
 
-    <option
-      value="intake"
-      ${
-        safeRole === "intake"
-          ? "selected"
-          : ""
-      }
-    >
-      Intake
-    </option>
+<option
+  value="vrijwilliger"
+  ${
+    safeRole === "vrijwilliger"
+      ? "selected"
+      : ""
+  }
+>
+  Vrijwilliger
+</option>
 
-    <option
-      value="hulpverlener"
-      ${
-        safeRole ===
-        "hulpverlener"
-          ? "selected"
-          : ""
-      }
-    >
-      Hulpverlener
-    </option>
+<option
+  value="intake"
+  ${
+    safeRole === "intake"
+      ? "selected"
+      : ""
+  }
+>
+  Intake
+</option>
 
-    <option
-      value="admin"
-      ${
-        safeRole === "admin"
-          ? "selected"
-          : ""
-      }
-    >
-      Admin
-    </option>
+<option
+  value="hulpverlener"
+  ${
+    safeRole === "hulpverlener"
+      ? "selected"
+      : ""
+  }
+>
+  Hulpverlener
+</option>
+
+<option
+  value="admin"
+  ${
+    safeRole === "admin"
+      ? "selected"
+      : ""
+  }
+>
+  Admin
+</option>
 
   </select>
 
