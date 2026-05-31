@@ -161,13 +161,13 @@ export async function loadProfile(
     }
 
     // ROLE VALIDATIE
-    const validRoles =
-      [
-        "admin",
-        "hulpverlener",
-        "intake",
-        "client"
-      ];
+    const validRoles = [
+  "admin",
+  "hulpverlener",
+  "intake",
+  "vrijwilliger",
+  "client"
+];
 
     if (
       !validRoles.includes(
