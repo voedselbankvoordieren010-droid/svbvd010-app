@@ -5,6 +5,12 @@ import cors from "cors";
 import { createClient } from "@supabase/supabase-js";
 import { sendEmail } from "./email.js";
 
+console.log("AZURE_TENANT_ID =", process.env.AZURE_TENANT_ID);
+console.log("AZURE_CLIENT_ID =", process.env.AZURE_CLIENT_ID);
+console.log(
+  "AZURE_CLIENT_SECRET =",
+  !!process.env.AZURE_CLIENT_SECRET
+);
 console.log(".env exists:", fs.existsSync(".env"));
 console.log("SMTP_USER =", process.env.SMTP_USER);
 console.log("SMTP_FROM =", process.env.SMTP_FROM);
