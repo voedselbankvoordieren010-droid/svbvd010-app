@@ -9,12 +9,15 @@ const credential = new ClientSecretCredential(
 );
 
 const graphClient = Client.init({
-  authProvider: {
-    getAccessToken: async () => {
+  authProvider: async (done) => {
+    try {
       const token = await credential.getToken(
         "https://graph.microsoft.com/.default"
       );
-      return token.token;
+
+      done(null, token.token);
+    } catch (err) {
+      done(err, null);
     }
   }
 });
