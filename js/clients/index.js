@@ -164,64 +164,62 @@ export async function loadClients(
 
         return `
 
-          <div
-            class="client-card"
-            data-id="${client.id}"
-          >
+  <div
+    class="client-card"
+    data-id="${client.id}"
+  >
 
-            <h3>
-              ${client.full_name || ""}
-            </h3>
+    <h3>
+      ${client.full_name || ""}
+    </h3>
 
-            <p>
-              ${client.email || "-"}
-            </p>
+    <p>
+      ${client.email || "-"}
+    </p>
 
-            <p>
-              ${client.phone || "-"}
-            </p>
+    <p>
+      ${client.phone || "-"}
+    </p>
 
-            <div
-              class="
-                status-badge
-                ${safeStatus}
-              "
-            >
-              ${safeStatus}
-            </div>
-
-            <p>
-              Hulpverlener:
-              ${helperMap.get(client.created_by)?.full_name || helperMap.get(client.created_by)?.email || (client.created_by ? "Onbekend" : "Niet toegewezen")}
-            </p>
-
-            ${chat ? `
-              <div class="client-card-actions">
-                <button
-                  class="btn chat-client-btn"
-                  data-client-id="${client.id}"
-                  data-client-name="${client.full_name || client.email || "Cliënt"}"
-                >
-                  Chat met deze cliënt
-                </button>
-              </div>
-            ` : ""}
-
-            ${role === "admin" ? `
-              <div class="client-card-actions">
-                <button class="btn approve-client-btn" data-client-id="${client.id}">Goedkeuren</button>
-                <button class="btn btn-secondary reject-client-btn" data-client-id="${client.id}">Afwijzen</button>
-              </div>
-            ` : ""}
-
-          </div>
-
-        `;
-      }).join("")}
-
+    <div
+      class="
+        status-badge
+        ${safeStatus}
+      "
+    >
+      ${safeStatus}
     </div>
-  `;
 
+    <p>
+      Hulpverlener:
+      ${
+        helperMap.get(client.created_by)?.full_name ||
+        helperMap.get(client.created_by)?.email ||
+        (client.created_by
+          ? "Onbekend"
+          : "Niet toegewezen")
+      }
+    </p>
+
+    ${chat ? `
+      <div class="client-card-actions">
+        <button
+          class="btn chat-client-btn"
+          data-client-id="${client.id}"
+          data-client-name="${client.full_name || client.email || "Cliënt"}"
+        >
+          Chat met deze cliënt
+        </button>
+      </div>
+    ` : ""}
+
+  </div>
+
+`;
+}).join("")}
+
+</div>
+`;
   document
     .querySelectorAll(
       ".client-card"
@@ -286,41 +284,6 @@ export async function loadClients(
       };
     });
 
-  document
-    .querySelectorAll(
-      ".approve-client-btn"
-    )
-    .forEach(btn => {
-      btn.onclick = async event => {
-        event.stopPropagation();
-        const clientId = btn.dataset.clientId;
-        await changeClientStatus(
-          supabase,
-          state,
-          clientId,
-          "goedgekeurd"
-        );
-        await loadClients(supabase, state, chat);
-      };
-    });
-
-  document
-    .querySelectorAll(
-      ".reject-client-btn"
-    )
-    .forEach(btn => {
-      btn.onclick = async event => {
-        event.stopPropagation();
-        const clientId = btn.dataset.clientId;
-        await changeClientStatus(
-          supabase,
-          state,
-          clientId,
-          "afgewezen"
-        );
-        await loadClients(supabase, state, chat);
-      };
-    });
 
   initClientSearch();
 
