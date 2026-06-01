@@ -217,37 +217,6 @@ export async function showClientDetails(
     client
   );
 
-  if (isAdmin) {
-    const approveBtn = document.getElementById(
-      "approveClientBtn"
-    );
-    const rejectBtn = document.getElementById(
-      "rejectClientBtn"
-    );
-
-    if (approveBtn) {
-      approveBtn.onclick = async () => {
-        await updateClientStatus(
-          supabase,
-          client,
-          "goedgekeurd"
-        );
-        modal.remove();
-      };
-    }
-
-    if (rejectBtn) {
-      rejectBtn.onclick = async () => {
-        await updateClientStatus(
-          supabase,
-          client,
-          "afgewezen"
-        );
-        modal.remove();
-      };
-    }
-  }
-
   document
     .getElementById(
       "closeClientDetails"
