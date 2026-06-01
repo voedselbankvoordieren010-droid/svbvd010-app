@@ -150,7 +150,7 @@ export async function loadClients(
         id="newClientBtn"
         class="btn"
       >
-        + Nieuwe cliënt
+        + Nieuwe aanvraag
       </button>
 
     </div>

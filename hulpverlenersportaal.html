@@ -311,7 +311,16 @@ body {
 
 <div class="nav">
   <button class="tab-button is-active" data-tab="dashboard">Dashboard</button>
-  <button class="tab-button" data-tab="chat">Chat</button>
+  const chatBtn = document.querySelector('[data-tab="chat"]');
+
+if (
+  profile.role === "vrijwilliger" ||
+  profile.role === "admin"
+) {
+  chatBtn.style.display = "";
+} else {
+  chatBtn.style.display = "none";
+}
   <button
   class="tab-button"
   data-tab="clients"

@@ -41,7 +41,7 @@ export function initClientModal(
         <div class="modal">
 
           <h2>
-            Nieuwe cliënt
+             Nieuwe aanvraag
           </h2>
 
           <input
@@ -169,17 +169,15 @@ export function initClientModal(
               "clientNotes"
             )?.value?.trim() || "";
 
-          const clientRecord = {
-            full_name,
-            email,
-            phone,
-            city,
-            address,
-            postal_code,
-            animals,
-            notes,
-            status: "nieuw"
-          };
+          const aanvraag = {
+  naam: full_name,
+  email,
+  telefoon: phone,
+  adres: address,
+  opmerkingen: notes,
+  hulpverlener_id: state.profile.id,
+  status: "nieuw"
+};
 
           if (state.profile?.role === "hulpverlener") {
             clientRecord.created_by = state.session.user.id;
@@ -188,9 +186,8 @@ export function initClientModal(
           const {
             error
           } = await supabase
-            .from("clients")
-            .insert(clientRecord);
-
+  .from("client_aanvragen")
+  .insert(aanvraag);
           if (error) {
 
             console.error(error);
