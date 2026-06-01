@@ -234,12 +234,59 @@ export async function showClientDetails(
 if (editBtn) {
 
   editBtn.onclick =
-    () => {
+  async () => {
+
+    const full_name =
+      prompt(
+        "Naam",
+        client.full_name || ""
+      );
+
+    if (
+      full_name === null
+    ) {
+      return;
+    }
+
+    const phone =
+      prompt(
+        "Telefoon",
+        client.phone || ""
+      );
+
+    if (
+      phone === null
+    ) {
+      return;
+    }
+
+    const { error } =
+      await supabase
+        .from("clients")
+        .update({
+          full_name,
+          phone
+        })
+        .eq(
+          "id",
+          client.id
+        );
+
+    if (error) {
 
       alert(
-        "Bewerken komt hier"
+        error.message
       );
-    };
+
+      return;
+    }
+
+    alert(
+      "Cliënt opgeslagen"
+    );
+
+    modal.remove();
+  };
 }
 
 const warningBtn =
