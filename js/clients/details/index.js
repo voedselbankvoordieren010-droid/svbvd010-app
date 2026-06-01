@@ -221,15 +221,111 @@ export async function showClientDetails(
     .getElementById(
       "closeClientDetails"
     )
-    .onclick =
-    () => {
+    let editMode = false;
+
+if (editBtn) {
+
+  editBtn.onclick =
+    async () => {
+
+      if (!editMode) {
+
+        editMode = true;
+
+        const infoCard =
+          modal.querySelector(
+            ".info-card"
+          );
+
+        infoCard.innerHTML = `
+
+          <p>
+            📧
+            <input
+              id="editEmail"
+              value="${client.email || ""}"
+            >
+          </p>
+
+          <p>
+            📞
+            <input
+              id="editPhone"
+              value="${client.phone || ""}"
+            >
+          </p>
+
+          <p>
+            📍
+            <input
+              id="editCity"
+              value="${client.city || ""}"
+            >
+          </p>
+
+        `;
+
+        editBtn.textContent =
+          "Opslaan";
+
+        return;
+      }
+
+      const email =
+        document.getElementById(
+          "editEmail"
+        ).value;
+
+      const phone =
+        document.getElementById(
+          "editPhone"
+        ).value;
+
+      const city =
+        document.getElementById(
+          "editCity"
+        ).value;
+
+      const { error } =
+        await supabase
+          .from("clients")
+          .update({
+            email,
+            phone,
+            city
+          })
+          .eq(
+            "id",
+            client.id
+          );
+
+      if (error) {
+
+        alert(
+          error.message
+        );
+
+        return;
+      }
+
+      alert(
+        "Cliënt opgeslagen"
+      );
 
       modal.remove();
+
+      await showClientDetails(
+        {
+          ...client,
+          email,
+          phone,
+          city
+        },
+        supabase,
+        state
+      );
     };
-    const editBtn =
-  document.getElementById(
-    "editClientBtn"
-  );
+}
 
 if (editBtn) {
 
@@ -287,6 +383,21 @@ if (editBtn) {
 
     modal.remove();
   };
+}
+
+let editMode = false;
+
+const editBtn =
+  document.getElementById(
+    "editClientBtn"
+  );
+
+  if (editBtn) {
+
+  editBtn.onclick =
+    async () => {
+
+    };
 }
 
 const warningBtn =
