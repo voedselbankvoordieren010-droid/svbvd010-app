@@ -5,7 +5,8 @@ import { loadClients } from "../clients/index.js";
 import { renderVolunteerPage } from "./volunteerPage.js";
 // admin agenda is now handled by FullCalendar
 import { loadFullCalendar } from "../calendar/fullCalendar.js";
-
+import { loadAanvragen }
+  from "./Aanvragen.js";
 export async function renderDashboard(supabase, state) {
   const app = document.getElementById("app");
 
@@ -39,6 +40,9 @@ export async function renderDashboard(supabase, state) {
       </button>
       <button class="tab-button btn" data-tab="clients">
         Cliënten
+      </button>
+      <button class="tab-button btn" data-tab="aanvragen">
+       Aanvragen
       </button>
     </nav>
   </aside>
@@ -102,7 +106,11 @@ export async function renderDashboard(supabase, state) {
     </section>
 
     <section id="clients" class="tab-panel hidden"></section>
-  </main>
+  <section
+  id="aanvragen"
+  class="tab-panel hidden"
+></section>
+    </main>
 </div>
 `;
 
@@ -154,6 +162,7 @@ export async function renderDashboard(supabase, state) {
       clientsBtn.remove();
     }
   }
+
 
   const notifBell = document.getElementById("notifBell");
   const notifBox = document.getElementById("notifications");
@@ -211,6 +220,12 @@ export async function renderDashboard(supabase, state) {
         loadClients(supabase, state, chat);
       }
 
+      if (btn.dataset.tab === "aanvragen") {
+  loadAanvragen(
+    supabase,
+    state
+  );
+}
       if (btn.dataset.tab === "chat") {
         if (chat && chat.loadMessages) {
           chat.loadMessages();
