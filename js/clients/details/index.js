@@ -226,7 +226,71 @@ export async function showClientDetails(
 
       modal.remove();
     };
+    const editBtn =
+  document.getElementById(
+    "editClientBtn"
+  );
+
+if (editBtn) {
+
+  editBtn.onclick =
+    () => {
+
+      alert(
+        "Bewerken komt hier"
+      );
+    };
 }
+
+const warningBtn =
+  document.getElementById(
+    "warningClientBtn"
+  );
+
+if (warningBtn) {
+
+  warningBtn.onclick =
+    async () => {
+
+      const warning =
+        prompt(
+          "Voer waarschuwing in"
+        );
+
+      if (!warning) {
+        return;
+      }
+
+      const { error } =
+        await supabase
+          .from("clients")
+          .update({
+            warning_notes:
+              warning
+          })
+          .eq(
+            "id",
+            client.id
+          );
+
+      if (error) {
+
+        alert(
+          error.message
+        );
+
+        return;
+      }
+
+      alert(
+        "Waarschuwing opgeslagen"
+      );
+
+      modal.remove();
+    };
+}
+}
+
 
 async function updateClientStatus(
   supabase,
