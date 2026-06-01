@@ -84,4 +84,83 @@ export async function loadAanvragen(
       `;
     }
   );
+  document
+  .querySelectorAll(".approveBtn")
+  .forEach(btn => {
+
+    btn.onclick =
+      async () => {
+
+        const id =
+          btn.dataset.id;
+
+        const { error } =
+          await supabase
+            .from(
+              "client_aanvragen"
+            )
+            .update({
+              status:
+                "goedgekeurd"
+            })
+            .eq(
+              "id",
+              id
+            );
+
+        if (error) {
+
+          alert(
+            error.message
+          );
+
+          return;
+        }
+
+        await loadAanvragen(
+          supabase,
+          state
+        );
+      };
+  });
+
+document
+  .querySelectorAll(".rejectBtn")
+  .forEach(btn => {
+
+    btn.onclick =
+      async () => {
+
+        const id =
+          btn.dataset.id;
+
+        const { error } =
+          await supabase
+            .from(
+              "client_aanvragen"
+            )
+            .update({
+              status:
+                "afgewezen"
+            })
+            .eq(
+              "id",
+              id
+            );
+
+        if (error) {
+
+          alert(
+            error.message
+          );
+
+          return;
+        }
+
+        await loadAanvragen(
+          supabase,
+          state
+        );
+      };
+  });
 }
