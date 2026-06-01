@@ -94,19 +94,81 @@ export async function loadAanvragen(
         const id =
           btn.dataset.id;
 
-        const { error } =
-          await supabase
-            .from(
-              "client_aanvragen"
-            )
-            .update({
-              status:
-                "goedgekeurd"
-            })
-            .eq(
-              "id",
-              id
-            );
+        // aanvraag ophalen
+        const {
+          data: aanvraag,
+          error: aanvraagError
+        } = await supabase
+          .from(
+            "client_aanvragen"
+          )
+          .select("*")
+          .eq("id", id)
+          .single();
+
+        if (
+          aanvraagError ||
+          !aanvraag
+        ) {
+
+          alert(
+            "Aanvraag niet gevonden"
+          );
+
+          return;
+        }
+
+        // cliënt aanmaken
+        const {
+          error: clientError
+        } = await supabase
+          .from("clients")
+          .insert({
+
+            naam:
+              aanvraag.naam,
+
+            email:
+              aanvraag.email,
+
+            telefoon:
+              aanvraag.telefoon,
+
+            hulpverlener_id:
+              aanvraag.hulpverlener_id,
+
+            status:
+              "actief"
+          });
+
+        if (clientError) {
+
+          console.error(
+            clientError
+          );
+
+          alert(
+            clientError.message
+          );
+
+          return;
+        }
+
+        // aanvraag goedkeuren
+        const {
+          error
+        } = await supabase
+          .from(
+            "client_aanvragen"
+          )
+          .update({
+            status:
+              "goedgekeurd"
+          })
+          .eq(
+            "id",
+            id
+          );
 
         if (error) {
 
@@ -124,100 +186,44 @@ export async function loadAanvragen(
       };
   });
 
-btn.onclick =
-  async () => {
+document
+  .querySelectorAll(".rejectBtn")
+  .forEach(btn => {
 
-    const id =
-      btn.dataset.id;
+    btn.onclick =
+      async () => {
 
-    // aanvraag ophalen
-    const {
-      data: aanvraag,
-      error: aanvraagError
-    } = await supabase
-      .from(
-        "client_aanvragen"
-      )
-      .select("*")
-      .eq("id", id)
-      .single();
+        const id =
+          btn.dataset.id;
 
-    if (
-      aanvraagError ||
-      !aanvraag
-    ) {
+        const {
+          error
+        } = await supabase
+          .from(
+            "client_aanvragen"
+          )
+          .update({
+            status:
+              "afgewezen"
+          })
+          .eq(
+            "id",
+            id
+          );
 
-      alert(
-        "Aanvraag niet gevonden"
-      );
+        if (error) {
 
-      return;
-    }
+          alert(
+            error.message
+          );
 
-    // cliënt aanmaken
-    const {
-      error: clientError
-    } = await supabase
-      .from("clients")
-      .insert({
+          return;
+        }
 
-        naam:
-          aanvraag.naam,
-
-        email:
-          aanvraag.email,
-
-        telefoon:
-          aanvraag.telefoon,
-
-        hulpverlener_id:
-          aanvraag.hulpverlener_id,
-
-        status:
-          "actief"
-      });
-
-    if (clientError) {
-
-      console.error(
-        clientError
-      );
-
-      alert(
-        clientError.message
-      );
-
-      return;
-    }
-
-    // aanvraag goedkeuren
-    const {
-      error
-    } = await supabase
-      .from(
-        "client_aanvragen"
-      )
-      .update({
-        status:
-          "goedgekeurd"
-      })
-      .eq(
-        "id",
-        id
-      );
-
-    if (error) {
-
-      alert(
-        error.message
-      );
-
-      return;
-    }
-
-    await loadAanvragen(
-      supabase,
-      state
-    );
-  };
+        await loadAanvragen(
+          supabase,
+          state
+        );
+      };
+  });
 }
