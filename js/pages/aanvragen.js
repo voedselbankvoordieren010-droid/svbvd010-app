@@ -16,18 +16,21 @@ export async function loadAanvragen(
     "<p>Laden...</p>";
 
   const {
-    data,
-    error
-  } = await supabase
-    .from("client_aanvragen")
-    .select("*")
-    .order(
-      "created_at",
-      {
-        ascending: false
-      }
-    );
-
+  data,
+  error
+} = await supabase
+  .from("client_aanvragen")
+  .select("*")
+  .eq(
+    "status",
+    "nieuw"
+  )
+  .order(
+    "created_at",
+    {
+      ascending: false
+    }
+  );
   if (error) {
 
     container.innerHTML =
