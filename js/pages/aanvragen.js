@@ -121,25 +121,33 @@ export async function loadAanvragen(
         // cliënt aanmaken
         const {
           error: clientError
-        } = await supabase
-          .from("clients")
-          .insert({
+        } = const {
+  error: clientError
+} = await supabase
+  .from("clients")
+  .insert({
 
-            naam:
-              aanvraag.naam,
+    full_name:
+      aanvraag.naam,
 
-            email:
-              aanvraag.email,
+    email:
+      aanvraag.email,
 
-            telefoon:
-              aanvraag.telefoon,
+    phone:
+      aanvraag.telefoon,
 
-            hulpverlener_id:
-              aanvraag.hulpverlener_id,
+    status:
+      "actief",
 
-            status:
-              "actief"
-          });
+    created_by:
+      state.profile.id,
+
+    assigned_to:
+      state.profile.id,
+
+    organization_id:
+      state.profile.organization_id
+  });
 
         if (clientError) {
 
