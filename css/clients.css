@@ -93,3 +93,19 @@
 
   margin: 8px 0 !important;
 }
+.client-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.warning-box {
+  margin-top: 12px;
+  margin-bottom: 12px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(255, 140, 0, 0.15);
+  border-left: 4px solid #ff8c00;
+  color: #ffd28a;
+  font-size: 14px;
+  font-weight: 600;
+}
