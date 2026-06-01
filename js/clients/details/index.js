@@ -171,19 +171,20 @@ export async function showClientDetails(
 
       <div class="modal-actions">
         ${isAdmin ? `
-          <button
-            id="approveClientBtn"
-            class="btn"
-          >
-            Goedkeuren
-          </button>
-          <button
-            id="rejectClientBtn"
-            class="btn btn-secondary"
-          >
-            Afwijzen
-          </button>
-        ` : ""}
+  <button
+    id="editClientBtn"
+    class="btn"
+  >
+    Bewerken
+  </button>
+
+  <button
+    id="warningClientBtn"
+    class="btn btn-secondary"
+  >
+    Waarschuwing
+  </button>
+` : ""}
 
         <button
           id="closeClientDetails"
