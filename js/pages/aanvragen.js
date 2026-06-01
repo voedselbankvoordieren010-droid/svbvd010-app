@@ -119,9 +119,7 @@ export async function loadAanvragen(
         }
 
         // cliënt aanmaken
-        const {
-          error: clientError
-        } = const {
+       const {
   error: clientError
 } = await supabase
   .from("clients")
