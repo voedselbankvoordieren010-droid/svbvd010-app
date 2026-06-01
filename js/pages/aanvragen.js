@@ -124,43 +124,100 @@ export async function loadAanvragen(
       };
   });
 
-document
-  .querySelectorAll(".rejectBtn")
-  .forEach(btn => {
+btn.onclick =
+  async () => {
 
-    btn.onclick =
-      async () => {
+    const id =
+      btn.dataset.id;
 
-        const id =
-          btn.dataset.id;
+    // aanvraag ophalen
+    const {
+      data: aanvraag,
+      error: aanvraagError
+    } = await supabase
+      .from(
+        "client_aanvragen"
+      )
+      .select("*")
+      .eq("id", id)
+      .single();
 
-        const { error } =
-          await supabase
-            .from(
-              "client_aanvragen"
-            )
-            .update({
-              status:
-                "afgewezen"
-            })
-            .eq(
-              "id",
-              id
-            );
+    if (
+      aanvraagError ||
+      !aanvraag
+    ) {
 
-        if (error) {
+      alert(
+        "Aanvraag niet gevonden"
+      );
 
-          alert(
-            error.message
-          );
+      return;
+    }
 
-          return;
-        }
+    // cliënt aanmaken
+    const {
+      error: clientError
+    } = await supabase
+      .from("clients")
+      .insert({
 
-        await loadAanvragen(
-          supabase,
-          state
-        );
-      };
-  });
+        naam:
+          aanvraag.naam,
+
+        email:
+          aanvraag.email,
+
+        telefoon:
+          aanvraag.telefoon,
+
+        hulpverlener_id:
+          aanvraag.hulpverlener_id,
+
+        status:
+          "actief"
+      });
+
+    if (clientError) {
+
+      console.error(
+        clientError
+      );
+
+      alert(
+        clientError.message
+      );
+
+      return;
+    }
+
+    // aanvraag goedkeuren
+    const {
+      error
+    } = await supabase
+      .from(
+        "client_aanvragen"
+      )
+      .update({
+        status:
+          "goedgekeurd"
+      })
+      .eq(
+        "id",
+        id
+      );
+
+    if (error) {
+
+      alert(
+        error.message
+      );
+
+      return;
+    }
+
+    await loadAanvragen(
+      supabase,
+      state
+    );
+  };
 }
