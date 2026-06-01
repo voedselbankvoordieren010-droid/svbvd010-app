@@ -201,6 +201,12 @@ export async function loadClients(
       }
     </p>
 
+    ${client.warning_notes ? `
+  <div class="warning-box">
+    ⚠ ${client.warning_notes}
+  </div>
+` : ""}
+
     ${chat ? `
       <div class="client-card-actions">
         <button
@@ -210,6 +216,13 @@ export async function loadClients(
         >
           Chat met deze cliënt
         </button>
+
+        <button
+  class="btn warning-btn"
+  data-client-id="${client.id}"
+>
+  ⚠ Waarschuwing
+</button>
       </div>
     ` : ""}
 
@@ -284,6 +297,54 @@ export async function loadClients(
       };
     });
 
+    document
+  .querySelectorAll(".warning-btn")
+  .forEach(btn => {
+
+    btn.onclick = async e => {
+
+      e.stopPropagation();
+
+      const clientId =
+        btn.dataset.clientId;
+
+      const warning =
+        prompt(
+          "Voer waarschuwing in"
+        );
+
+      if (!warning) {
+        return;
+      }
+
+      const { error } =
+        await supabase
+          .from("clients")
+          .update({
+            warning_notes:
+              warning
+          })
+          .eq(
+            "id",
+            clientId
+          );
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      alert(
+        "Waarschuwing opgeslagen"
+      );
+
+      await loadClients(
+        supabase,
+        state,
+        chat
+      );
+    };
+  });
 
   initClientSearch();
 
