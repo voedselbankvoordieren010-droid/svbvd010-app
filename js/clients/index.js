@@ -45,7 +45,7 @@ export async function loadClients(
 
   const role = state.profile?.role;
   let query = supabase
-    .from("client_aanvragen")
+    .from("clients")
     .select("*")
     .order(
       "created_at",
