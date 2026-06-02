@@ -99,37 +99,50 @@ export async function showClientDetails(
   <div class="info-card">
 
     <p>
-      📧 ${client.email || "-"}
+      <strong>Naam:</strong>
+      ${client.full_name || "-"}
     </p>
 
     <p>
-      📞 ${client.phone || "-"}
+      <strong>E-mail:</strong>
+      ${client.email || "-"}
     </p>
 
     <p>
-      📍 ${client.city || "-"}
+      <strong>Telefoon:</strong>
+      ${client.phone || "-"}
     </p>
 
     <p>
-      🏠 ${client.address || "-"}
+      <strong>Plaats:</strong>
+      ${client.city || "-"}
     </p>
 
     <p>
-      📮 ${client.postal_code || "-"}
+      <strong>Adres:</strong>
+      ${client.address || "-"}
     </p>
 
     <p>
-      📌 Status:
+      <strong>Postcode:</strong>
+      ${client.postal_code || "-"}
+    </p>
+
+    <p>
+      <strong>Status:</strong>
       ${client.status || "nieuw"}
     </p>
 
     <p>
-      🧑‍⚕️ Hulpverlener:
+      <strong>Hulpverlener:</strong>
       ${helper ? `${helper.full_name || helper.email}` : "Niet toegewezen"}
     </p>
 
   </div>
 
+  <div class="info-card">
+    <h3>Notities</h3>
+      <p id="generalNotesText">${client.notes || "Geen notities"}</p>
 </div>
 
       <div
@@ -194,17 +207,18 @@ export async function showClientDetails(
   initClientTabs();
 
   await renderClientAnimals(
-  client,
-  supabase
-);
-
-  renderClientFiles(
     client,
     supabase
   );
 
-  renderClientNotes(
-    client
+  await renderClientFiles(
+    client,
+    supabase
+  );
+
+  await renderClientNotes(
+    client,
+    supabase
   );
 
   document
@@ -431,5 +445,4 @@ if (warningBtn) {
         "Waarschuwing opgeslagen"
       );
     };
-  }
 }

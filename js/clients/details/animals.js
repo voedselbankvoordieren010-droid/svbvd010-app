@@ -110,20 +110,34 @@ ${
                     Bewerken
                   </button>
                   <button
+                    class="btn upload-animal-photo-btn"
+                    data-id="${animal.id}"
+                    type="button"
+                  >
+                    Foto uploaden
+                  </button>
+                  ${animal.photo_url ? `
+                    <button
+                      class="btn danger-btn delete-animal-photo-btn"
+                      data-id="${animal.id}"
+                      type="button"
+                    >
+                      Foto verwijderen
+                    </button>
+                  ` : ""}
+                  <button
                     class="btn danger-btn delete-animal-btn"
                     data-id="${animal.id}"
                     type="button"
                   >
                     Verwijderen
                   </button>
-
                   <button
-  class="btn deceased-btn"
-  data-id="${animal.id}"
->
-  Overleden
-</button>
-
+                    class="btn deceased-btn"
+                    data-id="${animal.id}"
+                  >
+                    Overleden
+                  </button>
                 </div>
                 <p>Medisch: ${animal.medical_notes || "-"}</p>
               </div>
