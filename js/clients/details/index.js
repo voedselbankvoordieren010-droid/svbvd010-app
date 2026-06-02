@@ -14,16 +14,6 @@ import {
   renderClientNotes
 } from "./notes.js";
 
-import {
-  sendNotification
-} from "../../notifications.js";
-
-import {
-  sendEmailApi,
-  buildClientStatusHtml,
-  buildHelperStatusHtml
-} from "../../email.js";
-
 export async function showClientDetails(
   client,
   supabase,
@@ -218,10 +208,6 @@ export async function showClientDetails(
   );
 
   document
-    .getElementById(
-      "closeClientDetails"
-    )
-    document
   .getElementById(
     "closeClientDetails"
   )
@@ -238,8 +224,6 @@ const editBtn =
     "editClientBtn"
   );
 
-let editMode = false;
-
 if (editBtn) {
 
   editBtn.onclick =
@@ -255,6 +239,14 @@ if (editBtn) {
           );
 
         infoCard.innerHTML = `
+
+          <p>
+            🧑‍💼 Naam
+            <input
+              id="editFullName"
+              value="${client.full_name || ""}"
+            >
+          </p>
 
           <p>
             📧
@@ -280,6 +272,29 @@ if (editBtn) {
             >
           </p>
 
+          <p>
+            🏠
+            <input
+              id="editAddress"
+              value="${client.address || ""}"
+            >
+          </p>
+
+          <p>
+            📮
+            <input
+              id="editPostalCode"
+              value="${client.postal_code || ""}"
+            >
+          </p>
+
+          <p>
+            📝 Notities
+            <textarea
+              id="editNotes"
+            >${client.notes || ""}</textarea>
+          </p>
+
         `;
 
         editBtn.textContent =
@@ -287,6 +302,11 @@ if (editBtn) {
 
         return;
       }
+
+      const full_name =
+        document.getElementById(
+          "editFullName"
+        ).value;
 
       const email =
         document.getElementById(
@@ -303,13 +323,32 @@ if (editBtn) {
           "editCity"
         ).value;
 
+      const address =
+        document.getElementById(
+          "editAddress"
+        ).value;
+
+      const postal_code =
+        document.getElementById(
+          "editPostalCode"
+        ).value;
+
+      const notes =
+        document.getElementById(
+          "editNotes"
+        ).value;
+
       const { error } =
         await supabase
           .from("clients")
           .update({
+            full_name,
             email,
             phone,
-            city
+            city,
+            address,
+            postal_code,
+            notes
           })
           .eq(
             "id",
@@ -334,9 +373,13 @@ if (editBtn) {
       await showClientDetails(
         {
           ...client,
+          full_name,
           email,
           phone,
-          city
+          city,
+          address,
+          postal_code,
+          notes
         },
         supabase,
         state
@@ -376,7 +419,11 @@ if (warningBtn) {
           );
 
       if (error) {
-        alert(error.message);
+
+        alert(
+          error.message
+        );
+
         return;
       }
 
@@ -384,16 +431,4 @@ if (warningBtn) {
         "Waarschuwing opgeslagen"
       );
     };
-}
-
-
-
-
-async function safeSendEmail(to, subject, text, html) {
-  try {
-    await sendEmailApi({ to, subject, text, html });
-  } catch (error) {
-    console.warn("Email send failed, continuing zonder blokkade:", error);
-  }
-}
 }
