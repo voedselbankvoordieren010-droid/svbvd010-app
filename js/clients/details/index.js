@@ -221,78 +221,59 @@ export async function showClientDetails(
     .getElementById(
       "closeClientDetails"
     )
-    let editMode = false;
+    document
+  .getElementById(
+    "closeClientDetails"
+  )
+  .onclick =
+  () => {
+
+    modal.remove();
+  };
+
+let editMode = false;
+
+const editBtn =
+  document.getElementById(
+    "editClientBtn"
+  );
 
 if (editBtn) {
 
   editBtn.onclick =
     async () => {
 
-      if (!editMode) {
+      alert(
+        "Bewerken werkt"
+      );
+    };
+}
 
-        editMode = true;
+const warningBtn =
+  document.getElementById(
+    "warningClientBtn"
+  );
 
-        const infoCard =
-          modal.querySelector(
-            ".info-card"
-          );
+if (warningBtn) {
 
-        infoCard.innerHTML = `
+  warningBtn.onclick =
+    async () => {
 
-          <p>
-            📧
-            <input
-              id="editEmail"
-              value="${client.email || ""}"
-            >
-          </p>
+      const warning =
+        prompt(
+          "Voer waarschuwing in"
+        );
 
-          <p>
-            📞
-            <input
-              id="editPhone"
-              value="${client.phone || ""}"
-            >
-          </p>
-
-          <p>
-            📍
-            <input
-              id="editCity"
-              value="${client.city || ""}"
-            >
-          </p>
-
-        `;
-
-        editBtn.textContent =
-          "Opslaan";
-
+      if (!warning) {
         return;
       }
-
-      const email =
-        document.getElementById(
-          "editEmail"
-        ).value;
-
-      const phone =
-        document.getElementById(
-          "editPhone"
-        ).value;
-
-      const city =
-        document.getElementById(
-          "editCity"
-        ).value;
 
       const { error } =
         await supabase
           .from("clients")
           .update({
-            email,
-            phone,
-            city
+            warning_notes:
+              warning
           })
           .eq(
             "id",
@@ -300,104 +281,15 @@ if (editBtn) {
           );
 
       if (error) {
-
-        alert(
-          error.message
-        );
-
+        alert(error.message);
         return;
       }
 
       alert(
-        "Cliënt opgeslagen"
-      );
-
-      modal.remove();
-
-      await showClientDetails(
-        {
-          ...client,
-          email,
-          phone,
-          city
-        },
-        supabase,
-        state
+        "Waarschuwing opgeslagen"
       );
     };
 }
-
-if (editBtn) {
-
-  editBtn.onclick =
-  async () => {
-
-    const full_name =
-      prompt(
-        "Naam",
-        client.full_name || ""
-      );
-
-    if (
-      full_name === null
-    ) {
-      return;
-    }
-
-    const phone =
-      prompt(
-        "Telefoon",
-        client.phone || ""
-      );
-
-    if (
-      phone === null
-    ) {
-      return;
-    }
-
-    const { error } =
-      await supabase
-        .from("clients")
-        .update({
-          full_name,
-          phone
-        })
-        .eq(
-          "id",
-          client.id
-        );
-
-    if (error) {
-
-      alert(
-        error.message
-      );
-
-      return;
-    }
-
-    alert(
-      "Cliënt opgeslagen"
-    );
-
-    modal.remove();
-  };
-}
-
-const editBtn =
-  document.getElementById(
-    "editClientBtn"
-  );
-
-  if (editBtn) {
-
-  editBtn.onclick =
-    async () => {
-
-    };
-}
-
 const warningBtn =
   document.getElementById(
     "warningClientBtn"
@@ -446,95 +338,7 @@ if (warningBtn) {
     };
 }
 
-async function updateClientStatus(
-  supabase,
-  client,
-  newStatus
-) {
-  const { error } = await supabase
-    .from("clients")
-    .update({ status: newStatus })
-    .eq("id", client.id);
 
-  if (error) {
-    console.error(error);
-    alert("Kon status niet bijwerken.");
-    return;
-  }
-
-  const helperResult = client.created_by
-    ? await supabase
-        .from("profiles")
-        .select("id, full_name, email")
-        .eq("id", client.created_by)
-        .maybeSingle()
-    : { data: null };
-
-  const clientProfileResult = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("client_id", client.id)
-    .maybeSingle();
-
-  let clientProfileId = clientProfileResult.data?.id;
-  if (!clientProfileId && client.email) {
-    const { data: emailProfile } = await supabase
-      .from("profiles")
-      .select("id")
-      .ilike("email", client.email)
-      .maybeSingle();
-
-    clientProfileId = emailProfile?.id;
-  }
-
-  const statusLabel = newStatus === "goedgekeurd"
-    ? "goedgekeurd"
-    : "afgewezen";
-
-  const helperMessage = client.full_name
-    ? `Cliënt ${client.full_name} is ${statusLabel}. Bekijk de cliënt in je overzicht.`
-    : `Een cliënt is ${statusLabel}.`;
-
-  if (helperResult.data?.id) {
-    await sendNotification(
-      supabase,
-      helperResult.data.id,
-      helperMessage
-    );
-
-    if (helperResult.data.email) {
-      await safeSendEmail(
-        helperResult.data.email,
-        `Cliënt ${client.full_name || "(zonder naam)"} is ${statusLabel}`,
-        `Beste ${helperResult.data.full_name || "hulpverlener"},\n\nCliënt ${client.full_name || "(zonder naam)"} is ${statusLabel} door de admin.\n\nMet vriendelijke groet,\nStichting SVBVD010`,
-        buildHelperStatusHtml({
-          clientName: client.full_name,
-          statusLabel
-        })
-      );
-    }
-  }
-
-  if (clientProfileId || client.email) {
-    await sendNotification(
-      supabase,
-      clientProfileId,
-      clientMessage
-    );
-
-    if (client.email) {
-      await safeSendEmail(
-        client.email,
-        `Je aanvraag is ${statusLabel}`,
-        `Beste ${client.full_name || "cliënt"},\n\nJe aanvraag is ${statusLabel} door de admin.\n\nMet vriendelijke groet,\nStichting SVBVD010`,
-        buildClientStatusHtml({
-          clientName: client.full_name,
-          statusLabel
-        })
-      );
-    }
-  }
-}
 
 async function safeSendEmail(to, subject, text, html) {
   try {
