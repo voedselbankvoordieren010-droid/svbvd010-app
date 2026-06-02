@@ -145,6 +145,11 @@ export async function showClientDetails(
       <p id="generalNotesText">${client.notes || "Geen notities"}</p>
   </div>
 
+  <div class="info-card">
+    <h3>Dieren</h3>
+      <p id="generalAnimalsText">Laden...</p>
+  </div>
+
       </div>
 
       <div
@@ -227,10 +232,13 @@ export async function showClientDetails(
 
   initClientTabs();
 
-  await renderClientAnimals(
+  const animalsList = await renderClientAnimals(
     client,
-    supabase
+    supabase,
+    updateGeneralAnimalsSummary
   );
+
+  updateGeneralAnimalsSummary(animalsList);
 
   await renderClientFiles(
     client,
@@ -463,6 +471,28 @@ if (saveBtn) {
         state
       );
     };
+}
+
+function updateGeneralAnimalsSummary(animals = []) {
+  const summaryEl =
+    document.getElementById(
+      "generalAnimalsText"
+    );
+
+  if (!summaryEl) {
+    return;
+  }
+
+  if (!animals.length) {
+    summaryEl.textContent =
+      "Geen dieren toegevoegd";
+    return;
+  }
+
+  summaryEl.textContent =
+    `${animals.length} dier(en): ${animals
+      .map((animal) => animal.name || "Onbekend")
+      .join(", ")}`;
 }
 
 const warningBtn =

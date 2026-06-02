@@ -1,6 +1,7 @@
 export async function renderClientAnimals(
   client,
-  supabase
+  supabase,
+  onUpdate = null
 ) {
   const panel =
     document.getElementById(
@@ -8,7 +9,7 @@ export async function renderClientAnimals(
     );
 
   if (!panel) {
-    return;
+    return [];
   }
 
   const {
@@ -26,6 +27,10 @@ export async function renderClientAnimals(
   console.log("ANIMALS ERROR:", error);
 
   const animalsList = animals ?? [];
+
+  if (typeof onUpdate === "function") {
+    onUpdate(animalsList);
+  }
 
   panel.innerHTML = `
     <div class="animals-header">
@@ -295,7 +300,7 @@ ${
       }
 
       modal.remove();
-      await renderClientAnimals(client, supabase);
+      await renderClientAnimals(client, supabase, onUpdate);
     };
   };
 
@@ -322,7 +327,7 @@ ${
         return;
       }
 
-      await renderClientAnimals(client, supabase);
+      await renderClientAnimals(client, supabase, onUpdate);
     };
   });
 
@@ -358,7 +363,7 @@ ${
           return;
         }
 
-        await renderClientAnimals(client, supabase);
+        await renderClientAnimals(client, supabase, onUpdate);
       };
     });
 document
@@ -452,7 +457,8 @@ document
 
             await renderClientAnimals(
               client,
-              supabase
+              supabase,
+              onUpdate
             );
           };
 
@@ -536,7 +542,8 @@ document
 
         await renderClientAnimals(
           client,
-          supabase
+          supabase,
+          onUpdate
         );
       };
   });
@@ -611,7 +618,8 @@ document
 
           await renderClientAnimals(
             client,
-            supabase
+            supabase,
+            onUpdate
           );
         };
 
@@ -672,7 +680,8 @@ document
 
         await renderClientAnimals(
           client,
-          supabase
+          supabase,
+          onUpdate
         );
       };
     });
@@ -722,4 +731,6 @@ document
         openAnimalModal(animal);
       };
     });
+
+  return animalsList;
 }
