@@ -99,6 +99,8 @@ ${
                 <p>Leeftijd: ${animal.age || "-"}</p>
                 <p>Geslacht: ${animal.gender || "-"}</p>
                 <p>Voeding: ${animal.food || "-"}</p>
+                <p>Gevaccineerd: ${animal.vaccinated ? "Ja" : "Nee"}</p>
+                <p>Speciale voeding: ${animal.special_food ? animal.special_food : "Nee"}</p>
                 <p>Status: ${animal.status || "actief"}</p>
                 <div class="animal-actions">
                   <button
@@ -122,6 +124,30 @@ ${
                       type="button"
                     >
                       Foto verwijderen
+                    </button>
+                  ` : ""}
+                  <button
+                    class="btn upload-animal-proof-btn"
+                    data-id="${animal.id}"
+                    type="button"
+                  >
+                    Upload dierenartsbewijs
+                  </button>
+                  ${animal.vet_proof_url ? `
+                    <button
+                      class="btn open-animal-proof-btn"
+                      data-id="${animal.id}"
+                      data-proof-url="${animal.vet_proof_url}"
+                      type="button"
+                    >
+                      Open bewijs
+                    </button>
+                    <button
+                      class="btn danger-btn delete-animal-proof-btn"
+                      data-id="${animal.id}"
+                      type="button"
+                    >
+                      Verwijder bewijs
                     </button>
                   ` : ""}
                   <button
@@ -157,7 +183,7 @@ ${
     return;
   }
 
-  const openAnimalModal = () => {
+  const openAnimalModal = (animal = null) => {
     const existing =
       document.querySelector(
         ".animal-modal-overlay"
@@ -172,14 +198,23 @@ ${
 
     modal.innerHTML = `
       <div class="animal-modal">
-        <h2>Dier toevoegen</h2>
-        <input id="animalName" placeholder="Naam">
-        <input id="animalType" placeholder="Soort">
-        <input id="animalBreed" placeholder="Ras">
-        <input id="animalAge" placeholder="Leeftijd">
-        <input id="animalGender" placeholder="Geslacht">
-        <input id="animalFood" placeholder="Voeding">
-        <textarea id="animalMedical" placeholder="Medische info"></textarea>
+        <h2>${animal ? "Dier bewerken" : "Dier toevoegen"}</h2>
+        <input id="animalName" placeholder="Naam" value="${animal?.name || ""}">
+        <input id="animalType" placeholder="Soort" value="${animal?.type || ""}">
+        <input id="animalBreed" placeholder="Ras" value="${animal?.breed || ""}">
+        <input id="animalAge" placeholder="Leeftijd" value="${animal?.age || ""}">
+        <input id="animalGender" placeholder="Geslacht" value="${animal?.gender || ""}">
+        <input id="animalFood" placeholder="Voeding" value="${animal?.food || ""}">
+        <label class="checkbox-label">
+          <input id="animalVaccinated" type="checkbox" ${animal?.vaccinated ? "checked" : ""}>
+          Gevaccineerd
+        </label>
+        <label class="checkbox-label">
+          <input id="animalSpecialFoodRequired" type="checkbox" ${animal?.special_food ? "checked" : ""}>
+          Speciale voeding nodig
+        </label>
+        <input id="animalSpecialFood" placeholder="Specifieke voeding" value="${animal?.special_food || ""}">
+        <textarea id="animalMedical" placeholder="Medische info">${animal?.medical_notes || ""}</textarea>
         <div class="modal-actions">
           <button id="saveAnimalBtn" class="btn" type="button">Opslaan</button>
           <button id="closeAnimalBtn" class="btn" type="button">Sluiten</button>
@@ -204,6 +239,9 @@ ${
     const getValue = (id) =>
       document.getElementById(id)?.value?.trim() || "";
 
+    const getChecked = (id) =>
+      document.getElementById(id)?.checked || false;
+
     saveBtn.onclick = async () => {
       const name = getValue("animalName");
       if (!name) {
@@ -216,25 +254,44 @@ ${
       const age = getValue("animalAge");
       const gender = getValue("animalGender");
       const food = getValue("animalFood");
+      const vaccinated = getChecked("animalVaccinated");
+      const special_food = getValue("animalSpecialFood");
       const medical_notes = getValue("animalMedical");
 
-      const { error: insertError } = await supabase
-        .from("animals")
-        .insert({
-          client_id: client.id,
-          name,
-          type,
-          breed,
-          age,
-          gender,
-          food,
-          medical_notes
-        });
+      const payload = {
+        client_id: client.id,
+        name,
+        type,
+        breed,
+        age,
+        gender,
+        food,
+        vaccinated,
+        special_food,
+        medical_notes
+      };
 
-      if (insertError) {
-        console.error(insertError);
-        alert(insertError.message);
-        return;
+      if (animal?.id) {
+        const { error: updateError } = await supabase
+          .from("animals")
+          .update(payload)
+          .eq("id", animal.id);
+
+        if (updateError) {
+          console.error(updateError);
+          alert(updateError.message);
+          return;
+        }
+      } else {
+        const { error: insertError } = await supabase
+          .from("animals")
+          .insert(payload);
+
+        if (insertError) {
+          console.error(insertError);
+          alert(insertError.message);
+          return;
+        }
       }
 
       modal.remove();
@@ -483,6 +540,169 @@ document
         );
       };
   });
+
+  document
+    .querySelectorAll(
+      ".upload-animal-proof-btn"
+    )
+    .forEach((btn) => {
+      btn.onclick = async () => {
+        const animalId = btn.dataset.id;
+
+        const input =
+          document.createElement(
+            "input"
+          );
+
+        input.type = "file";
+        input.accept = "image/*,.pdf";
+
+        input.onchange = async () => {
+          const file = input.files?.[0];
+          if (!file) {
+            return;
+          }
+
+          const filePath = `animals/${animalId}/vet-proof-${Date.now()}-${file.name}`;
+
+          const {
+            error: uploadError
+          } = await supabase
+            .storage
+            .from(
+              "animal-documents"
+            )
+            .upload(
+              filePath,
+              file,
+              {
+                upsert: true
+              }
+            );
+
+          if (uploadError) {
+            console.error(
+              uploadError
+            );
+            alert(
+              uploadError.message
+            );
+            return;
+          }
+
+          const {
+            error: updateError
+          } = await supabase
+            .from("animals")
+            .update({
+              vet_proof_url: filePath
+            })
+            .eq("id", animalId);
+
+          if (updateError) {
+            console.error(
+              updateError
+            );
+            alert(
+              updateError.message
+            );
+            return;
+          }
+
+          await renderClientAnimals(
+            client,
+            supabase
+          );
+        };
+
+        input.click();
+      };
+    });
+
+  document
+    .querySelectorAll(
+      ".delete-animal-proof-btn"
+    )
+    .forEach((btn) => {
+      btn.onclick = async () => {
+        const animalId = btn.dataset.id;
+        const animal = animalsList.find(
+          (a) => String(a.id) === animalId
+        );
+
+        if (!animal?.vet_proof_url) {
+          alert("Geen bewijs gevonden");
+          return;
+        }
+
+        const confirmed = confirm(
+          "Dierenartsbewijs verwijderen?"
+        );
+        if (!confirmed) {
+          return;
+        }
+
+        await supabase
+          .storage
+          .from(
+            "animal-documents"
+          )
+          .remove([
+            animal.vet_proof_url
+          ]);
+
+        const {
+          error: updateError
+        } = await supabase
+          .from("animals")
+          .update({
+            vet_proof_url: null
+          })
+          .eq("id", animalId);
+
+        if (updateError) {
+          console.error(
+            updateError
+          );
+          alert(
+            updateError.message
+          );
+          return;
+        }
+
+        await renderClientAnimals(
+          client,
+          supabase
+        );
+      };
+    });
+
+  document
+    .querySelectorAll(
+      ".open-animal-proof-btn"
+    )
+    .forEach((btn) => {
+      btn.onclick = async () => {
+        const proofUrl = btn.dataset.proofUrl;
+        if (!proofUrl) {
+          alert("Geen bewijs beschikbaar");
+          return;
+        }
+
+        const { data, error } = await supabase
+          .storage
+          .from("animal-documents")
+          .createSignedUrl(proofUrl, 3600);
+
+        if (error || !data?.signedUrl) {
+          console.error(error);
+          alert("Kon bewijs niet openen");
+          return;
+        }
+
+        window.open(data.signedUrl);
+      };
+    });
   
   document
     .querySelectorAll(
@@ -499,45 +719,7 @@ document
           return;
         }
 
-        const name = prompt("Naam", animal.name || "");
-        if (!name) {
-          return;
-        }
-
-        const type = prompt("Soort", animal.type || "") || "";
-        const breed = prompt("Ras", animal.breed || "") || "";
-        const age = prompt("Leeftijd", animal.age || "") || "";
-        const gender = prompt("Geslacht", animal.gender || "") || "";
-        const food = prompt("Voeding", animal.food || "") || "";
-        const status = prompt("Status", animal.status || "") || "actief";
-        const medical_notes = prompt(
-          "Medische info",
-          animal.medical_notes || ""
-        ) || "";
-
-        const {
-          error: updateError
-        } = await supabase
-          .from("animals")
-          .update({
-            name,
-            type,
-            breed,
-            age,
-            gender,
-            food,
-            status,
-            medical_notes
-          })
-          .eq("id", animalId);
-
-        if (updateError) {
-          console.error(updateError);
-          alert(updateError.message);
-          return;
-        }
-
-        await renderClientAnimals(client, supabase);
+        openAnimalModal(animal);
       };
     });
 }
