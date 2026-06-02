@@ -182,6 +182,14 @@ export async function showClientDetails(
   </button>
 
   <button
+    id="cancelEditBtn"
+    class="btn btn-secondary hidden"
+    type="button"
+  >
+    Annuleren
+  </button>
+
+  <button
     id="warningClientBtn"
     class="btn btn-secondary"
   >
@@ -247,72 +255,101 @@ if (editBtn) {
 
         editMode = true;
 
-        const infoCard =
+        const generalPanel =
           modal.querySelector(
-            ".info-card"
+            "#general"
           );
 
-        infoCard.innerHTML = `
+        if (!generalPanel) {
+          return;
+        }
 
-          <p>
-            🧑‍💼 Naam
-            <input
-              id="editFullName"
-              value="${client.full_name || ""}"
-            >
-          </p>
+        generalPanel.innerHTML = `
 
-          <p>
-            📧
-            <input
-              id="editEmail"
-              value="${client.email || ""}"
-            >
-          </p>
+          <h2>
+            ${client.full_name}
+          </h2>
 
-          <p>
-            📞
-            <input
-              id="editPhone"
-              value="${client.phone || ""}"
-            >
-          </p>
+          <div class="info-card">
+            <p>
+              🧑‍💼 Naam
+              <input
+                id="editFullName"
+                value="${client.full_name || ""}"
+              >
+            </p>
 
-          <p>
-            📍
-            <input
-              id="editCity"
-              value="${client.city || ""}"
-            >
-          </p>
+            <p>
+              📧
+              <input
+                id="editEmail"
+                value="${client.email || ""}"
+              >
+            </p>
 
-          <p>
-            🏠
-            <input
-              id="editAddress"
-              value="${client.address || ""}"
-            >
-          </p>
+            <p>
+              📞
+              <input
+                id="editPhone"
+                value="${client.phone || ""}"
+              >
+            </p>
 
-          <p>
-            📮
-            <input
-              id="editPostalCode"
-              value="${client.postal_code || ""}"
-            >
-          </p>
+            <p>
+              📍
+              <input
+                id="editCity"
+                value="${client.city || ""}"
+              >
+            </p>
 
-          <p>
-            📝 Notities
+            <p>
+              🏠
+              <input
+                id="editAddress"
+                value="${client.address || ""}"
+              >
+            </p>
+
+            <p>
+              📮
+              <input
+                id="editPostalCode"
+                value="${client.postal_code || ""}"
+              >
+            </p>
+          </div>
+
+          <div class="info-card">
+            <h3>Notities</h3>
             <textarea
               id="editNotes"
             >${client.notes || ""}</textarea>
-          </p>
+          </div>
 
         `;
 
         editBtn.textContent =
           "Opslaan";
+
+        const cancelBtn =
+          document.getElementById(
+            "cancelEditBtn"
+          );
+
+        if (cancelBtn) {
+          cancelBtn.classList.remove(
+            "hidden"
+          );
+          cancelBtn.onclick =
+            () => {
+              showClientDetails(
+                client,
+                supabase,
+                state
+              );
+            };
+        }
 
         return;
       }
@@ -445,4 +482,5 @@ if (warningBtn) {
         "Waarschuwing opgeslagen"
       );
     };
+  }
 }

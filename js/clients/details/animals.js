@@ -93,7 +93,6 @@ ${
 
     `
 }
-                <div class="animal-icon">🐾</div>
                 <h4>${animal.name || "-"}</h4>
                 <p>${animal.type || "-"}</p>
                 <p>${animal.breed || "-"}</p>
