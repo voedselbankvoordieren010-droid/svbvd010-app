@@ -445,8 +445,6 @@ if (warningBtn) {
       modal.remove();
     };
 }
-}
-
 
 async function updateClientStatus(
   supabase,
@@ -544,4 +542,5 @@ async function safeSendEmail(to, subject, text, html) {
   } catch (error) {
     console.warn("Email send failed, continuing zonder blokkade:", error);
   }
+}
 }
