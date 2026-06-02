@@ -385,8 +385,6 @@ if (editBtn) {
   };
 }
 
-let editMode = false;
-
 const editBtn =
   document.getElementById(
     "editClientBtn"
