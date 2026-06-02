@@ -431,4 +431,5 @@ if (warningBtn) {
         "Waarschuwing opgeslagen"
       );
     };
+  }
 }
