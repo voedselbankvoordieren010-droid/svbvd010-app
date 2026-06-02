@@ -143,7 +143,9 @@ export async function showClientDetails(
   <div class="info-card">
     <h3>Notities</h3>
       <p id="generalNotesText">${client.notes || "Geen notities"}</p>
-</div>
+  </div>
+
+      </div>
 
       <div
         id="animals"
@@ -177,8 +179,17 @@ export async function showClientDetails(
   <button
     id="editClientBtn"
     class="btn"
+    type="button"
   >
     Bewerken
+  </button>
+
+  <button
+    id="saveClientDetailsBtn"
+    class="btn hidden"
+    type="button"
+  >
+    Opslaan
   </button>
 
   <button
@@ -192,6 +203,7 @@ export async function showClientDetails(
   <button
     id="warningClientBtn"
     class="btn btn-secondary"
+    type="button"
   >
     Waarschuwing
   </button>
@@ -200,6 +212,7 @@ export async function showClientDetails(
         <button
           id="closeClientDetails"
           class="btn"
+          type="button"
         >
           Sluiten
         </button>
@@ -246,25 +259,37 @@ const editBtn =
     "editClientBtn"
   );
 
+const saveBtn =
+  document.getElementById(
+    "saveClientDetailsBtn"
+  );
+
+const cancelBtn =
+  document.getElementById(
+    "cancelEditBtn"
+  );
+
 if (editBtn) {
 
   editBtn.onclick =
     async () => {
 
-      if (!editMode) {
+      if (editMode) {
+        return;
+      }
 
-        editMode = true;
+      editMode = true;
 
-        const generalPanel =
-          modal.querySelector(
-            "#general"
-          );
+      const generalPanel =
+        modal.querySelector(
+          "#general"
+        );
 
-        if (!generalPanel) {
-          return;
-        }
+      if (!generalPanel) {
+        return;
+      }
 
-        generalPanel.innerHTML = `
+      generalPanel.innerHTML = `
 
           <h2>
             ${client.full_name}
@@ -329,65 +354,69 @@ if (editBtn) {
 
         `;
 
-        editBtn.textContent =
-          "Opslaan";
+      editBtn.classList.add(
+        "hidden"
+      );
 
-        const cancelBtn =
-          document.getElementById(
-            "cancelEditBtn"
-          );
-
-        if (cancelBtn) {
-          cancelBtn.classList.remove(
-            "hidden"
-          );
-          cancelBtn.onclick =
-            () => {
-              showClientDetails(
-                client,
-                supabase,
-                state
-              );
-            };
-        }
-
-        return;
+      if (cancelBtn) {
+        cancelBtn.classList.remove(
+          "hidden"
+        );
+        cancelBtn.onclick =
+          () => {
+            showClientDetails(
+              client,
+              supabase,
+              state
+            );
+          };
       }
 
+      if (saveBtn) {
+        saveBtn.classList.remove(
+          "hidden"
+        );
+      }
+    };
+}
+
+if (saveBtn) {
+  saveBtn.onclick =
+    async () => {
       const full_name =
         document.getElementById(
           "editFullName"
-        ).value;
+        )?.value || "";
 
       const email =
         document.getElementById(
           "editEmail"
-        ).value;
+        )?.value || "";
 
       const phone =
         document.getElementById(
           "editPhone"
-        ).value;
+        )?.value || "";
 
       const city =
         document.getElementById(
           "editCity"
-        ).value;
+        )?.value || "";
 
       const address =
         document.getElementById(
           "editAddress"
-        ).value;
+        )?.value || "";
 
       const postal_code =
         document.getElementById(
           "editPostalCode"
-        ).value;
+        )?.value || "";
 
       const notes =
         document.getElementById(
           "editNotes"
-        ).value;
+        )?.value || "";
 
       const { error } =
         await supabase
@@ -407,11 +436,9 @@ if (editBtn) {
           );
 
       if (error) {
-
         alert(
           error.message
         );
-
         return;
       }
 
