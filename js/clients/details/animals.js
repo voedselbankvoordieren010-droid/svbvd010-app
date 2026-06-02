@@ -178,7 +178,7 @@ ${
     </div>
   `;
 
-  const addBtn = document.getElementById("addAnimalBtn");
+  const addBtn = panel.querySelector("#addAnimalBtn");
   if (!addBtn) {
     return;
   }
@@ -224,23 +224,23 @@ ${
 
     document.body.appendChild(modal);
 
-    const closeBtn = document.getElementById("closeAnimalBtn");
+    const closeBtn = modal.querySelector("#closeAnimalBtn");
     if (closeBtn) {
       closeBtn.onclick = () => {
         modal.remove();
       };
     }
 
-    const saveBtn = document.getElementById("saveAnimalBtn");
+    const saveBtn = modal.querySelector("#saveAnimalBtn");
     if (!saveBtn) {
       return;
     }
 
     const getValue = (id) =>
-      document.getElementById(id)?.value?.trim() || "";
+      modal.querySelector(id ? `#${id}` : "")?.value?.trim() || "";
 
     const getChecked = (id) =>
-      document.getElementById(id)?.checked || false;
+      modal.querySelector(id ? `#${id}` : "")?.checked || false;
 
     saveBtn.onclick = async () => {
       const name = getValue("animalName");
