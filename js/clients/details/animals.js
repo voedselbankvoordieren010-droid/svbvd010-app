@@ -194,10 +194,10 @@ ${
     }
 
     const modal = document.createElement("div");
-    modal.className = "animal-modal-overlay";
+    modal.className = "modal-overlay";
 
     modal.innerHTML = `
-      <div class="animal-modal">
+      <div class="modal">
         <h2>${animal ? "Dier bewerken" : "Dier toevoegen"}</h2>
         <input id="animalName" placeholder="Naam" value="${animal?.name || ""}">
         <input id="animalType" placeholder="Soort" value="${animal?.type || ""}">
@@ -299,7 +299,7 @@ ${
     };
   };
 
-  addBtn.onclick = openAnimalModal;
+  addBtn.onclick = () => openAnimalModal();
 
   document.querySelectorAll(
     ".delete-animal-btn"
