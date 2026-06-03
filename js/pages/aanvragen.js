@@ -43,6 +43,13 @@ export async function loadAanvragen(
     <h1>Aanvragen</h1>
   `;
 
+  if (!data || data.length === 0) {
+    container.innerHTML += `
+      <p>Er zijn op dit moment geen nieuwe aanvragen.</p>
+    `;
+    return;
+  }
+
   data.forEach(
     aanvraag => {
 

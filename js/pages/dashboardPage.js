@@ -5,8 +5,7 @@ import { loadClients } from "../clients/index.js";
 import { renderVolunteerPage } from "./volunteerPage.js";
 // admin agenda is now handled by FullCalendar
 import { loadFullCalendar } from "../calendar/fullCalendar.js";
-import { loadAanvragen }
-  from "./Aanvragen.js";
+import { loadAanvragen } from "./aanvragen.js";
 export async function renderDashboard(supabase, state) {
   const app = document.getElementById("app");
 
@@ -77,9 +76,9 @@ export async function renderDashboard(supabase, state) {
     <section id="dashboard" class="tab-panel">
       <h1>Dashboard</h1>
       <div class="cards">
-        <div class="card">Nieuw</div>
-        <div class="card">Intake</div>
-        <div class="card">Spoed</div>
+        <div id="cardNieuw" class="card">Nieuw</div>
+        <div id="cardIntake" class="card">Intake</div>
+        <div id="cardSpoed" class="card">Spoed</div>
         <div id="loadFullCalendar" class="card calendar-card"></div>
       </div>
     </section>
@@ -121,12 +120,32 @@ export async function renderDashboard(supabase, state) {
   const canViewClients = ["admin", "hulpverlener", "intake"].includes(role);
   const canViewAgenda = ["admin", "hulpverlener"].includes(role);
 
+  async function updateDashboardCounts() {
+    const { data, error } = await supabase
+      .from("client_aanvragen")
+      .select("status");
+
+    const counts = { nieuw: 0, intake: 0, spoed: 0 };
+    if (!error && Array.isArray(data)) {
+      data.forEach(item => {
+        if (item.status === "nieuw") counts.nieuw += 1;
+        if (item.status === "intake") counts.intake += 1;
+        if (item.status === "spoed") counts.spoed += 1;
+      });
+    }
+
+    document.getElementById("cardNieuw").textContent = `Nieuw (${counts.nieuw})`;
+    document.getElementById("cardIntake").textContent = `Intake (${counts.intake})`;
+    document.getElementById("cardSpoed").textContent = `Spoed (${counts.spoed})`;
+  }
+
   const dashboardHeading = document.querySelector("#dashboard h1");
   if (dashboardHeading) {
     dashboardHeading.textContent = pageTitle;
   }
 
   await loadNotifications(supabase, state);
+  await updateDashboardCounts();
 
   await loadFullCalendar(supabase, state);
 

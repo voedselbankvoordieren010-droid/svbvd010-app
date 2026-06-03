@@ -186,7 +186,7 @@ export function initClientModal(
           const {
             error
           } = await supabase
-  .from("Nieuwe aanvraag")
+  .from("client_aanvragen")
   .insert(aanvraag);
           if (error) {
 
