@@ -14,6 +14,10 @@ import {
   renderClientNotes
 } from "./notes.js";
 
+import {
+  renderClientDistributions
+} from "./distributions.js";
+
 export async function showClientDetails(
   client,
   supabase,
@@ -85,6 +89,13 @@ export async function showClientDetails(
           Notities
         </button>
 
+        <button
+          class="client-tab-btn"
+          data-client-tab="distributions"
+        >
+          Uitgifte historie
+        </button>
+
       </div>
 
       <div
@@ -142,7 +153,7 @@ export async function showClientDetails(
 
   <div class="info-card">
     <h3>Notities</h3>
-      <p id="generalNotesText">${client.notes || "Geen notities"}</p>
+      <p id="generalNotesText">${(client.notes || "").split("\n").filter(line => line && !line.startsWith("[UITGIFTE]")).join("\n") || "Geen notities"}</p>
   </div>
 
   <div class="info-card">
@@ -177,6 +188,22 @@ export async function showClientDetails(
           hidden
         "
       >
+      </div>
+
+      <div
+        id="distributions"
+        class="
+          client-tab-panel
+          hidden
+        "
+      >
+        <h3>Uitgifte historie</h3>
+        <div id="clientDistributionList"></div>
+        <div class="modal-actions" style="margin-top:16px;">
+          <button id="addDistributionBtn" class="btn" type="button">
+            + Nieuwe uitgifte
+          </button>
+        </div>
       </div>
 
       <div class="modal-actions">
@@ -248,6 +275,12 @@ export async function showClientDetails(
   await renderClientNotes(
     client,
     supabase
+  );
+
+  await renderClientDistributions(
+    client,
+    supabase,
+    state
   );
 
   document
@@ -471,6 +504,95 @@ if (saveBtn) {
         state
       );
     };
+}
+
+async function renderClientDistributions(client, supabase, state) {
+  const listEl = document.getElementById(
+    "clientDistributionList"
+  );
+  if (!listEl) {
+    return;
+  }
+
+  const distributionLines = (client.notes || "")
+    .split("\n")
+    .map(line => line.trim())
+    .filter(Boolean)
+    .filter(line => line.startsWith("[UITGIFTE]"));
+
+  if (!distributionLines.length) {
+    listEl.innerHTML = `
+      <p>Geen uitgiftegeschiedenis gevonden.</p>
+    `;
+  } else {
+    listEl.innerHTML = `
+      <ul class="distribution-list">
+        ${distributionLines
+          .map(line => `
+            <li>${line.replace(/^\[UITGIFTE\]\s*/, "")}</li>
+          `)
+          .join("")}
+      </ul>
+    `;
+  }
+
+  const addBtn = document.getElementById(
+    "addDistributionBtn"
+  );
+
+  if (!addBtn) {
+    return;
+  }
+
+  addBtn.onclick = async () => {
+    const item = prompt("Welk product is uitgegeven?");
+    if (!item) {
+      return;
+    }
+
+    const amount = prompt("Hoeveelheid?");
+    if (!amount) {
+      return;
+    }
+
+    const note = prompt("Extra toelichting (optioneel)")?.trim() || "";
+    const userName =
+      state?.profile?.full_name ||
+      state?.profile?.email ||
+      "Systeem";
+    const date = new Date().toLocaleDateString("nl-NL");
+    const distributionLine = `[UITGIFTE] ${date} - ${amount} ${item}${note ? ` - ${note}` : ""} - door ${userName}`;
+
+    const existingDistributionLines = (client.notes || "")
+      .split("\n")
+      .filter(line => line.startsWith("[UITGIFTE]"));
+
+    const otherLines = (client.notes || "")
+      .split("\n")
+      .filter(line => line && !line.startsWith("[UITGIFTE]"));
+
+    const updatedNotes = [
+      ...existingDistributionLines,
+      distributionLine,
+      ...otherLines
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const { error } = await supabase
+      .from("clients")
+      .update({ notes: updatedNotes })
+      .eq("id", client.id);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    client.notes = updatedNotes;
+    await renderClientDistributions(client, supabase, state);
+    await renderClientNotes(client, supabase);
+  };
 }
 
 function updateGeneralAnimalsSummary(animals = []) {

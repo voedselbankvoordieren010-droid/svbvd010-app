@@ -3,6 +3,7 @@ import { initChat } from "../chat.js";
 import { loadUsers } from "../admin.js";
 import { loadClients } from "../clients/index.js";
 import { renderVolunteerPage } from "./volunteerPage.js";
+import { renderDistributionsPage } from "./distributionsPage.js";
 // admin agenda is now handled by FullCalendar
 import { loadFullCalendar } from "../calendar/fullCalendar.js";
 import { loadAanvragen } from "./aanvragen.js";
@@ -43,6 +44,9 @@ export async function renderDashboard(supabase, state) {
       <button class="tab-button btn" data-tab="aanvragen">
        Aanvragen
       </button>
+      <button class="tab-button btn" data-tab="distributions">
+        Uitgiftes
+      </button>
     </nav>
   </aside>
 
@@ -76,9 +80,13 @@ export async function renderDashboard(supabase, state) {
     <section id="dashboard" class="tab-panel">
       <h1>Dashboard</h1>
       <div class="cards">
+        <div id="cardClients" class="card">Cliënten</div>
+        <div id="cardVolunteers" class="card">Vrijwilligers</div>
         <div id="cardNieuw" class="card">Nieuw</div>
         <div id="cardIntake" class="card">Intake</div>
         <div id="cardSpoed" class="card">Spoed</div>
+        <div id="cardUitgiftes" class="card">Uitgiftes deze maand</div>
+        <div id="cardWarnings" class="card">Waarschuwingen</div>
         <div id="loadFullCalendar" class="card calendar-card"></div>
       </div>
     </section>
@@ -105,10 +113,8 @@ export async function renderDashboard(supabase, state) {
     </section>
 
     <section id="clients" class="tab-panel hidden"></section>
-  <section
-  id="aanvragen"
-  class="tab-panel hidden"
-></section>
+    <section id="aanvragen" class="tab-panel hidden"></section>
+    <section id="distributions" class="tab-panel hidden"></section>
     </main>
 </div>
 `;
@@ -119,24 +125,90 @@ export async function renderDashboard(supabase, state) {
   const canViewVolunteer = ["admin", "hulpverlener"].includes(role);
   const canViewClients = ["admin", "hulpverlener", "intake"].includes(role);
   const canViewAgenda = ["admin", "hulpverlener"].includes(role);
+  const canViewDistributions = ["admin", "hulpverlener"].includes(role);
 
   async function updateDashboardCounts() {
-    const { data, error } = await supabase
-      .from("client_aanvragen")
-      .select("status, opmerkingen");
+    const [aanvragenRes, clientsRes, volunteersRes, distributionsRes] = await Promise.all([
+      supabase.from("client_aanvragen").select("status, opmerkingen"),
+      supabase.from("clients").select("warning_notes"),
+      supabase.from("profiles").select("id").eq("role", "vrijwilliger"),
+      supabase.from("client_distributions").select("id, date, created_at")
+    ]);
 
-    const counts = { nieuw: 0, intake: 0, spoed: 0 };
-    if (!error && Array.isArray(data)) {
-      data.forEach(item => {
+    const counts = {
+      nieuw: 0,
+      intake: 0,
+      spoed: 0,
+      clients: 0,
+      volunteers: 0,
+      warnings: 0,
+      uitgiftes: 0
+    };
+
+    if (!aanvragenRes.error && Array.isArray(aanvragenRes.data)) {
+      aanvragenRes.data.forEach(item => {
         if (item.status === "nieuw") counts.nieuw += 1;
         if (item.status === "intake") counts.intake += 1;
         if (typeof item.opmerkingen === "string" && item.opmerkingen.startsWith("[SPOED]")) counts.spoed += 1;
       });
     }
 
-    document.getElementById("cardNieuw").textContent = `Nieuw (${counts.nieuw})`;
-    document.getElementById("cardIntake").textContent = `Intake (${counts.intake})`;
-    document.getElementById("cardSpoed").textContent = `Spoed (${counts.spoed})`;
+    const now = new Date();
+    const parseDistributionDate = value => {
+      if (!value) return null;
+      const parsed = new Date(value);
+      if (!isNaN(parsed)) {
+        return parsed;
+      }
+      const parts = value.split(/[-/]/).map(Number);
+      if (parts.length !== 3) return null;
+      let [year, month, day] = parts;
+      if (year < 100) {
+        year += year > 50 ? 1900 : 2000;
+      }
+      if (parts[0] > 31) {
+        [day, month, year] = parts;
+      }
+      return new Date(year, month - 1, day);
+    };
+
+    const isCurrentMonth = value => {
+      const date = parseDistributionDate(value);
+      return date && date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth();
+    };
+
+    if (!clientsRes.error && Array.isArray(clientsRes.data)) {
+      counts.clients = clientsRes.data.length;
+      counts.warnings = clientsRes.data.filter(client => client.warning_notes).length;
+    }
+
+    if (!volunteersRes.error && Array.isArray(volunteersRes.data)) {
+      counts.volunteers = volunteersRes.data.length;
+    }
+
+    if (!distributionsRes.error && Array.isArray(distributionsRes.data)) {
+      counts.uitgiftes = distributionsRes.data.filter(row => isCurrentMonth(row.date || row.created_at)).length;
+    }
+
+    if (!volunteersRes.error && Array.isArray(volunteersRes.data)) {
+      counts.volunteers = volunteersRes.data.length;
+    }
+
+    const clientsCard = document.getElementById("cardClients");
+    const volunteersCard = document.getElementById("cardVolunteers");
+    const warningsCard = document.getElementById("cardWarnings");
+    const nieuwCard = document.getElementById("cardNieuw");
+    const intakeCard = document.getElementById("cardIntake");
+    const spoedCard = document.getElementById("cardSpoed");
+    const uitgiftesCard = document.getElementById("cardUitgiftes");
+
+    if (clientsCard) clientsCard.textContent = `Cliënten (${counts.clients})`;
+    if (volunteersCard) volunteersCard.textContent = `Vrijwilligers (${counts.volunteers})`;
+    if (nieuwCard) nieuwCard.textContent = `Nieuw (${counts.nieuw})`;
+    if (intakeCard) intakeCard.textContent = `Intake (${counts.intake})`;
+    if (spoedCard) spoedCard.textContent = `Spoed (${counts.spoed})`;
+    if (uitgiftesCard) uitgiftesCard.textContent = `Uitgiftes deze maand (${counts.uitgiftes})`;
+    if (warningsCard) warningsCard.textContent = `Waarschuwingen (${counts.warnings})`;
   }
 
   const dashboardHeading = document.querySelector("#dashboard h1");
@@ -182,6 +254,12 @@ export async function renderDashboard(supabase, state) {
     }
   }
 
+  if (!canViewDistributions) {
+    const distributionsBtn = document.querySelector('[data-tab="distributions"]');
+    if (distributionsBtn) {
+      distributionsBtn.remove();
+    }
+  }
 
   const notifBell = document.getElementById("notifBell");
   const notifBox = document.getElementById("notifications");
@@ -246,6 +324,9 @@ export async function renderDashboard(supabase, state) {
     state
   );
 }
+      if (btn.dataset.tab === "distributions") {
+        renderDistributionsPage(supabase, state);
+      }
       if (btn.dataset.tab === "chat") {
         if (chat && chat.loadMessages) {
           chat.loadMessages();

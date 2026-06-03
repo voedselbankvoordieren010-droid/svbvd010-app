@@ -12,6 +12,12 @@ export async function renderClientNotes(
     return;
   }
 
+  const allNotes = client.notes || "";
+  const generalNotes = allNotes
+    .split("\n")
+    .filter(line => line && !line.startsWith("[UITGIFTE]"))
+    .join("\n");
+
   panel.innerHTML = `
 
     <h3>
@@ -23,7 +29,7 @@ export async function renderClientNotes(
         id="clientNotesTextarea"
         rows="8"
         placeholder="Typ hier notities..."
-      >${client.notes || ""}</textarea>
+      >${generalNotes}</textarea>
       <div class="modal-actions">
         <button
           id="saveClientNotesBtn"
@@ -45,10 +51,21 @@ export async function renderClientNotes(
   }
 
   saveBtn.onclick = async () => {
-    const notes =
+    const inputNotes =
       document.getElementById(
         "clientNotesTextarea"
-      )?.value?.trim() || "";
+      )?.value || "";
+
+    const distributionLines = (client.notes || "")
+      .split("\n")
+      .filter(line => line.startsWith("[UITGIFTE]"));
+
+    const notes = [
+      ...distributionLines,
+      ...inputNotes.split("\n")
+    ]
+      .filter(Boolean)
+      .join("\n");
 
     const { error } = await supabase
       .from("clients")
@@ -60,6 +77,7 @@ export async function renderClientNotes(
       return;
     }
 
+    client.notes = notes;
     alert("Notities opgeslagen");
 
     const generalNotes =
@@ -69,7 +87,7 @@ export async function renderClientNotes(
 
     if (generalNotes) {
       generalNotes.textContent =
-        notes || "Geen notities";
+        inputNotes.trim() || "Geen notities";
     }
   };
 }

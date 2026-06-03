@@ -35,9 +35,10 @@ export async function loadFullCalendar(
 
     `;
 
-  const [{ data, error }, { data: clientsData }] = await Promise.all([
+  const [{ data, error }, { data: clientsData }, { data: usersData }] = await Promise.all([
     supabase.from("events").select("*"),
-    supabase.from("clients").select("id, full_name").order("full_name", { ascending: true })
+    supabase.from("clients").select("id, full_name").order("full_name", { ascending: true }),
+    supabase.from("profiles").select("id, full_name, role")
   ]);
 
   if (error) {
@@ -215,6 +216,7 @@ export async function loadFullCalendar(
         <label>Start<br><input id="fcStart" type="datetime-local" style="width:100%"></label>
         <label>Eind<br><input id="fcEnd" type="datetime-local" style="width:100%"></label>
         <label>Cliënt<br><select id="fcClient" style="width:100%"><option value="">Alle cliënten</option>${clients.map(c=>`<option value="${c.id}">${c.full_name}</option>`).join("")}</select></label>
+      <label>Toegewezen vrijwilliger<br><select id="fcAssignee" style="width:100%"><option value="">Geen toegewezen vrijwilliger</option>${(Array.isArray(usersData) ? usersData : []).map(u => `<option value="${u.id}">${u.full_name || u.email || u.id}</option>`).join("")}</select></label>
         <div style="margin-top:8px;text-align:right">
           <button id="fcIcs">Download ICS</button>
           <button id="fcDelete" style="margin-left:8px">Verwijderen</button>
@@ -242,10 +244,16 @@ export async function loadFullCalendar(
     const modal = createModal();
     document.getElementById("fcModalTitle").textContent = orig.title || eventObj.title || "Event";
     document.getElementById("fcTitle").value = orig.title || eventObj.title || "";
-    document.getElementById("fcDescription").value = orig.description || orig.note || "";
+    let description = orig.description || orig.note || "";
+    const assignedLabelMatch = description.match(/^\[Assigned to:\s*([^\]]+)\]\s*\n?/);
+    if (assignedLabelMatch) {
+      description = description.replace(assignedLabelMatch[0], "");
+    }
+    document.getElementById("fcDescription").value = description;
     document.getElementById("fcStart").value = toInputValue(orig.start_at || eventObj.start);
     document.getElementById("fcEnd").value = toInputValue(orig.end_at || eventObj.end || eventObj.start);
     document.getElementById("fcClient").value = orig.client_id || "";
+    document.getElementById("fcAssignee").value = orig.assigned_to || "";
 
     document.getElementById("fcCancel").onclick = () => closeModal(modal);
 
@@ -286,12 +294,19 @@ export async function loadFullCalendar(
 
       if (!title || !start_at) { alert("Vul titel en starttijd in"); return; }
 
+      const assigned_to = document.getElementById("fcAssignee").value || null;
+      const assignedVolunteer = Array.isArray(usersData)
+        ? usersData.find(u => String(u.id) === String(assigned_to))
+        : null;
+      const assignedName = assignedVolunteer?.full_name || "";
+
       const payload = {
         title,
         description,
         start_at: new Date(start_at).toISOString(),
         end_at: new Date(end_at).toISOString(),
         client_id,
+        assigned_to: assigned_to || null
       };
 
       let res;
@@ -301,7 +316,30 @@ export async function loadFullCalendar(
         res = await supabase.from("events").insert(payload).select();
       }
 
-      if (res.error) { console.error(res.error); alert("Fout bij opslaan"); return; }
+      if (res.error && assigned_to) {
+        const fallbackDescription = assignedName
+          ? `[Assigned to: ${assignedName}]\n${description}`
+          : description;
+        const fallbackPayload = {
+          title,
+          description: fallbackDescription,
+          start_at: new Date(start_at).toISOString(),
+          end_at: new Date(end_at).toISOString(),
+          client_id
+        };
+
+        if (orig.id) {
+          res = await supabase.from("events").update(fallbackPayload).eq("id", orig.id).select();
+        } else {
+          res = await supabase.from("events").insert(fallbackPayload).select();
+        }
+      }
+
+      if (res.error) {
+        console.error(res.error);
+        alert("Fout bij opslaan");
+        return;
+      }
       const saved = Array.isArray(res.data) ? res.data[0] : res.data;
       await notifyClientsForEvent(supabase, saved);
       closeModal(modal);

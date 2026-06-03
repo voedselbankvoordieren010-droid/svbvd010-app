@@ -141,7 +141,7 @@ export async function loadClients(
 
         <input
           id="clientSearch"
-          placeholder="Zoek cliënt..."
+          placeholder="Zoek op naam, email, telefoon, plaats, postcode of status..."
         >
 
       </div>
@@ -162,11 +162,27 @@ export async function loadClients(
         const safeStatus =
           client.status || "nieuw";
 
+        const searchName = client.full_name || "";
+        const searchEmail = client.email || "";
+        const searchPhone = client.phone || "";
+        const searchCity = client.city || client.address || "";
+        const searchAddress = client.address || "";
+        const searchPostal = client.postal_code || "";
+        const searchWarning = client.warning_notes || "";
+
         return `
 
   <div
     class="client-card"
     data-id="${client.id}"
+    data-search-name="${searchName}"
+    data-search-email="${searchEmail}"
+    data-search-phone="${searchPhone}"
+    data-search-city="${searchCity}"
+    data-search-address="${searchAddress}"
+    data-search-postal="${searchPostal}"
+    data-search-status="${safeStatus}"
+    data-search-warning="${searchWarning}"
   >
 
     <h3>
@@ -180,6 +196,16 @@ export async function loadClients(
     <p>
       ${client.phone || "-"}
     </p>
+
+    <p>
+      ${client.city || client.address || "-"}
+    </p>
+
+    ${client.postal_code ? `
+      <p>
+        ${client.postal_code}
+      </p>
+    ` : ""}
 
     <div
       class="

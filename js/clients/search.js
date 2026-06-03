@@ -24,10 +24,22 @@ export function initClientSearch() {
         )
         .forEach(card => {
 
+          const searchText = [
+            card.dataset.searchName,
+            card.dataset.searchEmail,
+            card.dataset.searchPhone,
+            card.dataset.searchCity,
+            card.dataset.searchAddress,
+            card.dataset.searchPostal,
+            card.dataset.searchStatus,
+            card.dataset.searchWarning
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+
           const visible =
-            card.innerText
-              .toLowerCase()
-              .includes(value);
+            !value || searchText.includes(value);
 
           card.style.display =
             visible
