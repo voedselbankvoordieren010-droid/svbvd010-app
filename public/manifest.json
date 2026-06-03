@@ -29,15 +29,15 @@
   "screenshots": [
 
     {
-      "src": "/screenshot-desktop.png",
+      "src": "/screenshot-desktop-v2.png",
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide"
     },
 
     {
-      "src": "/screenshot-mobile.png",
-      "sizes": "390x844",
+      "src": "/screenshot-mobile-v2.png",
+ "sizes": "390x844",
       "type": "image/png"
     }
   ]

@@ -7,6 +7,8 @@ const STATIC_FILES = [
   "./manifest.json",
   "./logo-192.png",
   "./logo-512.png",
+  "./screenshot-desktop-v2.png",
+  "./screenshot-mobile-v2.png",
   "./fullcalendar-core.css",
   "./fullcalendar-daygrid.css"
 
