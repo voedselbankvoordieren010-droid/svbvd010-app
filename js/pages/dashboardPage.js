@@ -123,14 +123,14 @@ export async function renderDashboard(supabase, state) {
   async function updateDashboardCounts() {
     const { data, error } = await supabase
       .from("client_aanvragen")
-      .select("status");
+      .select("status, opmerkingen");
 
     const counts = { nieuw: 0, intake: 0, spoed: 0 };
     if (!error && Array.isArray(data)) {
       data.forEach(item => {
         if (item.status === "nieuw") counts.nieuw += 1;
         if (item.status === "intake") counts.intake += 1;
-        if (item.status === "spoed") counts.spoed += 1;
+        if (typeof item.opmerkingen === "string" && item.opmerkingen.startsWith("[SPOED]")) counts.spoed += 1;
       });
     }
 

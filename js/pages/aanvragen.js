@@ -71,6 +71,7 @@ export async function loadAanvragen(
           <span>
             ${aanvraag.status}
           </span>
+          ${aanvraag.opmerkingen?.startsWith("[SPOED]") ? '<strong class="urgent-tag">SPOED</strong>' : ""}
 
           <div>
 

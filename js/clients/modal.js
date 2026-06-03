@@ -175,23 +175,24 @@ export function initClientModal(
               "clientNotes"
             )?.value?.trim() || "";
 
-          const status =
+          const selectedType =
             document.getElementById(
               "clientStatus"
             )?.value || "nieuw";
 
+          const isSpoed = selectedType === "spoed";
           const aanvraag = {
   naam: full_name,
   email,
   telefoon: phone,
   adres: address,
-  opmerkingen: notes,
+  opmerkingen: isSpoed ? `[SPOED] ${notes}` : notes,
   hulpverlener_id: state.profile.id,
-  status
+  status: "nieuw"
 };
 
           if (state.profile?.role === "hulpverlener") {
-            clientRecord.created_by = state.session.user.id;
+            aanvraag.created_by = state.session.user.id;
           }
 
           const {
