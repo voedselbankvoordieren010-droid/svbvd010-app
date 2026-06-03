@@ -84,6 +84,12 @@ export function initClientModal(
             placeholder="Notities"
           ></textarea>
 
+          <label for="clientStatus">Type aanvraag</label>
+          <select id="clientStatus">
+            <option value="nieuw">Standaard aanvraag</option>
+            <option value="spoed">Spoed aanvraag</option>
+          </select>
+
           <div class="modal-actions">
 
             <button
@@ -169,6 +175,11 @@ export function initClientModal(
               "clientNotes"
             )?.value?.trim() || "";
 
+          const status =
+            document.getElementById(
+              "clientStatus"
+            )?.value || "nieuw";
+
           const aanvraag = {
   naam: full_name,
   email,
@@ -176,7 +187,7 @@ export function initClientModal(
   adres: address,
   opmerkingen: notes,
   hulpverlener_id: state.profile.id,
-  status: "nieuw"
+  status
 };
 
           if (state.profile?.role === "hulpverlener") {

@@ -222,6 +222,7 @@ export async function renderDashboard(supabase, state) {
       }
 
       if (btn.dataset.tab === "dashboard") {
+        updateDashboardCounts();
         loadFullCalendar(supabase, state).then(() => {
           window.dispatchEvent(new Event("resize"));
         });
