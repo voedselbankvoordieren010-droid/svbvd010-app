@@ -42,242 +42,92 @@
     href="./logo-192.png"
   />
 
+  <style>
+    .app-preloader {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 18px;
+      color: #1f2937;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      text-align: center;
+      padding: 24px;
+      background: #fff8f0;
+    }
+
+    .app-preloader .brand-mark {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #ff6b00, #ffa500);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 16px 40px rgba(255, 107, 0, 0.14);
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      font-size: 0.95rem;
+    }
+
+    .app-preloader .spinner {
+      width: 42px;
+      height: 42px;
+      border: 4px solid rgba(255, 107, 0, 0.2);
+      border-top-color: #ff6b00;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .app-preloader .label {
+      font-size: 1rem;
+      color: #374151;
+    }
+
+    .app-preloader .subtext {
+      font-size: 0.9rem;
+      color: #6b7280;
+      max-width: 280px;
+      line-height: 1.5;
+    }
+
+    .app-preloader {
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .app-preloader.fade-out {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 
 <body>
-
   <div id="app">
-
-    <!-- TOPBAR -->
-
-    <header class="topbar">
-
-      <div id="userMeta">
-        Laden...
-      </div>
-
-      <div
-        style="
-          display:flex;
-          align-items:center;
-          gap:12px;
-        "
-      >
-
-        <!-- NOTIFICATIONS -->
-
-        <button
-          id="notifBell"
-          aria-label="
-            Notificaties
-          "
-        >
-          🔔
-        </button>
-
-        <span id="notifCount">
-        </span>
-
-        <!-- LOGOUT -->
-
-        <button id="logoutBtn">
-          Logout
-        </button>
-
-      </div>
-
-    </header>
-
-    <!-- TABS -->
-
-    <nav class="tabs">
-
-      <button
-        class="
-          tab-button
-          is-active
-        "
-        data-tab="chat"
-      >
-        Chat
-      </button>
-
-      <button
-        class="tab-button"
-        data-tab="clients"
-      >
-        Cliënten
-      </button>
-
-      <button
-        class="tab-button"
-        data-tab="admin"
-      >
-        Admin
-      </button>
-
-    </nav>
-
-    <!-- CHAT -->
-
-    <main
-      id="chat"
-      class="tab-panel"
-    >
-
-      <div id="chatHeader">
-        Chat
-      </div>
-
-      <div id="chatConversations">
-      </div>
-
-      <div id="chatList">
-      </div>
-
-      <div class="chat-input-row">
-
-        <input
-          id="chatInput"
-          type="text"
-          placeholder="
-            Typ een bericht...
-          "
-          autocomplete="off"
-        >
-
-        <button id="sendChatBtn">
-          Verzenden
-        </button>
-
-      </div>
-
-    </main>
-
-    <!-- CLIENTS -->
-
-    <section
-      id="clients"
-      class="
-        tab-panel
-        hidden
-      "
-    >
-    </section>
-
-    <!-- ADMIN -->
-
-    <section
-      id="admin"
-      class="
-        tab-panel
-        hidden
-      "
-    >
-
-      <div class="cards">
-
-        <div class="card">
-
-          <h3>
-            Totaal
-          </h3>
-
-          <p id="adminTotal">
-            0
-          </p>
-
-        </div>
-
-        <div class="card">
-
-          <h3>
-            Wachtend
-          </h3>
-
-          <p id="adminPending">
-            0
-          </p>
-
-        </div>
-
-        <div class="card">
-
-          <h3>
-            Goedgekeurd
-          </h3>
-
-          <p id="adminApproved">
-            0
-          </p>
-
-        </div>
-
-      </div>
-
-      <div
-        id="userList"
-        class="cards"
-      >
-      </div>
-
-    </section>
-
-    <!-- NOTIFICATIONS PANEL -->
-
-    <div
-      id="notifications"
-      class="hidden"
-    >
+    <div class="app-preloader">
+      <div class="brand-mark">SVB</div>
+      <div class="spinner"></div>
+      <div class="label">SVBVD010 laden</div>
+      <div class="subtext">Even geduld, de applicatie wordt geopend.</div>
     </div>
-
   </div>
 
-  <!-- MAIN -->
-
-  <script
-    type="module"
-    src="./js/main.js"
-  ></script>
-
-  <!-- SERVICE WORKER -->
+  <script type="module" src="./js/main.js"></script>
 
   <script>
-
-    if (
-      "serviceWorker" in navigator
-    ) {
-
-      window.addEventListener(
-        "load",
-        () => {
-
-          navigator
-            .serviceWorker
-            .register(
-              "/service-worker.js"
-            )
-
-            .then(() => {
-
-              console.log(
-                "SW REGISTERED"
-              );
-            })
-
-            .catch(err => {
-
-              console.error(
-                "SW ERROR:",
-                err
-              );
-            });
-        }
-      );
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/service-worker.js")
+          .then(() => console.log("SW REGISTERED"))
+          .catch(err => console.error("SW ERROR:", err));
+      });
     }
-
   </script>
-
 </body>
 
 </html>

@@ -25,7 +25,31 @@ function requiresTwoFactor(profile) {
   return profile && ["client", "hulpverlener"].includes(profile.role);
 }
 
+function fadeOutPreloader() {
+  return new Promise(resolve => {
+    const loader = document.querySelector(".app-preloader");
+    if (!loader) {
+      resolve();
+      return;
+    }
+
+    const finish = () => {
+      const app = document.getElementById("app");
+      if (app && app.contains(loader)) {
+        app.removeChild(loader);
+      }
+      resolve();
+    };
+
+    loader.classList.add("fade-out");
+    loader.addEventListener("transitionend", finish, { once: true });
+    setTimeout(finish, 500);
+  });
+}
+
 async function routeAuthenticated() {
+  await fadeOutPreloader();
+
   const role = state.profile?.role;
   if (role === "client") {
     await renderClientPortal(supabase, state);
@@ -39,8 +63,6 @@ async function routeAuthenticated() {
 
 async function init() {
   console.log("INIT START");
-
-  await new Promise(resolve => setTimeout(resolve, 1000));
 
   const hash = window.location.hash;
   if (hash && hash.includes("access_token")) {

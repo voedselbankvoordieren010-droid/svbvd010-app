@@ -130,7 +130,7 @@ export async function renderDashboard(supabase, state) {
   async function updateDashboardCounts() {
     const [aanvragenRes, clientsRes, volunteersRes, distributionsRes] = await Promise.all([
       supabase.from("client_aanvragen").select("status, opmerkingen"),
-      supabase.from("clients").select("warning_notes"),
+      supabase.from("clients").select("warning_notes, notes"),
       supabase.from("profiles").select("id").eq("role", "vrijwilliger"),
       supabase.from("client_distributions").select("id, date, created_at")
     ]);
@@ -188,6 +188,14 @@ export async function renderDashboard(supabase, state) {
 
     if (!distributionsRes.error && Array.isArray(distributionsRes.data)) {
       counts.uitgiftes = distributionsRes.data.filter(row => isCurrentMonth(row.date || row.created_at)).length;
+    } else {
+      console.warn("client_distributions not available, falling back to note parsing", distributionsRes.error);
+      if (!clientsRes.error && Array.isArray(clientsRes.data)) {
+        counts.uitgiftes = clientsRes.data.reduce((sum, client) => {
+          const lines = (client.notes || "").split("\n").filter(line => line.startsWith("[UITGIFTE]") && isCurrentMonth(line));
+          return sum + lines.length;
+        }, 0);
+      }
     }
 
     if (!volunteersRes.error && Array.isArray(volunteersRes.data)) {

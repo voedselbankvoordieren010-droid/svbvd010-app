@@ -91,6 +91,57 @@ npm install
 npm run dev
 ```
 
+## Supabase database migratie
+
+De nieuwe `client_distributions` tabel houdt de uitgiftegeschiedenis gestructureerd bij.
+
+### SQL-schema
+
+```sql
+create table if not exists public.client_distributions (
+  id uuid primary key default gen_random_uuid(),
+  client_id uuid not null references public.clients(id) on delete cascade,
+  date date not null,
+  item text not null,
+  note text,
+  created_by uuid references public.profiles(id),
+  created_at timestamptz not null default now()
+);
+```
+
+### Aanmaken in Supabase
+
+1. Open het Supabase dashboard.
+2. Ga naar de `SQL editor`.
+3. Plak de inhoud van `scripts/create_client_distributions.sql`.
+4. Voer de query uit.
+
+### Optionele migratie van oude notities
+
+Als je oude uitgiftes nog als `[UITGIFTE]` regels in `clients.notes` hebt, kun je die via een SQL-migratie overzetten.
+
+Controleer eerst of je parsing werkt met een `SELECT` op `parsed` voordat je de `INSERT` uitvoert.
+
+### Optionele RLS policies
+
+Voor extra veiligheid kun je Row Level Security inschakelen op `client_distributions` en toegangsregels toevoegen.
+
+1. Open de `SQL editor` in Supabase.
+2. Plak de inhoud van `scripts/client_distributions_policies.sql`.
+3. Voer de query uit.
+
+Deze policies zijn afgestemd op de app-rolset:
+
+* `admin` — volledige beheerrechten
+* `hulpverlener` — distributeur en beheerder
+* `vrijwilliger` — distributeur
+
+De policy zorgt ervoor dat:
+
+* alleen staff-runs (`admin`, `hulpverlener`, `vrijwilliger`) distributies kunnen bekijken
+* alleen de maker of `admin` een record kan wijzigen of verwijderen
+* `created_by` overeenkomt met de ingelogde gebruiker bij insert
+
 ## SMTP / e-mail integratie
 
 Voor het versturen van e-mail via Microsoft 365 gebruiken we een kleine Node SMTP-server.
