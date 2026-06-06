@@ -292,6 +292,7 @@ export async function loginWithGoogle(
 ) {
 
   try {
+    try { document.activeElement && document.activeElement.blur(); } catch (e) {}
 
     const {
       error

@@ -38,7 +38,8 @@ export async function showLogin(supabase) {
 
   if (loginBtn) {
     loginBtn.onclick = async () => {
-      clearError();
+    clearError();
+    try { document.activeElement && document.activeElement.blur(); } catch (e) {}
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "azure",
@@ -78,6 +79,7 @@ export async function showLogin(supabase) {
   if (googleBtn) {
     googleBtn.onclick = async () => {
       clearError();
+      try { document.activeElement && document.activeElement.blur(); } catch (e) {}
       const { data, error } = await loginWithGoogle(supabase);
       if (error) {
         console.error('GOOGLE LOGIN ERROR:', error);
