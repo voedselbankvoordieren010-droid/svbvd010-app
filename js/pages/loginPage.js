@@ -38,7 +38,10 @@ export async function showLogin(supabase) {
   if (loginBtn) {
     loginBtn.onclick = async () => {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: "azure"
+        provider: "azure",
+        options: {
+          redirectTo: window.location.origin
+        }
       });
 
       if (error) {

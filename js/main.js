@@ -5,7 +5,6 @@ import { checkSession, loadProfile } from "./auth.js";
 import { showLogin } from "./pages/loginPage.js";
 import { renderClientPortal } from "./pages/clientPortalPage.js";
 import { renderDashboard } from "./pages/dashboardPage.js";
-import { showTwoFactorVerification } from "./pages/twoFactorPage.js";
 
 console.log("MAIN STARTED");
 
@@ -20,10 +19,6 @@ window.state = state;
 window.addEventListener("error", e => {
   console.error("GLOBAL ERROR:", e.error);
 });
-
-function requiresTwoFactor(profile) {
-  return profile && ["client", "hulpverlener"].includes(profile.role);
-}
 
 function fadeOutPreloader() {
   return new Promise(resolve => {
@@ -79,14 +74,6 @@ async function init() {
   if (!profileLoaded) {
     console.error("PROFILE FAILED");
     return;
-  }
-
-  if (requiresTwoFactor(state.profile) && !state.twoFactorVerified) {
-    const verified = await showTwoFactorVerification(state);
-    if (!verified) {
-      console.error("TWO-FAILURE");
-      return;
-    }
   }
 
   await routeAuthenticated();
