@@ -21,6 +21,7 @@ export async function showLogin(supabase) {
         <h1>
           SVBVD010
         </h1>
+        <p id="loginError" class="error-text hidden"></p>
 
         <button id="loginBtn">
           Inloggen met Microsoft
@@ -37,24 +38,55 @@ export async function showLogin(supabase) {
 
   if (loginBtn) {
     loginBtn.onclick = async () => {
-      const { error } = await supabase.auth.signInWithOAuth({
+      clearError();
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "azure",
         options: {
-          redirectTo: window.location.origin
+          redirectTo: "https://app.svbvd010.nl/"
         }
       });
 
       if (error) {
         console.error("MICROSOFT LOGIN ERROR:", error);
+        showError("Login fout: " + (error.message || JSON.stringify(error)));
+        return;
+      }
+
+      if (data?.url) {
+        window.location.href = data.url;
       }
     };
   }
 
   const googleBtn = document.getElementById("googleLoginBtn");
 
+  function showError(msg) {
+    const el = document.getElementById('loginError');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.remove('hidden');
+  }
+
+  function clearError() {
+    const el = document.getElementById('loginError');
+    if (!el) return;
+    el.textContent = '';
+    el.classList.add('hidden');
+  }
+
   if (googleBtn) {
     googleBtn.onclick = async () => {
-      await loginWithGoogle(supabase);
+      clearError();
+      const { data, error } = await loginWithGoogle(supabase);
+      if (error) {
+        console.error('GOOGLE LOGIN ERROR:', error);
+        showError('Google login fout: ' + (error.message || ''));
+        return;
+      }
+      if (data?.url) {
+        window.location.href = data.url;
+      }
     };
   }
 }

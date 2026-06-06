@@ -4,33 +4,19 @@ export async function checkSession(
 ) {
 
   try {
-
-    const {
-      data,
-      error
-    } = await supabase
-      .auth
-      .getSession();
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: "https://app.svbvd010.nl/"
+      }
+    });
 
     if (error) {
-
-      console.error(
-        "SESSION ERROR:",
-        error
-      );
-
-      return false;
+      console.error("GOOGLE LOGIN ERROR:", error);
+      return { data: null, error };
     }
 
-    if (!data?.session) {
-
-      console.log(
-        "GEEN SESSION"
-      );
-
-      return false;
-    }
-
+    return { data, error: null };
     state.session =
       data.session;
 
@@ -38,6 +24,7 @@ export async function checkSession(
       "SESSION OK"
     );
 
+    return { data: null, error: err };
     return true;
 
   } catch (err) {
@@ -316,8 +303,7 @@ export async function loginWithGoogle(
 
         options: {
 
-          redirectTo:
-            window.location.origin
+            redirectTo: "https://app.svbvd010.nl/"
         }
       });
 

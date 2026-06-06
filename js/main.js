@@ -16,6 +16,17 @@ const state = {
 window.supabase = supabase;
 window.state = state;
 
+// Listen for auth state changes to handle OAuth redirects
+supabase.auth.onAuthStateChange((event, session) => {
+  console.log("AUTH EVENT:", event, session);
+  if (event === "SIGNED_IN" && session) {
+    state.session = session;
+    (async () => {
+      const profileLoaded = await loadProfile(supabase, state);
+      if (profileLoaded) await routeAuthenticated();
+    })();
+  }
+});
 window.addEventListener("error", e => {
   console.error("GLOBAL ERROR:", e.error);
 });
